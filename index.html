@@ -498,6 +498,64 @@
                 flex-direction: column;
             }
         }
+
+        @media print {
+            /* Hide everything except results when printing */
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .header,
+            .intro-section,
+            .assessment-section,
+            .analyze-button,
+            .export-buttons,
+            #pdf-instructions-overlay {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .results {
+                display: block !important;
+                margin: 0;
+                padding: 20px;
+                border: none;
+                page-break-inside: avoid;
+            }
+
+            .result-header {
+                page-break-after: avoid;
+            }
+
+            .score-summary,
+            .issues-section,
+            .recommendations {
+                page-break-inside: avoid;
+            }
+
+            /* Ensure good contrast for printed PDF */
+            .result-status.pass {
+                color: #28a745 !important;
+            }
+
+            .result-status.fail {
+                color: #dc3545 !important;
+            }
+
+            .result-status.partial {
+                color: #ffc107 !important;
+            }
+
+            /* Add page numbers */
+            @page {
+                margin: 2cm;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1816,11 +1874,8 @@ Return ONLY the JSON, no other text.`;
                 </div>
 
                 <div class="export-buttons">
-                    <button class="export-button" onclick="generateReport(${JSON.stringify(analysis).replace(/"/g, '&quot;')})">
-                        📄 Generate Full Report
-                    </button>
-                    <button class="export-button" onclick="window.print()">
-                        🖨️ Print Results
+                    <button class="export-button" onclick="printToPDF()">
+                        📄 Save as PDF
                     </button>
                     <button class="export-button" onclick="location.reload()">
                         🔄 Start New Assessment
@@ -1869,9 +1924,141 @@ Return ONLY the JSON, no other text.`;
             return names[control] || control;
         }
 
-        function generateReport(analysis) {
-            alert('Report generation would create a downloadable PDF with your full assessment. This feature requires backend integration.');
+        function printToPDF() {
+            // Prompt for company name
+            const companyName = prompt(
+                'Please enter your company name for the PDF report:\n\n' +
+                'This will appear at the top of your assessment results.',
+                ''
+            );
+            
+            if (companyName === null) {
+                // User clicked Cancel
+                return;
+            }
+            
+            if (!companyName || companyName.trim() === '') {
+                alert('Company name is required to generate the PDF report.\n\nPlease click "Save as PDF" again and enter your company name.');
+                return;
+            }
+            
+            // Store company name and add to results
+            addCompanyNameToResults(companyName.trim());
+            
+            // Show PDF-specific instructions
+            showPDFInstructions();
+            
+            // Trigger browser print dialog (user must select "Save as PDF")
+            window.print();
+            
+            // Clean up after printing
+            setTimeout(() => {
+                removeCompanyNameFromResults();
+            }, 1000);
         }
+        
+        function addCompanyNameToResults(companyName) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Check if company name already exists
+            let companyHeader = document.getElementById('company-name-header');
+            if (!companyHeader) {
+                // Create company name header
+                companyHeader = document.createElement('div');
+                companyHeader.id = 'company-name-header';
+                companyHeader.style.cssText = `
+                    background: linear-gradient(135deg, #028090 0%, #00A896 100%);
+                    color: white;
+                    padding: 20px 30px;
+                    margin: -30px -30px 30px -30px;
+                    border-radius: 8px 8px 0 0;
+                `;
+                companyHeader.innerHTML = `
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">Assessment Report for:</div>
+                    <div style="font-size: 24px; font-weight: bold;">${companyName}</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Generated: ${new Date().toLocaleString()}</div>
+                `;
+                
+                // Insert at the beginning of results content
+                const resultHeader = resultsDiv.querySelector('.result-header');
+                resultsDiv.insertBefore(companyHeader, resultHeader);
+            } else {
+                // Update existing header
+                companyHeader.querySelector('div:nth-child(2)').textContent = companyName;
+                companyHeader.querySelector('div:nth-child(3)').textContent = `Generated: ${new Date().toLocaleString()}`;
+            }
+        }
+        
+        function removeCompanyNameFromResults() {
+            const companyHeader = document.getElementById('company-name-header');
+            if (companyHeader) {
+                companyHeader.remove();
+            }
+        }
+        
+        function showPDFInstructions() {
+            // Create instruction overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'pdf-instructions-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 40px;
+                    border-radius: 12px;
+                    max-width: 600px;
+                    text-align: center;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                ">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+                    <h2 style="color: #028090; margin-bottom: 20px; font-size: 28px;">Save Your Assessment as PDF</h2>
+                    <div style="text-align: left; margin-bottom: 30px; line-height: 1.8; color: #333;">
+                        <p style="margin-bottom: 15px;"><strong>Important Instructions:</strong></p>
+                        <ol style="padding-left: 20px;">
+                            <li style="margin-bottom: 10px;">In the print dialog, select <strong>"Save as PDF"</strong> or <strong>"Microsoft Print to PDF"</strong> as your printer</li>
+                            <li style="margin-bottom: 10px;">Click <strong>"Save"</strong> or <strong>"Print"</strong></li>
+                            <li style="margin-bottom: 10px;">Choose where to save your PDF file</li>
+                            <li style="margin-bottom: 10px;"><strong>Do NOT</strong> select a physical printer</li>
+                        </ol>
+                        <p style="margin-top: 20px; padding: 15px; background: #FFF3CD; border-left: 4px solid #FFC107; border-radius: 4px; font-size: 14px;">
+                            <strong>Note:</strong> If you don't see "Save as PDF" option, look for "Destination" or "Printer" dropdown and select PDF from there.
+                        </p>
+                    </div>
+                    <button onclick="closePDFInstructions()" style="
+                        background: linear-gradient(135deg, #028090 0%, #00A896 100%);
+                        color: white;
+                        border: none;
+                        padding: 15px 40px;
+                        font-size: 16px;
+                        font-weight: 600;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    ">I Understand - Open Print Dialog</button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+        
+        function closePDFInstructions() {
+            const overlay = document.getElementById('pdf-instructions-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
     </script>
 </body>
 </html>
