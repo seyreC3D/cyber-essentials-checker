@@ -2298,13 +2298,13 @@ Return ONLY the JSON, no other text.`;
         } else {
             // NO USER - REDIRECT TO LOGIN
             console.log('❌ No user - redirecting to login');
-            window.location.href = 'login-firebase.html';
+            window.location.href = 'index.html';
         }
     }, (error) => {
         // Error handler
         console.error('Auth error:', error);
         alert('Authentication error. Please try logging in again.');
-        window.location.href = 'login-firebase.html';
+        window.location.href = 'index.html';
     });
 
     // Logout function
@@ -2314,7 +2314,7 @@ Return ONLY the JSON, no other text.`;
                 console.log('Logging out...');
                 await signOut(auth);
                 localStorage.clear();
-                window.location.href = 'login-firebase.html';
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Logout error:', error);
                 alert('Error logging out: ' + error.message);
