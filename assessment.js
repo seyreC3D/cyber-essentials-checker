@@ -338,13 +338,13 @@ async function analyzeAssessment() {
 const API_PROXY_URL = '/api/analyze';
 
 async function analyzeWithProxy(responses) {
-    const prompt = buildAnalysisPrompt(responses);
+    const { systemPrompt, userPrompt } = buildAnalysisPrompt(responses);
 
     try {
         const response = await fetch(API_PROXY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: prompt })
+            body: JSON.stringify({ prompt: userPrompt, systemPrompt: systemPrompt })
         });
 
         if (!response.ok) {
@@ -377,58 +377,102 @@ async function analyzeWithProxy(responses) {
 }
 
 function buildAnalysisPrompt(responses) {
-    return `You are a Cyber Essentials certification expert. Analyze the following assessment responses and provide a detailed evaluation.
+    const controlLabels = {
+        firewalls: 'Firewalls',
+        secureConfig: 'Secure Configuration',
+        updates: 'Security Update Management',
+        accessControl: 'User Access Control',
+        malware: 'Malware Protection',
+        scope: 'Scope & Context'
+    };
 
-RESPONSES:
-${JSON.stringify(responses, null, 2)}
+    let readableResponses = '';
+    Object.entries(responses.controls).forEach(([control, questions]) => {
+        readableResponses += `\n### ${controlLabels[control] || control}\n`;
+        Object.entries(questions).forEach(([id, answer]) => {
+            const status = answer.value.toUpperCase();
+            const critical = answer.critical ? ' [CRITICAL]' : '';
+            readableResponses += `- ${answer.text} → ${status}${critical}\n`;
+        });
+    });
 
-Provide your analysis in the following JSON format:
+    let additionalContext = '';
+    const ti = responses.textInputs;
+    if (ti.firewallDetails) additionalContext += `\nFirewall solution(s): ${ti.firewallDetails}`;
+    if (ti.malwareDetails) additionalContext += `\nAnti-malware solution(s): ${ti.malwareDetails}`;
+    if (ti.outdatedSoftware && ti.outdatedSoftware.toLowerCase() !== 'none')
+        additionalContext += `\nOutdated software reported: ${ti.outdatedSoftware}`;
+    if (ti.cloudServices) additionalContext += `\nCloud services in use: ${ti.cloudServices}`;
+    if (ti.deviceCount) additionalContext += `\nDevices in scope: ${ti.deviceCount}`;
+    if (ti.backupDetails) additionalContext += `\nBackup procedures: ${ti.backupDetails}`;
+    if (ti.incidentDetails) additionalContext += `\nIncident response: ${ti.incidentDetails}`;
+
+    return {
+        systemPrompt: buildSystemPrompt(),
+        userPrompt: buildUserPrompt(readableResponses, additionalContext)
+    };
+}
+
+function buildSystemPrompt() {
+    return `You are a UK Cyber Essentials (v3.3) certification expert and assessor. Your role is to evaluate small business self-assessment responses against the five technical controls:
+
+1. Firewalls
+2. Secure Configuration
+3. Security Update Management
+4. User Access Control
+5. Malware Protection
+
+RULES:
+- Only assess based on the answers provided. Do NOT assume or infer capabilities the user has not stated.
+- Treat "unsure" or "I don't know" answers as FAILURES — if a business cannot confirm a control is in place, it is not in place.
+- Treat "partial" answers as WARNINGS — partially implemented controls need remediation.
+- A single critical failure in ANY control means FAIL for that control and overall FAIL for certification.
+- Be specific and actionable in recommendations. Reference the exact Cyber Essentials requirement where possible.
+- Scoring: 100% = all questions in the control answered "pass". Deduct proportionally for failures. "unsure" on a critical question = 0 points for that question.
+
+IMPORTANT: Return ONLY valid JSON. No markdown fences, no commentary outside the JSON object.`;
+}
+
+function buildUserPrompt(readableResponses, additionalContext) {
+    return `Evaluate this Cyber Essentials self-assessment:
+
+## Assessment Responses
+${readableResponses}
+${additionalContext ? `\n## Additional Context\n${additionalContext}` : ''}
+
+Respond with this exact JSON structure:
 
 {
   "overallStatus": "PASS" | "FAIL" | "NEEDS_WORK",
-  "readinessScore": <number 0-100>,
+  "readinessScore": <0-100>,
   "criticalIssuesCount": <number>,
   "controlScores": {
-    "firewalls": <number 0-100>,
-    "secureConfig": <number 0-100>,
-    "updates": <number 0-100>,
-    "accessControl": <number 0-100>,
-    "malware": <number 0-100>
+    "firewalls": <0-100>,
+    "secureConfig": <0-100>,
+    "updates": <0-100>,
+    "accessControl": <0-100>,
+    "malware": <0-100>
   },
   "criticalIssues": [
     {
-      "control": "<control name>",
-      "issue": "<issue description>",
-      "impact": "<why this matters>",
-      "action": "<what to do to fix it>"
+      "control": "<control key e.g. firewalls, secureConfig, updates, accessControl, malware>",
+      "issue": "<what is wrong>",
+      "impact": "<business risk and CE requirement reference>",
+      "action": "<specific remediation step>"
     }
   ],
   "warnings": [
     {
-      "control": "<control name>",
-      "warning": "<warning description>",
-      "recommendation": "<recommendation>"
+      "control": "<control key>",
+      "warning": "<description>",
+      "recommendation": "<actionable fix>"
     }
   ],
-  "strengths": [
-    "<strength 1>",
-    "<strength 2>"
-  ],
-  "nextSteps": [
-    "<step 1>",
-    "<step 2>"
-  ],
-  "summary": "<2-3 sentence overall assessment>",
-  "timeline": "<estimated time to achieve certification readiness>"
-}
-
-Focus on:
-1. Critical failures that would prevent certification
-2. Mandatory requirements from Cyber Essentials v3.3
-3. Practical, actionable recommendations
-4. Clear prioritization of what to fix first
-
-Return ONLY the JSON, no other text.`;
+  "strengths": ["<strength>"],
+  "nextSteps": ["<prioritised step>"],
+  "summary": "<2-3 sentence assessment>",
+  "timeline": "<estimated time to readiness>"
+}`;
 }
 
 function parseClaudeResponse(text, responses) {

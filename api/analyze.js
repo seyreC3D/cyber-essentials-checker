@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured on the server.' });
     }
 
-    const { prompt } = req.body || {};
+    const { prompt, systemPrompt } = req.body || {};
     if (!prompt || typeof prompt !== 'string') {
         return res.status(400).json({ error: 'Missing or invalid "prompt" in request body.' });
     }
@@ -37,6 +37,11 @@ export default async function handler(req, res) {
     if (prompt.length > 50000) {
         return res.status(400).json({ error: 'Prompt too long.' });
     }
+
+    // Validate systemPrompt if provided
+    const system = (typeof systemPrompt === 'string' && systemPrompt.length <= 10000)
+        ? systemPrompt
+        : '';
 
     try {
         const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -47,8 +52,10 @@ export default async function handler(req, res) {
                 'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
+                model: 'claude-sonnet-4-5-20250929',
                 max_tokens: 4000,
+                temperature: 0.2,
+                ...(system ? { system } : {}),
                 messages: [{ role: 'user', content: prompt }]
             })
         });
