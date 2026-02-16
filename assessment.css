@@ -603,10 +603,16 @@ body {
          * area where the page URL, date, and page numbers are printed.
          * Content spacing is handled by body padding below instead.
          */
-        margin: 0;
+        size: auto;
+        margin: 0mm;
     }
 
     body {
         padding: 2cm;
+    }
+
+    /* Prevent browsers from appending URLs after links when printing */
+    a[href]::after {
+        content: none !important;
     }
 }

@@ -999,9 +999,9 @@ function showPDFInstructions(companyName) {
         <p style="margin-bottom: 15px;"><strong>Important Instructions:</strong></p>
         <ol style="padding-left: 20px; margin: 0;">
             <li style="margin-bottom: 10px;">In the print dialog, select <strong>"Save as PDF"</strong> or <strong>"Microsoft Print to PDF"</strong> as your printer</li>
+            <li style="margin-bottom: 10px;">Under <strong>"More settings"</strong>, uncheck <strong>"Headers and footers"</strong> to remove the URL from the page</li>
             <li style="margin-bottom: 10px;">Click <strong>"Save"</strong> or <strong>"Print"</strong></li>
             <li style="margin-bottom: 10px;">Choose where to save your PDF file</li>
-            <li style="margin-bottom: 10px;"><strong>Do NOT</strong> select a physical printer</li>
         </ol>
         <p style="margin-top: 20px; padding: 15px; background: #FFF3CD; border-left: 4px solid #FFC107; border-radius: 4px; font-size: 14px;">
             <strong>Note:</strong> If you don't see "Save as PDF" option, look for "Destination" or "Printer" dropdown and select PDF from there.
