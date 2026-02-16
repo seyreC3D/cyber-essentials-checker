@@ -572,16 +572,23 @@ body {
         margin: 0;
         padding: 20px;
         border: none;
-        page-break-inside: avoid;
+    }
+
+    /* Keep headings attached to the content that follows */
+    h3 {
+        page-break-after: avoid;
     }
 
     .result-header {
         page-break-after: avoid;
     }
 
-    .score-summary,
-    .issues-section,
-    .recommendations {
+    /* Protect individual atomic boxes from splitting across pages */
+    .score-card,
+    .issue-item,
+    .warning-item,
+    .recommendation-item,
+    .appendix-item {
         page-break-inside: avoid;
     }
 

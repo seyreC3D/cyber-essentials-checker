@@ -768,6 +768,7 @@ function displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resul
 
         analysis.warnings.forEach(warning => {
             const warnBox = document.createElement('div');
+            warnBox.className = 'warning-item';
             warnBox.style.cssText = 'background: #fff9e6; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 10px; border-radius: 4px;';
 
             const wTitle = document.createElement('div');
@@ -1125,6 +1126,7 @@ function addAppendixToResults() {
         const value = el.value.trim();
 
         const item = document.createElement('div');
+        item.className = 'appendix-item';
         item.style.cssText = 'margin-bottom: 18px; padding: 15px; background: #f8f9fa; border-left: 4px solid #00A896; border-radius: 4px;';
 
         const label = document.createElement('div');
