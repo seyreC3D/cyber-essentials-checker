@@ -4,596 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Essentials Readiness Checker - Powered by Cyber 3D</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 16px;
-            opacity: 0.95;
-        }
-
-        .logout-button {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .logout-button:hover {
-            background: white;
-            color: #028090;
-        }
-
-        .user-info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            padding: 30px;
-        }
-
-        .intro-section {
-            background: #F0F9FA;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 4px solid #028090;
-        }
-
-        .intro-section h2 {
-            color: #028090;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .intro-section p {
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .assessment-section {
-            margin-bottom: 40px;
-        }
-
-        .control-header {
-            background: #028090;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .control-header:hover {
-            background: #01697a;
-        }
-
-        .control-number {
-            background: white;
-            color: #028090;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .control-title {
-            flex: 1;
-        }
-
-        .control-title h3 {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-
-        .control-title p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .toggle-icon {
-            font-size: 24px;
-            transition: transform 0.3s;
-        }
-
-        .toggle-icon.expanded {
-            transform: rotate(180deg);
-        }
-
-        .control-content {
-            background: #f8f9fa;
-            border: 2px solid #028090;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            padding: 25px;
-            display: none;
-        }
-
-        .control-content.expanded {
-            display: block;
-        }
-
-        .question {
-            background: white;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #00A896;
-        }
-
-        .question-text {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .question-help {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-            font-style: italic;
-            padding-left: 10px;
-            border-left: 2px solid #ddd;
-        }
-
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .option {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .option:hover {
-            border-color: #028090;
-            background: #f0f9fa;
-        }
-
-        .option input[type="radio"] {
-            margin-right: 12px;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .option.selected {
-            border-color: #028090;
-            background: #f0f9fa;
-            font-weight: 500;
-        }
-
-        .option.fail {
-            border-color: #dc3545;
-            background: #fff5f5;
-        }
-
-        .text-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .text-input:focus {
-            outline: none;
-            border-color: #028090;
-        }
-
-        .analyze-button {
-            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 30px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .analyze-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(2, 128, 144, 0.3);
-        }
-
-        .analyze-button:active {
-            transform: translateY(0);
-        }
-
-        .analyze-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .results {
-            margin-top: 30px;
-            padding: 30px;
-            background: white;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            display: none;
-        }
-
-        .results.show {
-            display: block;
-        }
-
-        .result-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .result-status {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .result-status.pass {
-            color: #28a745;
-        }
-
-        .result-status.fail {
-            color: #dc3545;
-        }
-
-        .result-status.partial {
-            color: #ffc107;
-        }
-
-        .result-title {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .result-subtitle {
-            font-size: 18px;
-            color: #666;
-        }
-
-        .score-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .score-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-        }
-
-        .score-value {
-            font-size: 36px;
-            font-weight: bold;
-            color: #028090;
-            margin-bottom: 5px;
-        }
-
-        .score-label {
-            font-size: 14px;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .issues-section {
-            margin-bottom: 30px;
-        }
-
-        .issue-category {
-            margin-bottom: 20px;
-        }
-
-        .issue-category h3 {
-            color: #dc3545;
-            margin-bottom: 15px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .issue-item {
-            background: #fff5f5;
-            border-left: 4px solid #dc3545;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-
-        .issue-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .issue-description {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .issue-action {
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            border: 1px solid #dc3545;
-        }
-
-        .issue-action strong {
-            color: #dc3545;
-        }
-
-        .recommendations {
-            background: #f0f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #028090;
-        }
-
-        .recommendations h3 {
-            color: #028090;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-
-        .recommendation-item {
-            margin-bottom: 15px;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .recommendation-item:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #28a745;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 30px;
-            background: #e0e0e0;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #028090 0%, #00A896 100%);
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        .ai-analysis {
-            background: #fff9e6;
-            border: 2px solid #ffc107;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-
-        .ai-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .ai-icon {
-            font-size: 24px;
-        }
-
-        .ai-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #856404;
-        }
-
-        .ai-content {
-            color: #333;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .loading {
-            display: inline-block;
-            margin-left: 10px;
-        }
-
-        .loading:after {
-            content: '.';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60% { content: '...'; }
-            80%, 100% { content: ''; }
-        }
-
-        .export-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .export-button {
-            flex: 1;
-            padding: 12px 24px;
-            border: 2px solid #028090;
-            background: white;
-            color: #028090;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .export-button:hover {
-            background: #028090;
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 20px;
-            }
-
-            .score-summary {
-                grid-template-columns: 1fr;
-            }
-
-            .export-buttons {
-                flex-direction: column;
-            }
-        }
-
-        @media print {
-            /* Hide everything except results when printing */
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .header,
-            .intro-section,
-            .assessment-section,
-            .analyze-button,
-            .export-buttons,
-            #pdf-instructions-overlay {
-                display: none !important;
-            }
-
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-            }
-
-            .results {
-                display: block !important;
-                margin: 0;
-                padding: 20px;
-                border: none;
-                page-break-inside: avoid;
-            }
-
-            .result-header {
-                page-break-after: avoid;
-            }
-
-            .score-summary,
-            .issues-section,
-            .recommendations {
-                page-break-inside: avoid;
-            }
-
-            /* Ensure good contrast for printed PDF */
-            .result-status.pass {
-                color: #28a745 !important;
-            }
-
-            .result-status.fail {
-                color: #dc3545 !important;
-            }
-
-            .result-status.partial {
-                color: #ffc107 !important;
-            }
-
-            /* Add page numbers */
-            @page {
-                margin: 2cm;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assessment.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="user-info" id="user-info"></div>
             <button class="logout-button" id="logout-button" onclick="logout()">Logout</button>
-            <h1>🛡️ Cyber Essentials Readiness Checker - Powered by Cyber 3D </h1>
+            <h1>Cyber Essentials Readiness Checker - Powered by Cyber 3D</h1>
             <p>AI-Powered Assessment Tool for Small Businesses</p>
         </div>
 
@@ -612,25 +30,16 @@
                         <h3>Firewalls</h3>
                         <p>Block unauthorized access to your network</p>
                     </div>
-                    <div class="toggle-icon" id="toggle-1">▼</div>
+                    <div class="toggle-icon" id="toggle-1">&#9660;</div>
                 </div>
                 <div class="control-content" id="content-1">
                     <div class="question" data-control="1" data-critical="true">
                         <div class="question-text">Are all your work devices (computers, laptops, servers) protected by a firewall?</div>
                         <div class="question-help">This includes built-in software firewalls or network firewalls. Every device must have protection.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q1_1" value="pass">
-                                <span>Yes, all devices are protected by firewalls (built-in or network)</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_1" value="fail">
-                                <span>No, some devices don't have firewall protection</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_1" value="unsure">
-                                <span>I'm not sure</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q1_1" value="pass"><span>Yes, all devices are protected by firewalls (built-in or network)</span></label>
+                            <label class="option"><input type="radio" name="q1_1" value="fail"><span>No, some devices don't have firewall protection</span></label>
+                            <label class="option"><input type="radio" name="q1_1" value="unsure"><span>I'm not sure</span></label>
                         </div>
                     </div>
 
@@ -638,18 +47,9 @@
                         <div class="question-text">Have you changed all default passwords on routers, firewalls, and network devices?</div>
                         <div class="question-help">Default passwords like "admin/admin" are publicly known and must be changed.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q1_2" value="pass">
-                                <span>Yes, all default passwords have been changed to strong, unique passwords</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_2" value="fail">
-                                <span>No, we're still using default passwords on some devices</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_2" value="unsure">
-                                <span>I'm not sure what the current passwords are</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q1_2" value="pass"><span>Yes, all default passwords have been changed to strong, unique passwords</span></label>
+                            <label class="option"><input type="radio" name="q1_2" value="fail"><span>No, we're still using default passwords on some devices</span></label>
+                            <label class="option"><input type="radio" name="q1_2" value="unsure"><span>I'm not sure what the current passwords are</span></label>
                         </div>
                     </div>
 
@@ -657,18 +57,9 @@
                         <div class="question-text">Are your firewalls configured to block incoming connections by default?</div>
                         <div class="question-help">This is the "deny all" approach - block everything unless specifically allowed.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q1_3" value="pass">
-                                <span>Yes, incoming connections are blocked by default</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_3" value="fail">
-                                <span>No, our firewalls allow incoming connections by default</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_3" value="unsure">
-                                <span>I don't know our firewall configuration</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q1_3" value="pass"><span>Yes, incoming connections are blocked by default</span></label>
+                            <label class="option"><input type="radio" name="q1_3" value="fail"><span>No, our firewalls allow incoming connections by default</span></label>
+                            <label class="option"><input type="radio" name="q1_3" value="unsure"><span>I don't know our firewall configuration</span></label>
                         </div>
                     </div>
 
@@ -676,18 +67,9 @@
                         <div class="question-text">Do you document and approve all firewall rules that allow inbound connections?</div>
                         <div class="question-help">You must keep records of what's allowed through and why there's a business need.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q1_4" value="pass">
-                                <span>Yes, all firewall rules are documented with business justification</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_4" value="fail">
-                                <span>No, we don't document firewall rules</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_4" value="partial">
-                                <span>We have some documentation but it's incomplete</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q1_4" value="pass"><span>Yes, all firewall rules are documented with business justification</span></label>
+                            <label class="option"><input type="radio" name="q1_4" value="fail"><span>No, we don't document firewall rules</span></label>
+                            <label class="option"><input type="radio" name="q1_4" value="partial"><span>We have some documentation but it's incomplete</span></label>
                         </div>
                     </div>
 
@@ -695,18 +77,9 @@
                         <div class="question-text">Are employees who work remotely or use public WiFi using software firewalls on their devices?</div>
                         <div class="question-help">Public networks are untrusted - devices need their own firewall protection.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q1_5" value="pass">
-                                <span>Yes, all remote workers have software firewalls enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_5" value="fail">
-                                <span>No, remote devices don't have software firewalls</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q1_5" value="na">
-                                <span>Not applicable - we don't have remote workers</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q1_5" value="pass"><span>Yes, all remote workers have software firewalls enabled</span></label>
+                            <label class="option"><input type="radio" name="q1_5" value="fail"><span>No, remote devices don't have software firewalls</span></label>
+                            <label class="option"><input type="radio" name="q1_5" value="na"><span>Not applicable - we don't have remote workers</span></label>
                         </div>
                     </div>
 
@@ -726,25 +99,16 @@
                         <h3>Secure Configuration</h3>
                         <p>Set up devices and software safely from the start</p>
                     </div>
-                    <div class="toggle-icon" id="toggle-2">▼</div>
+                    <div class="toggle-icon" id="toggle-2">&#9660;</div>
                 </div>
                 <div class="control-content" id="content-2">
                     <div class="question" data-control="2" data-critical="true">
                         <div class="question-text">Have you removed or disabled unnecessary user accounts (like guest accounts)?</div>
                         <div class="question-help">Unused accounts are security risks. Only active, needed accounts should exist.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q2_1" value="pass">
-                                <span>Yes, all unnecessary accounts have been removed/disabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_1" value="fail">
-                                <span>No, we still have guest accounts or other unnecessary accounts enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_1" value="unsure">
-                                <span>I'm not sure what accounts exist on our systems</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q2_1" value="pass"><span>Yes, all unnecessary accounts have been removed/disabled</span></label>
+                            <label class="option"><input type="radio" name="q2_1" value="fail"><span>No, we still have guest accounts or other unnecessary accounts enabled</span></label>
+                            <label class="option"><input type="radio" name="q2_1" value="unsure"><span>I'm not sure what accounts exist on our systems</span></label>
                         </div>
                     </div>
 
@@ -752,18 +116,9 @@
                         <div class="question-text">Have you removed or disabled unnecessary software and applications?</div>
                         <div class="question-help">Unnecessary software increases your attack surface. Only keep what you actually use.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q2_2" value="pass">
-                                <span>Yes, we regularly review and remove unused software</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_2" value="fail">
-                                <span>No, devices have pre-installed software we don't use</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_2" value="partial">
-                                <span>We've removed some but haven't done a complete review</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q2_2" value="pass"><span>Yes, we regularly review and remove unused software</span></label>
+                            <label class="option"><input type="radio" name="q2_2" value="fail"><span>No, devices have pre-installed software we don't use</span></label>
+                            <label class="option"><input type="radio" name="q2_2" value="partial"><span>We've removed some but haven't done a complete review</span></label>
                         </div>
                     </div>
 
@@ -771,18 +126,9 @@
                         <div class="question-text">Is auto-run/auto-execute disabled on all devices?</div>
                         <div class="question-help">Auto-run allows files to execute without user permission - this must be disabled.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q2_3" value="pass">
-                                <span>Yes, auto-run is disabled on all devices</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_3" value="fail">
-                                <span>No, auto-run is still enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_3" value="unsure">
-                                <span>I don't know if auto-run is enabled or disabled</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q2_3" value="pass"><span>Yes, auto-run is disabled on all devices</span></label>
+                            <label class="option"><input type="radio" name="q2_3" value="fail"><span>No, auto-run is still enabled</span></label>
+                            <label class="option"><input type="radio" name="q2_3" value="unsure"><span>I don't know if auto-run is enabled or disabled</span></label>
                         </div>
                     </div>
 
@@ -790,14 +136,8 @@
                         <div class="question-text">Do all devices require authentication before accessing organizational data or services?</div>
                         <div class="question-help">Users must prove who they are before getting access to business systems.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q2_4" value="pass">
-                                <span>Yes, all devices require authentication before access</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_4" value="fail">
-                                <span>No, some devices/services can be accessed without authentication</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q2_4" value="pass"><span>Yes, all devices require authentication before access</span></label>
+                            <label class="option"><input type="radio" name="q2_4" value="fail"><span>No, some devices/services can be accessed without authentication</span></label>
                         </div>
                     </div>
 
@@ -805,18 +145,9 @@
                         <div class="question-text">Do all devices have screen lock enabled with a password/PIN of at least 6 characters?</div>
                         <div class="question-help">Devices must lock when not in use and require credentials to unlock.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q2_5" value="pass">
-                                <span>Yes, all devices have screen lock with 6+ character password/PIN</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_5" value="fail">
-                                <span>No, some devices don't have screen lock or use shorter PINs</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q2_5" value="partial">
-                                <span>Most devices have screen lock but I'm not sure about all of them</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q2_5" value="pass"><span>Yes, all devices have screen lock with 6+ character password/PIN</span></label>
+                            <label class="option"><input type="radio" name="q2_5" value="fail"><span>No, some devices don't have screen lock or use shorter PINs</span></label>
+                            <label class="option"><input type="radio" name="q2_5" value="partial"><span>Most devices have screen lock but I'm not sure about all of them</span></label>
                         </div>
                     </div>
                 </div>
@@ -830,25 +161,16 @@
                         <h3>Security Update Management</h3>
                         <p>Keep all software up to date with security patches</p>
                     </div>
-                    <div class="toggle-icon" id="toggle-3">▼</div>
+                    <div class="toggle-icon" id="toggle-3">&#9660;</div>
                 </div>
                 <div class="control-content" id="content-3">
                     <div class="question" data-control="3" data-critical="true">
                         <div class="question-text">Is all software on your devices licensed and currently supported by the vendor?</div>
                         <div class="question-help">Unsupported software (like Windows 7) no longer receives security updates and must be removed.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q3_1" value="pass">
-                                <span>Yes, all software is licensed and supported</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_1" value="fail">
-                                <span>No, we have some unsupported or unlicensed software</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_1" value="unsure">
-                                <span>I'm not sure about the support status of all our software</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q3_1" value="pass"><span>Yes, all software is licensed and supported</span></label>
+                            <label class="option"><input type="radio" name="q3_1" value="fail"><span>No, we have some unsupported or unlicensed software</span></label>
+                            <label class="option"><input type="radio" name="q3_1" value="unsure"><span>I'm not sure about the support status of all our software</span></label>
                         </div>
                     </div>
 
@@ -856,18 +178,9 @@
                         <div class="question-text">Are automatic updates enabled wherever possible?</div>
                         <div class="question-help">Automatic updates help ensure you don't miss critical security patches.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q3_2" value="pass">
-                                <span>Yes, automatic updates are enabled on all devices</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_2" value="fail">
-                                <span>No, automatic updates are disabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_2" value="partial">
-                                <span>Automatic updates are enabled on some but not all devices</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q3_2" value="pass"><span>Yes, automatic updates are enabled on all devices</span></label>
+                            <label class="option"><input type="radio" name="q3_2" value="fail"><span>No, automatic updates are disabled</span></label>
+                            <label class="option"><input type="radio" name="q3_2" value="partial"><span>Automatic updates are enabled on some but not all devices</span></label>
                         </div>
                     </div>
 
@@ -875,18 +188,9 @@
                         <div class="question-text">Do you install critical/high-risk security updates within 14 days of release?</div>
                         <div class="question-help">Critical updates (CVSS score 7+) must be applied within 14 days. This is mandatory.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q3_3" value="pass">
-                                <span>Yes, we install critical updates within 14 days</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_3" value="fail">
-                                <span>No, updates often take longer than 14 days</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_3" value="unsure">
-                                <span>We install updates but don't track timing</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q3_3" value="pass"><span>Yes, we install critical updates within 14 days</span></label>
+                            <label class="option"><input type="radio" name="q3_3" value="fail"><span>No, updates often take longer than 14 days</span></label>
+                            <label class="option"><input type="radio" name="q3_3" value="unsure"><span>We install updates but don't track timing</span></label>
                         </div>
                     </div>
 
@@ -894,14 +198,8 @@
                         <div class="question-text">Do you have a process to track when software will become unsupported?</div>
                         <div class="question-help">Knowing when support ends lets you plan upgrades before it's too late.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q3_4" value="pass">
-                                <span>Yes, we track support end dates and plan accordingly</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q3_4" value="fail">
-                                <span>No, we don't track support lifecycles</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q3_4" value="pass"><span>Yes, we track support end dates and plan accordingly</span></label>
+                            <label class="option"><input type="radio" name="q3_4" value="fail"><span>No, we don't track support lifecycles</span></label>
                         </div>
                     </div>
 
@@ -921,21 +219,15 @@
                         <h3>User Access Control</h3>
                         <p>Manage who can access what in your organization</p>
                     </div>
-                    <div class="toggle-icon" id="toggle-4">▼</div>
+                    <div class="toggle-icon" id="toggle-4">&#9660;</div>
                 </div>
                 <div class="control-content" id="content-4">
                     <div class="question" data-control="4" data-critical="true">
                         <div class="question-text">Does every user have their own unique account (no shared logins)?</div>
                         <div class="question-help">Shared accounts make it impossible to track who did what. Everyone needs their own login.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q4_1" value="pass">
-                                <span>Yes, every person has their own unique account</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_1" value="fail">
-                                <span>No, some people share accounts</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q4_1" value="pass"><span>Yes, every person has their own unique account</span></label>
+                            <label class="option"><input type="radio" name="q4_1" value="fail"><span>No, some people share accounts</span></label>
                         </div>
                     </div>
 
@@ -943,18 +235,9 @@
                         <div class="question-text">Do you promptly remove or disable accounts when people leave the organization?</div>
                         <div class="question-help">Former employees shouldn't retain access. Accounts should be disabled immediately.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q4_2" value="pass">
-                                <span>Yes, accounts are disabled/removed when people leave</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_2" value="fail">
-                                <span>No, we don't have a consistent process for this</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_2" value="partial">
-                                <span>We do this but sometimes there are delays</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q4_2" value="pass"><span>Yes, accounts are disabled/removed when people leave</span></label>
+                            <label class="option"><input type="radio" name="q4_2" value="fail"><span>No, we don't have a consistent process for this</span></label>
+                            <label class="option"><input type="radio" name="q4_2" value="partial"><span>We do this but sometimes there are delays</span></label>
                         </div>
                     </div>
 
@@ -962,18 +245,9 @@
                         <div class="question-text">Is Multi-Factor Authentication (MFA) enabled on ALL cloud services?</div>
                         <div class="question-help">This is MANDATORY. Office 365, Google Workspace, Dropbox, etc. must all have MFA enabled.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q4_3" value="pass">
-                                <span>Yes, MFA is enabled on all cloud services</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_3" value="fail">
-                                <span>No, some cloud services don't have MFA enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_3" value="unsure">
-                                <span>I'm not sure if all services have MFA</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q4_3" value="pass"><span>Yes, MFA is enabled on all cloud services</span></label>
+                            <label class="option"><input type="radio" name="q4_3" value="fail"><span>No, some cloud services don't have MFA enabled</span></label>
+                            <label class="option"><input type="radio" name="q4_3" value="unsure"><span>I'm not sure if all services have MFA</span></label>
                         </div>
                     </div>
 
@@ -981,18 +255,9 @@
                         <div class="question-text">Do administrators use separate accounts for admin tasks vs. regular work?</div>
                         <div class="question-help">Admin accounts should ONLY be used for administrative tasks, not email or web browsing.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q4_4" value="pass">
-                                <span>Yes, admins have separate accounts for admin work</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_4" value="fail">
-                                <span>No, admins use one account for everything</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_4" value="na">
-                                <span>Not applicable - we don't have admin accounts</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q4_4" value="pass"><span>Yes, admins have separate accounts for admin work</span></label>
+                            <label class="option"><input type="radio" name="q4_4" value="fail"><span>No, admins use one account for everything</span></label>
+                            <label class="option"><input type="radio" name="q4_4" value="na"><span>Not applicable - we don't have admin accounts</span></label>
                         </div>
                     </div>
 
@@ -1000,22 +265,10 @@
                         <div class="question-text">What password approach do you use?</div>
                         <div class="question-help">You must use one of these approaches to meet Cyber Essentials requirements.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q4_5" value="pass">
-                                <span>MFA with 8+ character passwords</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_5" value="pass">
-                                <span>12+ character passwords (no MFA required)</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_5" value="pass">
-                                <span>8+ character passwords with common password blocking</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_5" value="fail">
-                                <span>None of the above / shorter passwords without MFA</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q4_5" value="pass"><span>MFA with 8+ character passwords</span></label>
+                            <label class="option"><input type="radio" name="q4_5" value="pass"><span>12+ character passwords (no MFA required)</span></label>
+                            <label class="option"><input type="radio" name="q4_5" value="pass"><span>8+ character passwords with common password blocking</span></label>
+                            <label class="option"><input type="radio" name="q4_5" value="fail"><span>None of the above / shorter passwords without MFA</span></label>
                         </div>
                     </div>
 
@@ -1023,18 +276,9 @@
                         <div class="question-text">Do you have protection against password guessing (throttling or account lockout)?</div>
                         <div class="question-help">After failed login attempts, the system should slow down or lock the account.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q4_6" value="pass">
-                                <span>Yes, we have throttling or lockout (max 10 attempts in 5 min)</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_6" value="fail">
-                                <span>No protection against brute force attacks</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q4_6" value="unsure">
-                                <span>I'm not sure</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q4_6" value="pass"><span>Yes, we have throttling or lockout (max 10 attempts in 5 min)</span></label>
+                            <label class="option"><input type="radio" name="q4_6" value="fail"><span>No protection against brute force attacks</span></label>
+                            <label class="option"><input type="radio" name="q4_6" value="unsure"><span>I'm not sure</span></label>
                         </div>
                     </div>
                 </div>
@@ -1048,25 +292,16 @@
                         <h3>Malware Protection</h3>
                         <p>Defend against viruses and malicious software</p>
                     </div>
-                    <div class="toggle-icon" id="toggle-5">▼</div>
+                    <div class="toggle-icon" id="toggle-5">&#9660;</div>
                 </div>
                 <div class="control-content" id="content-5">
                     <div class="question" data-control="5" data-critical="true">
                         <div class="question-text">What malware protection do you use?</div>
                         <div class="question-help">You must use at least one of these options on all devices.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q5_1" value="pass">
-                                <span>Anti-malware software (Windows Defender, Norton, etc.) - active and updated</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_1" value="pass">
-                                <span>Application allow listing (only approved apps can run)</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_1" value="fail">
-                                <span>No malware protection or it's not active/updated</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q5_1" value="pass"><span>Anti-malware software (Windows Defender, Norton, etc.) - active and updated</span></label>
+                            <label class="option"><input type="radio" name="q5_1" value="pass"><span>Application allow listing (only approved apps can run)</span></label>
+                            <label class="option"><input type="radio" name="q5_1" value="fail"><span>No malware protection or it's not active/updated</span></label>
                         </div>
                     </div>
 
@@ -1074,18 +309,9 @@
                         <div class="question-text">Is anti-malware software enabled and running on all devices?</div>
                         <div class="question-help">The software must be active, not just installed. It should run automatically.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q5_2" value="pass">
-                                <span>Yes, anti-malware is active on all devices</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_2" value="fail">
-                                <span>No, it's disabled on some devices or not installed</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_2" value="na">
-                                <span>N/A - using application allow listing instead</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q5_2" value="pass"><span>Yes, anti-malware is active on all devices</span></label>
+                            <label class="option"><input type="radio" name="q5_2" value="fail"><span>No, it's disabled on some devices or not installed</span></label>
+                            <label class="option"><input type="radio" name="q5_2" value="na"><span>N/A - using application allow listing instead</span></label>
                         </div>
                     </div>
 
@@ -1093,18 +319,9 @@
                         <div class="question-text">Is anti-malware software kept up to date automatically?</div>
                         <div class="question-help">Virus definitions must be current to protect against new threats.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q5_3" value="pass">
-                                <span>Yes, automatic updates are enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_3" value="fail">
-                                <span>No, updates are manual or not happening</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_3" value="na">
-                                <span>N/A - using application allow listing instead</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q5_3" value="pass"><span>Yes, automatic updates are enabled</span></label>
+                            <label class="option"><input type="radio" name="q5_3" value="fail"><span>No, updates are manual or not happening</span></label>
+                            <label class="option"><input type="radio" name="q5_3" value="na"><span>N/A - using application allow listing instead</span></label>
                         </div>
                     </div>
 
@@ -1112,18 +329,9 @@
                         <div class="question-text">Does your anti-malware prevent connections to known malicious websites?</div>
                         <div class="question-help">Good anti-malware blocks access to dangerous sites before you can visit them.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q5_4" value="pass">
-                                <span>Yes, malicious website blocking is enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_4" value="fail">
-                                <span>No, this feature isn't enabled</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q5_4" value="unsure">
-                                <span>I don't know if this feature is enabled</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q5_4" value="pass"><span>Yes, malicious website blocking is enabled</span></label>
+                            <label class="option"><input type="radio" name="q5_4" value="fail"><span>No, this feature isn't enabled</span></label>
+                            <label class="option"><input type="radio" name="q5_4" value="unsure"><span>I don't know if this feature is enabled</span></label>
                         </div>
                     </div>
 
@@ -1138,26 +346,20 @@
             <!-- Scope Questions -->
             <div class="assessment-section">
                 <div class="control-header" onclick="toggleControl(6)">
-                    <div class="control-number">📋</div>
+                    <div class="control-number">&#128203;</div>
                     <div class="control-title">
-                        <h3>Scope & Context</h3>
+                        <h3>Scope &amp; Context</h3>
                         <p>Understanding what's in scope for your assessment</p>
                     </div>
-                    <div class="toggle-icon" id="toggle-6">▼</div>
+                    <div class="toggle-icon" id="toggle-6">&#9660;</div>
                 </div>
                 <div class="control-content" id="content-6">
                     <div class="question" data-control="6" data-critical="false">
                         <div class="question-text">Are you including ALL your IT infrastructure in the certification scope?</div>
                         <div class="question-help">Full scope provides the best protection. Partial scope needs justification.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q6_1" value="pass">
-                                <span>Yes, all IT infrastructure is in scope</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_1" value="partial">
-                                <span>No, we're using a partial scope (subset)</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q6_1" value="pass"><span>Yes, all IT infrastructure is in scope</span></label>
+                            <label class="option"><input type="radio" name="q6_1" value="partial"><span>No, we're using a partial scope (subset)</span></label>
                         </div>
                     </div>
 
@@ -1165,18 +367,9 @@
                         <div class="question-text">Are ALL cloud services (Office 365, Google Workspace, Dropbox, etc.) included in scope?</div>
                         <div class="question-help">Cloud services CANNOT be excluded from scope. This is mandatory.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q6_2" value="pass">
-                                <span>Yes, all cloud services are in scope</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_2" value="fail">
-                                <span>No, we've excluded some cloud services</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_2" value="na">
-                                <span>We don't use any cloud services</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q6_2" value="pass"><span>Yes, all cloud services are in scope</span></label>
+                            <label class="option"><input type="radio" name="q6_2" value="fail"><span>No, we've excluded some cloud services</span></label>
+                            <label class="option"><input type="radio" name="q6_2" value="na"><span>We don't use any cloud services</span></label>
                         </div>
                     </div>
 
@@ -1184,18 +377,9 @@
                         <div class="question-text">Do employees use personal devices (BYOD) to access work data or services?</div>
                         <div class="question-help">Personal devices accessing work data are in scope too.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q6_3" value="pass">
-                                <span>Yes, and those devices are included in our assessment</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_3" value="fail">
-                                <span>Yes, but we haven't included them in scope</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_3" value="na">
-                                <span>No BYOD - all devices are company-owned</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q6_3" value="pass"><span>Yes, and those devices are included in our assessment</span></label>
+                            <label class="option"><input type="radio" name="q6_3" value="fail"><span>Yes, but we haven't included them in scope</span></label>
+                            <label class="option"><input type="radio" name="q6_3" value="na"><span>No BYOD - all devices are company-owned</span></label>
                         </div>
                     </div>
 
@@ -1215,22 +399,10 @@
                         <div class="question-text">Do you have a documented backup and recovery procedure?</div>
                         <div class="question-help">While not required for Cyber Essentials, backups are critical for business continuity and ransomware recovery.</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q6_backup" value="pass">
-                                <span>Yes, we have automated daily backups with documented recovery procedures</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_backup" value="partial">
-                                <span>We have backups but they're not fully automated or documented</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_backup" value="fail">
-                                <span>We have occasional backups but no formal procedure</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_backup" value="fail">
-                                <span>No regular backup procedure in place</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q6_backup" value="pass"><span>Yes, we have automated daily backups with documented recovery procedures</span></label>
+                            <label class="option"><input type="radio" name="q6_backup" value="partial"><span>We have backups but they're not fully automated or documented</span></label>
+                            <label class="option"><input type="radio" name="q6_backup" value="fail"><span>We have occasional backups but no formal procedure</span></label>
+                            <label class="option"><input type="radio" name="q6_backup" value="fail"><span>No regular backup procedure in place</span></label>
                         </div>
                     </div>
 
@@ -1244,22 +416,10 @@
                         <div class="question-text">Do you have a documented incident response plan?</div>
                         <div class="question-help">An incident response plan defines what to do when a security incident occurs (e.g., malware infection, data breach, ransomware attack).</div>
                         <div class="options">
-                            <label class="option">
-                                <input type="radio" name="q6_incident" value="pass">
-                                <span>Yes, we have a documented and tested incident response plan</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_incident" value="partial">
-                                <span>We have a basic plan but it hasn't been tested</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_incident" value="fail">
-                                <span>We have informal procedures but nothing documented</span>
-                            </label>
-                            <label class="option">
-                                <input type="radio" name="q6_incident" value="fail">
-                                <span>No incident response plan</span>
-                            </label>
+                            <label class="option"><input type="radio" name="q6_incident" value="pass"><span>Yes, we have a documented and tested incident response plan</span></label>
+                            <label class="option"><input type="radio" name="q6_incident" value="partial"><span>We have a basic plan but it hasn't been tested</span></label>
+                            <label class="option"><input type="radio" name="q6_incident" value="fail"><span>We have informal procedures but nothing documented</span></label>
+                            <label class="option"><input type="radio" name="q6_incident" value="fail"><span>No incident response plan</span></label>
                         </div>
                     </div>
 
@@ -1271,14 +431,27 @@
                 </div>
             </div>
 
+            <!-- Save / Load Bar -->
+            <div class="save-load-bar">
+                <button id="save-btn" onclick="saveAssessment()" class="export-button" style="flex: 1;">
+                    Save Progress
+                </button>
+                <button onclick="loadAssessment()" class="export-button" style="flex: 1;">
+                    Load Saved
+                </button>
+                <button onclick="clearSavedAssessment()" class="export-button danger" style="flex: 1;">
+                    Clear Saved
+                </button>
+            </div>
+
             <button class="analyze-button" onclick="analyzeAssessment()">
-                🤖 Analyze My Cyber Essentials Readiness
+                Analyze My Cyber Essentials Readiness
             </button>
 
             <!-- Results Section -->
             <div class="results" id="results">
                 <div class="result-header">
-                    <div class="result-status" id="status-icon">⏳</div>
+                    <div class="result-status" id="status-icon"></div>
                     <div class="result-title" id="status-title">Analyzing...</div>
                     <div class="result-subtitle" id="status-subtitle">Please wait while AI evaluates your responses</div>
                 </div>
@@ -1294,1067 +467,59 @@
         </div>
     </div>
 
-    <script>
-        // Toggle control sections
-        function toggleControl(num) {
-            const content = document.getElementById(`content-${num}`);
-            const toggle = document.getElementById(`toggle-${num}`);
-            
-            content.classList.toggle('expanded');
-            toggle.classList.toggle('expanded');
-        }
+    <!-- Application logic (extracted) -->
+    <script src="assessment.js"></script>
 
-        // Expand all controls on load
-        window.addEventListener('load', () => {
-            for (let i = 1; i <= 6; i++) {
-                toggleControl(i);
-            }
-        });
-
-        // Handle option selection
-        document.querySelectorAll('.option').forEach(option => {
-            option.addEventListener('click', function() {
-                const radio = this.querySelector('input[type="radio"]');
-                radio.checked = true;
-                
-                // Remove selected class from siblings
-                const name = radio.name;
-                document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
-                    r.parentElement.classList.remove('selected', 'fail');
-                });
-                
-                // Add selected class
-                this.classList.add('selected');
-                if (radio.value === 'fail') {
-                    this.classList.add('fail');
-                }
-            });
-        });
-
-        // Main analysis function
-        async function analyzeAssessment() {
-            // Collect all responses first to validate
-            const responses = collectResponses();
-            
-            // Count total questions and answered questions
-            const totalQuestions = document.querySelectorAll('.question[data-control]').length;
-            const answeredQuestions = Object.keys(responses.controls.firewalls).length +
-                                     Object.keys(responses.controls.secureConfig).length +
-                                     Object.keys(responses.controls.updates).length +
-                                     Object.keys(responses.controls.accessControl).length +
-                                     Object.keys(responses.controls.malware).length +
-                                     Object.keys(responses.controls.scope).length;
-            
-            // Validate that user has answered at least some questions
-            if (answeredQuestions === 0) {
-                alert('Please answer at least some questions before analyzing.\n\nYou haven\'t selected any answers yet.');
-                return;
-            }
-            
-            // Warn if not all questions answered
-            const percentComplete = Math.round((answeredQuestions / totalQuestions) * 100);
-            if (percentComplete < 50) {
-                const proceed = confirm(
-                    `You've only answered ${answeredQuestions} out of ${totalQuestions} questions (${percentComplete}% complete).\n\n` +
-                    'For the most accurate assessment, we recommend answering all questions.\n\n' +
-                    'Do you want to continue with the analysis anyway?'
-                );
-                if (!proceed) {
-                    return;
-                }
-            }
-            
-            const resultsDiv = document.getElementById('results');
-            const statusIcon = document.getElementById('status-icon');
-            const statusTitle = document.getElementById('status-title');
-            const statusSubtitle = document.getElementById('status-subtitle');
-            const progressFill = document.getElementById('progress-fill');
-            const progressText = document.getElementById('progress-text');
-            const resultsContent = document.getElementById('results-content');
-
-            // Show results section
-            resultsDiv.classList.add('show');
-            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Reset
-            statusIcon.textContent = '⏳';
-            statusIcon.className = 'result-status';
-            statusTitle.textContent = 'Analyzing Your Responses';
-            statusSubtitle.textContent = 'AI is evaluating your Cyber Essentials readiness...';
-            resultsContent.innerHTML = '';
-            
-            // Simulate progress
-            animateProgress(progressFill, progressText, 0, 30, 500);
-
-            // Call Claude API for analysis
-            try {
-                const analysis = await analyzeWithClaude(responses);
-                
-                animateProgress(progressFill, progressText, 30, 100, 1000);
-
-                setTimeout(() => {
-                    displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resultsContent);
-                }, 1500);
-
-            } catch (error) {
-                console.error('Analysis error:', error);
-                
-                // Show informative error message
-                statusIcon.textContent = '🔄';
-                statusTitle.textContent = 'Using Local Analysis';
-                statusSubtitle.textContent = 'AI analysis unavailable - providing assessment based on your responses';
-                
-                // Complete the progress bar
-                animateProgress(progressFill, progressText, 30, 100, 500);
-                
-                // Use local analysis as fallback
-                setTimeout(() => {
-                    const localAnalysis = performLocalAnalysis(responses);
-                    displayResults(localAnalysis, statusIcon, statusTitle, statusSubtitle, resultsContent);
-                }, 1000);
-            }
-        }
-
-        function collectResponses() {
-            const responses = {
-                controls: {
-                    firewalls: {},
-                    secureConfig: {},
-                    updates: {},
-                    accessControl: {},
-                    malware: {},
-                    scope: {}
-                },
-                textInputs: {}
-            };
-
-            // Collect radio responses
-            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-                const question = radio.closest('.question');
-                const control = question.dataset.control;
-                const critical = question.dataset.critical === 'true';
-                
-                const controlMap = {
-                    '1': 'firewalls',
-                    '2': 'secureConfig',
-                    '3': 'updates',
-                    '4': 'accessControl',
-                    '5': 'malware',
-                    '6': 'scope'
-                };
-                
-                const controlName = controlMap[control];
-                responses.controls[controlName][radio.name] = {
-                    value: radio.value,
-                    critical: critical,
-                    text: radio.parentElement.textContent.trim()
-                };
-            });
-
-            // Collect text inputs
-            responses.textInputs.outdatedSoftware = document.getElementById('q3_5')?.value || '';
-            responses.textInputs.deviceCount = document.getElementById('q6_4')?.value || '';
-            responses.textInputs.cloudServices = document.getElementById('q6_5')?.value || '';
-            responses.textInputs.firewallDetails = document.getElementById('q1_firewall_details')?.value || '';
-            responses.textInputs.malwareDetails = document.getElementById('q5_malware_details')?.value || '';
-            responses.textInputs.backupDetails = document.getElementById('q6_backup_details')?.value || '';
-            responses.textInputs.incidentDetails = document.getElementById('q6_incident_details')?.value || '';
-
-            return responses;
-        }
-
-        function animateProgress(fillEl, textEl, start, end, duration) {
-            const startTime = Date.now();
-            const range = end - start;
-
-            function update() {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const current = start + (range * progress);
-                
-                fillEl.style.width = current + '%';
-                textEl.textContent = Math.round(current) + '%';
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-
-            update();
-        }
-
-        async function analyzeWithClaude(responses) {
-            const prompt = buildAnalysisPrompt(responses);
-
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    model: "claude-sonnet-4-20250514",
-                    max_tokens: 4000,
-                    messages: [
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ],
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            
-            // Handle different response structures
-            let analysisText = '';
-            if (data.content && Array.isArray(data.content)) {
-                const textContent = data.content.find(c => c.type === 'text');
-                analysisText = textContent?.text || '';
-            } else if (data.error) {
-                throw new Error(`API error: ${data.error.message || JSON.stringify(data.error)}`);
-            } else {
-                throw new Error('Unexpected API response structure');
-            }
-            
-            if (!analysisText) {
-                throw new Error('No text content in API response');
-            }
-            
-            return parseClaudeResponse(analysisText, responses);
-        }
-
-        function buildAnalysisPrompt(responses) {
-            return `You are a Cyber Essentials certification expert. Analyze the following assessment responses and provide a detailed evaluation.
-
-RESPONSES:
-${JSON.stringify(responses, null, 2)}
-
-Provide your analysis in the following JSON format:
-
-{
-  "overallStatus": "PASS" | "FAIL" | "NEEDS_WORK",
-  "readinessScore": <number 0-100>,
-  "criticalIssuesCount": <number>,
-  "controlScores": {
-    "firewalls": <number 0-100>,
-    "secureConfig": <number 0-100>,
-    "updates": <number 0-100>,
-    "accessControl": <number 0-100>,
-    "malware": <number 0-100>
-  },
-  "criticalIssues": [
-    {
-      "control": "<control name>",
-      "issue": "<issue description>",
-      "impact": "<why this matters>",
-      "action": "<what to do to fix it>"
-    }
-  ],
-  "warnings": [
-    {
-      "control": "<control name>",
-      "warning": "<warning description>",
-      "recommendation": "<recommendation>"
-    }
-  ],
-  "strengths": [
-    "<strength 1>",
-    "<strength 2>"
-  ],
-  "nextSteps": [
-    "<step 1>",
-    "<step 2>"
-  ],
-  "summary": "<2-3 sentence overall assessment>",
-  "timeline": "<estimated time to achieve certification readiness>"
-}
-
-Focus on:
-1. Critical failures that would prevent certification
-2. Mandatory requirements from Cyber Essentials v3.3
-3. Practical, actionable recommendations
-4. Clear prioritization of what to fix first
-
-Return ONLY the JSON, no other text.`;
-        }
-
-        function parseClaudeResponse(text, responses) {
-            try {
-                // Extract JSON from response
-                const jsonMatch = text.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    return JSON.parse(jsonMatch[0]);
-                }
-            } catch (e) {
-                console.error('Failed to parse Claude response:', e);
-            }
-            
-            // Fallback to local analysis
-            return performLocalAnalysis(responses);
-        }
-
-        function performLocalAnalysis(responses) {
-            let criticalFailures = [];
-            let warnings = [];
-            let strengths = [];
-            let scores = {
-                firewalls: 100,
-                secureConfig: 100,
-                updates: 100,
-                accessControl: 100,
-                malware: 100
-            };
-
-            // Define specific actions for common failures
-            const actionMap = {
-                'q1_1': {
-                    fail: 'Enable built-in firewalls (Windows Defender Firewall, macOS Firewall) on all devices immediately',
-                    impact: 'Without firewalls, devices are exposed to network-based attacks'
-                },
-                'q1_2': {
-                    fail: 'Change all default passwords on routers and firewalls to strong, unique passwords (12+ characters)',
-                    impact: 'Default passwords are publicly known and easily exploited by attackers'
-                },
-                'q1_3': {
-                    fail: 'Configure firewalls to block all incoming connections by default (deny-all policy)',
-                    impact: 'Open firewalls allow attackers easy access to your network'
-                },
-                'q2_1': {
-                    fail: 'Remove or disable all guest accounts and any unused user accounts',
-                    impact: 'Unused accounts are a security risk and potential entry point for attackers'
-                },
-                'q2_3': {
-                    fail: 'Disable auto-run/auto-execute features in Windows and other operating systems',
-                    impact: 'Auto-run can execute malicious files without user permission'
-                },
-                'q2_4': {
-                    fail: 'Implement authentication requirements before accessing any organizational data or services',
-                    impact: 'Unauthenticated access allows anyone to access sensitive business data'
-                },
-                'q2_5': {
-                    fail: 'Enable screen lock on all devices with a 6+ character password or PIN',
-                    impact: 'Unlocked devices can be accessed by anyone with physical access'
-                },
-                'q3_1': {
-                    fail: 'Replace all unsupported software immediately - this is a critical requirement',
-                    impact: 'Unsupported software receives no security updates and is highly vulnerable'
-                },
-                'q3_2': {
-                    fail: 'Enable automatic updates on all devices and software',
-                    impact: 'Without automatic updates, critical security patches may be missed'
-                },
-                'q3_3': {
-                    fail: 'Establish a process to apply critical/high-risk updates within 14 days of release',
-                    impact: 'Delayed patching leaves systems vulnerable to known exploits'
-                },
-                'q4_1': {
-                    fail: 'Create individual accounts for each user - no shared logins allowed',
-                    impact: 'Shared accounts make it impossible to track who did what and prevent accountability'
-                },
-                'q4_2': {
-                    fail: 'Implement a process to disable/remove accounts immediately when employees leave',
-                    impact: 'Former employees with active accounts can access sensitive data they should not have'
-                },
-                'q4_3': {
-                    fail: 'Enable Multi-Factor Authentication (MFA) on ALL cloud services - this is MANDATORY',
-                    impact: 'Without MFA, a single stolen password gives attackers full access to cloud services'
-                },
-                'q4_4': {
-                    fail: 'Create separate admin accounts used ONLY for administrative tasks',
-                    impact: 'Using admin accounts for daily tasks exposes high privileges to malware and phishing'
-                },
-                'q4_5': {
-                    fail: 'Implement one of the required password policies: MFA + 8 chars, OR 12+ chars, OR 8+ chars with blocklist',
-                    impact: 'Weak passwords can be easily guessed or cracked by attackers'
-                },
-                'q5_1': {
-                    fail: 'Install and activate anti-malware software on all devices OR implement application allow listing',
-                    impact: 'Without malware protection, your systems are vulnerable to viruses, ransomware, and other threats'
-                },
-                'q5_2': {
-                    fail: 'Ensure anti-malware software is enabled and running on all devices',
-                    impact: 'Disabled antivirus provides no protection against malware'
-                },
-                'q5_3': {
-                    fail: 'Enable automatic updates for anti-malware definitions',
-                    impact: 'Outdated malware definitions cannot detect new threats'
-                },
-                'q6_2': {
-                    fail: 'Include ALL cloud services in scope - cloud services cannot be excluded',
-                    impact: 'Excluding cloud services leaves a major security gap and violates Cyber Essentials requirements'
-                },
-                'q6_backup': {
-                    fail: 'Implement automated backup procedures with at least daily backups of critical data',
-                    impact: 'Without backups, ransomware attacks or hardware failures could result in permanent data loss'
-                },
-                'q6_incident': {
-                    fail: 'Create and document an incident response plan covering detection, containment, and recovery procedures',
-                    impact: 'Without a plan, security incidents will be handled inconsistently, leading to longer recovery times and greater damage'
-                }
-            };
-
-            // Analyze each control
-            Object.keys(responses.controls).forEach(control => {
-                const controlResponses = responses.controls[control];
-                let failCount = 0;
-                let totalCritical = 0;
-
-                Object.entries(controlResponses).forEach(([questionId, r]) => {
-                    if (r.critical) {
-                        totalCritical++;
-                        if (r.value === 'fail' || r.value === 'unsure') {
-                            failCount++;
-                            
-                            const actionInfo = actionMap[questionId];
-                            criticalFailures.push({
-                                control: control,
-                                issue: r.text,
-                                impact: actionInfo?.impact || "This is a mandatory requirement for Cyber Essentials certification",
-                                action: actionInfo?.fail || "Implement this control immediately to meet certification requirements"
-                            });
-                        }
-                    } else if (r.value === 'fail') {
-                        warnings.push({
-                            control: control,
-                            warning: r.text,
-                            recommendation: "While not critical, addressing this will strengthen your security posture and improve certification readiness"
-                        });
-                    } else if (r.value === 'pass') {
-                        // Add strengths for specific good practices
-                        if (questionId === 'q4_3' || questionId === 'q3_2' || questionId === 'q1_1') {
-                            strengths.push(r.text);
-                        }
-                    }
-                });
-
-                if (totalCritical > 0) {
-                    scores[control] = Math.max(0, 100 - (failCount / totalCritical * 100));
-                }
-            });
-
-            // Check for specific text input issues
-            const outdatedSoftware = responses.textInputs.outdatedSoftware?.toLowerCase() || '';
-            if (outdatedSoftware && outdatedSoftware !== 'none' && 
-                (outdatedSoftware.includes('windows 7') || outdatedSoftware.includes('office 2010') || 
-                 outdatedSoftware.includes('xp') || outdatedSoftware.includes('2003'))) {
-                criticalFailures.push({
-                    control: 'updates',
-                    issue: `Outdated software identified: ${responses.textInputs.outdatedSoftware}`,
-                    impact: 'Legacy software no longer receives security updates and must be removed or upgraded',
-                    action: 'Upgrade to supported versions or remove this software completely from all systems'
-                });
-            }
-
-            // Add recommendations for backup and incident response
-            const backupResponse = responses.controls.scope?.['q6_backup'];
-            if (backupResponse && backupResponse.value === 'fail') {
-                warnings.push({
-                    control: 'scope',
-                    warning: 'No regular backup procedure in place',
-                    recommendation: 'While not required for Cyber Essentials, implementing automated backups is CRITICAL for ransomware recovery and business continuity. Consider cloud backup solutions like Azure Backup, AWS Backup, or Veeam.'
-                });
-            }
-
-            const incidentResponse = responses.controls.scope?.['q6_incident'];
-            if (incidentResponse && incidentResponse.value === 'fail') {
-                warnings.push({
-                    control: 'scope',
-                    warning: 'No documented incident response plan',
-                    recommendation: 'Create a simple incident response plan covering: 1) Who to contact, 2) How to isolate affected systems, 3) When to notify authorities, 4) Communication procedures. The NCSC provides free templates.'
-                });
-            }
-
-            // Add strengths for good practices
-            if (backupResponse && backupResponse.value === 'pass') {
-                strengths.push('Automated backup procedures in place with documented recovery');
-            }
-            if (incidentResponse && incidentResponse.value === 'pass') {
-                strengths.push('Documented and tested incident response plan');
-            }
-
-            const avgScore = Object.values(scores).reduce((a, b) => a + b, 0) / Object.keys(scores).length;
-            const overallStatus = criticalFailures.length === 0 ? 
-                (warnings.length === 0 ? 'PASS' : 'NEEDS_WORK') : 'FAIL';
-
-            return {
-                overallStatus,
-                readinessScore: Math.round(avgScore),
-                criticalIssuesCount: criticalFailures.length,
-                controlScores: scores,
-                criticalIssues: criticalFailures,
-                warnings: warnings,
-                strengths: strengths.length > 0 ? strengths : ['You\'ve started the assessment - that\'s the first step!'],
-                nextSteps: generateNextSteps(criticalFailures, warnings),
-                summary: generateSummary(overallStatus, criticalFailures.length, avgScore),
-                timeline: estimateTimeline(criticalFailures.length, warnings.length)
-            };
-        }
-
-        function generateNextSteps(criticalIssues, warnings) {
-            const steps = [];
-            
-            if (criticalIssues.length > 0) {
-                steps.push("Address all critical issues immediately - these will prevent certification");
-                steps.push("Focus on the 5 technical controls in priority order");
-            }
-            
-            if (warnings.length > 0) {
-                steps.push("Review and resolve warning items to strengthen security");
-            }
-            
-            steps.push("Document all security measures and policies");
-            steps.push("Contact a Cyber Essentials Certification Body to schedule assessment");
-            
-            return steps;
-        }
-
-        function generateSummary(status, criticalCount, score) {
-            if (status === 'PASS') {
-                return `Excellent work! Your organization appears ready for Cyber Essentials certification. You've implemented the core controls effectively and should contact a Certification Body to begin the formal assessment process.`;
-            } else if (status === 'NEEDS_WORK') {
-                return `You're on the right track but have some areas to improve. While you've avoided critical failures, addressing the warning items will strengthen your security posture and improve your chances of passing certification.`;
-            } else {
-                return `Your organization has ${criticalCount} critical issue${criticalCount > 1 ? 's' : ''} that must be resolved before certification. Focus on implementing the mandatory controls first, then address the remaining gaps. With focused effort, you can achieve certification readiness.`;
-            }
-        }
-
-        function estimateTimeline(criticalCount, warningCount) {
-            if (criticalCount === 0 && warningCount === 0) {
-                return "Ready now - contact a Certification Body";
-            } else if (criticalCount === 0) {
-                return "1-2 weeks to address warnings";
-            } else if (criticalCount <= 3) {
-                return "2-4 weeks with focused effort";
-            } else if (criticalCount <= 7) {
-                return "1-2 months with dedicated resources";
-            } else {
-                return "2-3 months - significant work needed";
-            }
-        }
-
-        function displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resultsContent) {
-            // Update status
-            const statusConfig = {
-                'PASS': { icon: '✅', title: 'Ready for Certification!', subtitle: 'Your business meets Cyber Essentials requirements', class: 'pass' },
-                'NEEDS_WORK': { icon: '⚠️', title: 'Almost There', subtitle: 'Some improvements needed before certification', class: 'partial' },
-                'FAIL': { icon: '❌', title: 'Not Ready Yet', subtitle: 'Critical issues must be resolved', class: 'fail' }
-            };
-
-            const config = statusConfig[analysis.overallStatus];
-            statusIcon.textContent = config.icon;
-            statusIcon.className = 'result-status ' + config.class;
-            statusTitle.textContent = config.title;
-            statusSubtitle.textContent = config.subtitle;
-
-            // Build results HTML
-            let html = `
-                <div class="score-summary">
-                    <div class="score-card">
-                        <div class="score-value">${analysis.readinessScore}%</div>
-                        <div class="score-label">Overall Readiness</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-value">${analysis.criticalIssuesCount}</div>
-                        <div class="score-label">Critical Issues</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-value">${analysis.warnings?.length || 0}</div>
-                        <div class="score-label">Warnings</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-value">${analysis.timeline}</div>
-                        <div class="score-label">Est. Timeline</div>
-                    </div>
-                </div>
-
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 15px; color: #028090;">Assessment Summary</h3>
-                    <p style="line-height: 1.6; color: #333;">${analysis.summary}</p>
-                </div>
-
-                <div style="margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 15px; color: #028090;">Control Scores</h3>
-                    ${generateControlScores(analysis.controlScores)}
-                </div>
-            `;
-
-            if (analysis.criticalIssues && analysis.criticalIssues.length > 0) {
-                html += `
-                    <div class="issues-section">
-                        <div class="issue-category">
-                            <h3>🚨 Critical Issues (Must Fix)</h3>
-                            ${analysis.criticalIssues.map(issue => `
-                                <div class="issue-item">
-                                    <div class="issue-title">${formatControlName(issue.control)}</div>
-                                    <div class="issue-description">${issue.issue || issue.impact}</div>
-                                    <div class="issue-action"><strong>Action Required:</strong> ${issue.action}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (analysis.warnings && analysis.warnings.length > 0) {
-                html += `
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #ffc107; margin-bottom: 15px;">⚠️ Warnings & Recommendations</h3>
-                        ${analysis.warnings.map(warning => `
-                            <div style="background: #fff9e6; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
-                                <div style="font-weight: 600; margin-bottom: 5px;">${formatControlName(warning.control)}</div>
-                                <div style="font-size: 14px; color: #666;">${warning.warning}</div>
-                                <div style="font-size: 14px; color: #666; margin-top: 5px;"><em>${warning.recommendation}</em></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            if (analysis.strengths && analysis.strengths.length > 0) {
-                html += `
-                    <div class="recommendations">
-                        <h3>✅ What You're Doing Well</h3>
-                        ${analysis.strengths.map(strength => `
-                            <div class="recommendation-item">${strength}</div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            html += `
-                <div class="recommendations" style="margin-top: 20px;">
-                    <h3>📋 Next Steps</h3>
-                    ${analysis.nextSteps.map((step, i) => `
-                        <div class="recommendation-item">${step}</div>
-                    `).join('')}
-                </div>
-
-                <div class="export-buttons">
-                    <button class="export-button" id="save-pdf-btn">
-                        📄 Save as PDF
-                    </button>
-                    <button class="export-button" onclick="location.reload()">
-                        🔄 Start New Assessment
-                    </button>
-                </div>
-            `;
-
-            resultsContent.innerHTML = html;
-            
-            // Add event listener to PDF button after it's created
-            const pdfButton = document.getElementById('save-pdf-btn');
-            if (pdfButton) {
-                pdfButton.addEventListener('click', printToPDF);
-            }
-        }
-
-        function generateControlScores(scores) {
-            const controlNames = {
-                firewalls: 'Firewalls',
-                secureConfig: 'Secure Configuration',
-                updates: 'Security Updates',
-                accessControl: 'User Access Control',
-                malware: 'Malware Protection'
-            };
-
-            return Object.keys(scores).map(key => {
-                const score = scores[key];
-                const color = score >= 80 ? '#28a745' : score >= 60 ? '#ffc107' : '#dc3545';
-                return `
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="font-weight: 600;">${controlNames[key]}</span>
-                            <span style="color: ${color}; font-weight: bold;">${Math.round(score)}%</span>
-                        </div>
-                        <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
-                            <div style="width: ${score}%; height: 100%; background: ${color};"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function formatControlName(control) {
-            const names = {
-                firewalls: 'Firewalls',
-                secureConfig: 'Secure Configuration',
-                updates: 'Security Update Management',
-                accessControl: 'User Access Control',
-                malware: 'Malware Protection',
-                scope: 'Scope & Context'
-            };
-            return names[control] || control;
-        }
-
-        function printToPDF() {
-            console.log('printToPDF called');
-            
-            // Create custom company name input modal
-            showCompanyNameModal();
-        }
-        
-        function showCompanyNameModal() {
-            // Create modal overlay
-            const modal = document.createElement('div');
-            modal.id = 'company-name-modal';
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.8);
-                z-index: 999999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
-            
-            modal.innerHTML = `
-                <div style="
-                    background: white;
-                    padding: 40px;
-                    border-radius: 12px;
-                    max-width: 500px;
-                    width: 90%;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                ">
-                    <h2 style="color: #028090; margin: 0 0 10px 0; font-size: 24px;">Company Name Required</h2>
-                    <p style="color: #666; margin: 0 0 20px 0; line-height: 1.6;">
-                        Please enter your company name. This will appear at the top of your PDF report.
-                    </p>
-                    
-                    <input 
-                        type="text" 
-                        id="company-name-input" 
-                        placeholder="Enter company name..."
-                        style="
-                            width: 100%;
-                            padding: 12px;
-                            border: 2px solid #ddd;
-                            border-radius: 6px;
-                            font-size: 16px;
-                            box-sizing: border-box;
-                            margin-bottom: 20px;
-                        "
-                    />
-                    
-                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                        <button 
-                            onclick="closeCompanyNameModal()"
-                            style="
-                                padding: 12px 24px;
-                                background: #fff;
-                                color: #666;
-                                border: 2px solid #ddd;
-                                border-radius: 6px;
-                                font-size: 16px;
-                                cursor: pointer;
-                                font-weight: 600;
-                            "
-                        >Cancel</button>
-                        <button 
-                            onclick="continueWithPDF()"
-                            style="
-                                padding: 12px 24px;
-                                background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-                                color: white;
-                                border: none;
-                                border-radius: 6px;
-                                font-size: 16px;
-                                cursor: pointer;
-                                font-weight: 600;
-                            "
-                        >Continue</button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Focus on input
-            setTimeout(() => {
-                document.getElementById('company-name-input').focus();
-            }, 100);
-            
-            // Allow Enter key to submit
-            document.getElementById('company-name-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    continueWithPDF();
-                }
-            });
-        }
-        
-        function closeCompanyNameModal() {
-            const modal = document.getElementById('company-name-modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-        
-        function continueWithPDF() {
-            const input = document.getElementById('company-name-input');
-            const companyName = input ? input.value.trim() : '';
-            
-            console.log('Company name entered:', companyName);
-            
-            if (!companyName) {
-                alert('Please enter a company name to continue.');
-                input.focus();
-                return;
-            }
-            
-            // Close the modal
-            closeCompanyNameModal();
-            
-            // Show PDF instructions
-            showPDFInstructions(companyName);
-        }
-        
-        function showPDFInstructions(companyName) {
-            // Create instruction modal
-            const modal = document.createElement('div');
-            modal.id = 'pdf-instructions-modal';
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.8);
-                z-index: 999999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
-            
-            modal.innerHTML = `
-                <div style="
-                    background: white;
-                    padding: 40px;
-                    border-radius: 12px;
-                    max-width: 600px;
-                    width: 90%;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                ">
-                    <div style="font-size: 48px; text-align: center; margin-bottom: 20px;">📄</div>
-                    <h2 style="color: #028090; margin: 0 0 20px 0; font-size: 28px; text-align: center;">Save Your Assessment as PDF</h2>
-                    
-                    <div style="text-align: left; margin-bottom: 30px; line-height: 1.8; color: #333;">
-                        <p style="margin-bottom: 15px;"><strong>Important Instructions:</strong></p>
-                        <ol style="padding-left: 20px; margin: 0;">
-                            <li style="margin-bottom: 10px;">In the print dialog, select <strong>"Save as PDF"</strong> or <strong>"Microsoft Print to PDF"</strong> as your printer</li>
-                            <li style="margin-bottom: 10px;">Click <strong>"Save"</strong> or <strong>"Print"</strong></li>
-                            <li style="margin-bottom: 10px;">Choose where to save your PDF file</li>
-                            <li style="margin-bottom: 10px;"><strong>Do NOT</strong> select a physical printer</li>
-                        </ol>
-                        <p style="margin-top: 20px; padding: 15px; background: #FFF3CD; border-left: 4px solid #FFC107; border-radius: 4px; font-size: 14px;">
-                            <strong>Note:</strong> If you don't see "Save as PDF" option, look for "Destination" or "Printer" dropdown and select PDF from there.
-                        </p>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button 
-                            onclick="closePDFInstructionsModal()"
-                            style="
-                                padding: 12px 24px;
-                                background: #fff;
-                                color: #666;
-                                border: 2px solid #ddd;
-                                border-radius: 6px;
-                                font-size: 16px;
-                                cursor: pointer;
-                                font-weight: 600;
-                            "
-                        >Cancel</button>
-                        <button 
-                            onclick="proceedToPrint('${companyName.replace(/'/g, "\\'")}')"
-                            style="
-                                padding: 12px 24px;
-                                background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-                                color: white;
-                                border: none;
-                                border-radius: 6px;
-                                font-size: 16px;
-                                cursor: pointer;
-                                font-weight: 600;
-                            "
-                        >Open Print Dialog</button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-        }
-        
-        function closePDFInstructionsModal() {
-            const modal = document.getElementById('pdf-instructions-modal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-        
-        function proceedToPrint(companyName) {
-            console.log('Proceeding to print with company:', companyName);
-            
-            // Close instructions modal
-            closePDFInstructionsModal();
-            
-            // Add company name to results
-            addCompanyNameToResults(companyName);
-            
-            console.log('Company name added to results');
-            
-            // Small delay to ensure DOM updates
-            setTimeout(() => {
-                console.log('Opening print dialog');
-                window.print();
-                
-                // Clean up after printing
-                setTimeout(() => {
-                    removeCompanyNameFromResults();
-                    console.log('Cleanup complete');
-                }, 2000);
-            }, 100);
-        }
-        
-        function addCompanyNameToResults(companyName) {
-            const resultsDiv = document.getElementById('results');
-            
-            // Check if company name already exists
-            let companyHeader = document.getElementById('company-name-header');
-            if (!companyHeader) {
-                // Create company name header
-                companyHeader = document.createElement('div');
-                companyHeader.id = 'company-name-header';
-                companyHeader.style.cssText = `
-                    background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-                    color: white;
-                    padding: 20px 30px;
-                    margin: -30px -30px 30px -30px;
-                    border-radius: 8px 8px 0 0;
-                `;
-                companyHeader.innerHTML = `
-                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">Assessment Report for:</div>
-                    <div style="font-size: 24px; font-weight: bold;">${companyName}</div>
-                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Generated: ${new Date().toLocaleString()}</div>
-                `;
-                
-                // Insert at the beginning of results content
-                const resultHeader = resultsDiv.querySelector('.result-header');
-                resultsDiv.insertBefore(companyHeader, resultHeader);
-            } else {
-                // Update existing header
-                companyHeader.querySelector('div:nth-child(2)').textContent = companyName;
-                companyHeader.querySelector('div:nth-child(3)').textContent = `Generated: ${new Date().toLocaleString()}`;
-            }
-        }
-        
-        function removeCompanyNameFromResults() {
-            const companyHeader = document.getElementById('company-name-header');
-            if (companyHeader) {
-                companyHeader.remove();
-            }
-        }
-
-    </script>
-
-    <!-- ============================================ -->
-    <!-- FIREBASE AUTHENTICATION PROTECTION          -->
-    <!-- ============================================ -->
+    <!-- Firebase Authentication -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-        // ⚠️ IMPORTANT: Replace with YOUR Firebase config
-        // Must match exactly what is in your index.html (login page)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwyfkJG8dMFMVAxiinBigf1Q1Hv05fibI",
-            authDomain: "cyber-essentials-checker.firebaseapp.com",
-            projectId: "cyber-essentials-checker",
-            storageBucket: "cyber-essentials-checker.firebasestorage.app",
-            messagingSenderId: "675223410675",
-            appId: "1:675223410675:web:e216ba72aecef16e47e486",
-            measurementId: "G-5LQ7FG69W3"
-        };
+        import { firebaseConfig } from './firebase-config.js';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        console.log('=== ASSESSMENT PAGE - AUTH CHECK ===');
-
         let hasCheckedAuth = false;
 
         onAuthStateChanged(auth, (user) => {
-            console.log('=== AUTH STATE CHANGED ===');
-            console.log('User:', user?.email || 'null');
-
             if (user) {
-                // ✅ USER IS AUTHENTICATED - STAY ON PAGE
-                console.log('✅ User authenticated:', user.email);
                 hasCheckedAuth = true;
-
-                // Display user info in header
                 const userInfo = document.getElementById('user-info');
                 if (userInfo) {
                     const displayName = user.displayName ||
-                                       localStorage.getItem('userName') ||
-                                       user.email.split('@')[0];
-                    userInfo.textContent = `👤 ${displayName}`;
+                        localStorage.getItem('userName') ||
+                        user.email.split('@')[0];
+                    userInfo.textContent = displayName;
                 }
-
-                // Clear login flag
                 localStorage.removeItem('firebaseAuthComplete');
-
-                console.log('=== STAYING ON ASSESSMENT ===');
-
             } else {
-                // ❌ NO USER - REDIRECT TO LOGIN
-                console.log('❌ No user authenticated');
-
                 if (!hasCheckedAuth) {
-                    // First check - wait briefly for Firebase to sync
                     hasCheckedAuth = true;
-                    console.log('First check is null - waiting 1 second...');
-
                     setTimeout(() => {
                         if (!auth.currentUser) {
-                            console.log('Still no user - redirecting to login');
                             localStorage.removeItem('firebaseAuthComplete');
                             window.location.href = 'index.html';
                         }
                     }, 1000);
                 } else {
-                    console.log('Redirecting to login');
                     window.location.href = 'index.html';
                 }
             }
-        }, (error) => {
-            console.error('Auth error:', error);
+        }, () => {
             window.location.href = 'index.html';
         });
 
-        // Logout function
-        window.logout = async function() {
+        window.logout = async function () {
             if (confirm('Are you sure you want to logout?')) {
                 try {
-                    console.log('Logging out...');
                     await signOut(auth);
                     localStorage.clear();
-                    console.log('✅ Logged out successfully');
                     window.location.href = 'index.html';
                 } catch (error) {
-                    console.error('Logout error:', error);
                     alert('Error logging out: ' + error.message);
                 }
             }
         };
-
-        console.log('=== AUTH LISTENER ACTIVE ===');
     </script>
 </body>
 </html>
