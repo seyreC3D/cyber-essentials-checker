@@ -615,4 +615,9 @@ body {
     a[href]::after {
         content: none !important;
     }
+
+    /* Appendix starts on a new page in print */
+    #report-appendix {
+        page-break-before: always;
+    }
 }

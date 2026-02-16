@@ -1036,9 +1036,13 @@ function proceedToPrint(companyName) {
     const modal = document.getElementById('pdf-instructions-modal');
     if (modal) modal.remove();
     addCompanyNameToResults(companyName);
+    addAppendixToResults();
     setTimeout(() => {
         window.print();
-        setTimeout(removeCompanyNameFromResults, 2000);
+        setTimeout(() => {
+            removeCompanyNameFromResults();
+            removeAppendixFromResults();
+        }, 2000);
     }, 100);
 }
 
@@ -1081,4 +1085,66 @@ function addCompanyNameToResults(companyName) {
 function removeCompanyNameFromResults() {
     const companyHeader = document.getElementById('company-name-header');
     if (companyHeader) companyHeader.remove();
+}
+
+// =============================================
+// APPENDIX — Text input details for PDF report
+// =============================================
+function addAppendixToResults() {
+    removeAppendixFromResults(); // avoid duplicates
+
+    const appendixFields = [
+        { id: 'q1_firewall_details', label: 'Firewall Solution(s)' },
+        { id: 'q5_malware_details', label: 'Anti-Malware / Antivirus Software' },
+        { id: 'q3_5', label: 'Outdated Software Identified' },
+        { id: 'q6_4', label: 'Number of Devices in Scope' },
+        { id: 'q6_5', label: 'Cloud Services in Use' },
+        { id: 'q6_backup_details', label: 'Backup Solution & Procedures' },
+        { id: 'q6_incident_details', label: 'Incident Response Procedures' }
+    ];
+
+    // Collect fields that have values
+    const filledFields = appendixFields.filter(f => {
+        const el = document.getElementById(f.id);
+        return el && el.value.trim();
+    });
+
+    if (filledFields.length === 0) return;
+
+    const appendix = document.createElement('div');
+    appendix.id = 'report-appendix';
+    appendix.style.cssText = 'margin-top: 40px; padding-top: 30px; border-top: 3px solid #028090;';
+
+    const heading = document.createElement('h3');
+    heading.style.cssText = 'color: #028090; margin-bottom: 20px; font-size: 22px;';
+    heading.textContent = 'Appendix: Infrastructure & Configuration Details';
+    appendix.appendChild(heading);
+
+    filledFields.forEach(field => {
+        const el = document.getElementById(field.id);
+        const value = el.value.trim();
+
+        const item = document.createElement('div');
+        item.style.cssText = 'margin-bottom: 18px; padding: 15px; background: #f8f9fa; border-left: 4px solid #00A896; border-radius: 4px;';
+
+        const label = document.createElement('div');
+        label.style.cssText = 'font-weight: 600; color: #028090; margin-bottom: 6px; font-size: 15px;';
+        label.textContent = field.label;
+        item.appendChild(label);
+
+        const content = document.createElement('div');
+        content.style.cssText = 'color: #333; line-height: 1.6; font-size: 14px; white-space: pre-wrap;';
+        content.textContent = value;
+        item.appendChild(content);
+
+        appendix.appendChild(item);
+    });
+
+    const resultsContent = document.getElementById('results-content');
+    resultsContent.appendChild(appendix);
+}
+
+function removeAppendixFromResults() {
+    const appendix = document.getElementById('report-appendix');
+    if (appendix) appendix.remove();
 }
