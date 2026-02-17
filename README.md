@@ -32,10 +32,12 @@ No installation, no dependencies, no backend required!
 - Firewalls, Secure Configuration, Security Updates, User Access Control, Malware Protection
 - Additional questions on backups and incident response
 - Collects detailed infrastructure information (firewall models, antivirus versions)
+- **Required-field validation** prevents blank free-text answers essential for the assessor
 
 ### 🤖 AI-Powered Analysis
-- **Claude API integration** for intelligent evaluation
+- **Claude API integration** via server-side proxy (API key never exposed to the client)
 - **Fallback local analysis** works without internet
+- Structured system prompt with strict assessment rules
 - Identifies critical failures that prevent certification
 - Provides actionable recommendations
 
@@ -47,16 +49,30 @@ No installation, no dependencies, no backend required!
 - Prioritized list of critical issues
 - Specific remediation steps
 
-### 🔒 Privacy-First
-- **100% client-side** - data never leaves your browser
-- No database, no server storage
-- Optional AI analysis (can be disabled)
+### 📄 PDF Report Export
+- Professional PDF output with company name header and generation date
+- Appendix with full infrastructure and configuration details
+- Clean print layout with no browser URLs or headers
+- Page-break protection keeps content boxes intact
+
+### 💾 Auto-Save & Progress Management
+- Auto-saves progress with every answer change
+- Manual Save / Load / Clear buttons
+- Resume notification on page load when a saved assessment exists
+- All data stored locally in the browser (localStorage)
+
+### 🔒 Privacy & Security
+- **Client-side architecture** - assessment data stays in your browser
+- Firebase Authentication for access control
+- XSS-safe DOM rendering throughout (no raw HTML injection)
+- Server-side API proxy keeps the AI key off the client
 - GDPR compliant by design
 
 ### 📱 Modern UI
 - Responsive design (works on mobile, tablet, desktop)
 - Interactive collapsible sections
 - Visual progress tracking
+- Real-time input validation with inline error messages
 - Print-friendly results
 
 ## 🎯 Who Is This For?
@@ -73,41 +89,48 @@ No installation, no dependencies, no backend required!
 - **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Detailed deployment options
 - **[Editing Questions](docs/EDITING_QUESTIONS_GUIDE.md)** - Customize the assessment
 - **[New Questions Summary](docs/NEW_QUESTIONS_SUMMARY.md)** - Recent additions
-- **[Optional Features](docs/add_save_feature.js)** - Add save/load functionality
+- **[Release Notes](RELEASE_NOTES.md)** - Version history and what's new
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐
-│   User Browser  │
-│   (HTML/CSS/JS) │
+┌─────────────────┐     ┌──────────────────┐
+│   User Browser  │────▶│  Firebase Auth   │
+│   (HTML/CSS/JS) │     └──────────────────┘
 └────────┬────────┘
          │
          ├─── Local Analysis (Always Available)
          │
-         └─── Claude API (Optional AI Analysis)
-                    ↓
-              Enhanced Insights
+         └─── /api/analyze Proxy ──▶ Claude API
+                                      ↓
+                                Enhanced Insights
 ```
 
 **Tech Stack:**
 - Pure HTML/CSS/JavaScript (no frameworks)
-- Claude API for AI analysis (optional)
-- LocalStorage for save feature (optional)
+- Firebase Authentication (login / session management)
+- Server-side API proxy for Claude AI analysis
+- LocalStorage for auto-save and progress persistence
 
 ## 📦 What's Included
 
 ```
 cyber-essentials-checker/
-├── index.html                    # Main assessment tool
+├── index.html                    # Login page (Firebase Auth)
+├── assessment.html               # Main assessment form
+├── assessment.css                # Assessment styles
+├── assessment.js                 # Assessment logic, validation, PDF export
+├── firebase-config.js            # Firebase project configuration
+├── api/                          # Server-side API proxy for Claude
 ├── README.md                     # This file
+├── RELEASE_NOTES.md              # Version history and release notes
+├── CHANGELOG.md                  # Changelog
 ├── LICENSE                       # MIT License
 └── docs/
-    ├── QUICK_START.md           # Fast deployment guide
-    ├── DEPLOYMENT_GUIDE.md      # Comprehensive deployment
-    ├── EDITING_QUESTIONS_GUIDE.md  # Customization guide
-    ├── NEW_QUESTIONS_SUMMARY.md    # Recent changes
-    └── add_save_feature.js         # Optional save/load code
+    ├── QUICK_START.md            # Fast deployment guide
+    ├── DEPLOYMENT_GUIDE.md       # Comprehensive deployment
+    ├── EDITING_QUESTIONS_GUIDE.md # Customization guide
+    └── NEW_QUESTIONS_SUMMARY.md  # Recent additions
 ```
 
 ## 🚢 Deployment Options
@@ -206,7 +229,7 @@ Contributions welcome! Please:
 ### Ideas for Contributions
 - [ ] Additional question templates
 - [ ] Industry-specific variants (healthcare, finance, etc.)
-- [ ] Export to PDF functionality
+- [x] Export to PDF functionality
 - [ ] Results comparison over time
 - [ ] Integration with other frameworks (ISO 27001, NIST)
 - [ ] Translations to other languages
@@ -240,10 +263,14 @@ This tool is for **assessment purposes only** and does not constitute official C
 ## 🗺️ Roadmap
 
 - [x] Core assessment functionality
-- [x] AI-powered analysis
+- [x] AI-powered analysis with server-side proxy
 - [x] Infrastructure inventory questions
 - [x] Backup and IR questions
-- [ ] PDF export
+- [x] Firebase Authentication
+- [x] Auto-save and progress management
+- [x] PDF report export with appendix
+- [x] Input validation for required fields
+- [x] XSS-safe rendering and security hardening
 - [ ] Multi-language support
 - [ ] Historical tracking
 - [ ] Team collaboration features
@@ -251,10 +278,8 @@ This tool is for **assessment purposes only** and does not constitute official C
 
 ## 📈 Stats
 
-- **Lines of Code:** ~1,800
-- **Dependencies:** 0 (pure vanilla JS)
+- **Dependencies:** 0 runtime (pure vanilla JS) + Firebase Auth SDK
 - **Browser Support:** All modern browsers
-- **Load Time:** < 1 second
 - **Assessment Time:** 15-20 minutes
 
 ## 🌟 Star History
