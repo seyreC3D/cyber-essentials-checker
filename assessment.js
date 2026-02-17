@@ -263,6 +263,66 @@ function collectResponses() {
 }
 
 // =============================================
+// FREE-TEXT VALIDATION
+// =============================================
+const REQUIRED_TEXT_FIELDS = [
+    { id: 'q1_firewall_details', label: 'Firewall solution(s)', control: 1 },
+    { id: 'q3_5', label: 'Outdated software list', control: 3 },
+    { id: 'q5_malware_details', label: 'Anti-malware software details', control: 5 },
+    { id: 'q6_4', label: 'Number of devices in scope', control: 6 },
+    { id: 'q6_5', label: 'Cloud services list', control: 6 },
+    { id: 'q6_backup_details', label: 'Backup solution description', control: 6 },
+    { id: 'q6_incident_details', label: 'Incident response procedures', control: 6 }
+];
+
+function validateTextInputs() {
+    clearValidationErrors();
+
+    const emptyFields = [];
+
+    REQUIRED_TEXT_FIELDS.forEach(field => {
+        const el = document.getElementById(field.id);
+        if (!el) return;
+
+        if (!el.value.trim()) {
+            emptyFields.push(field);
+
+            el.classList.add('validation-error');
+
+            // Add error message if not already present
+            if (!el.parentElement.querySelector('.validation-error-msg')) {
+                const msg = document.createElement('div');
+                msg.className = 'validation-error-msg';
+                msg.textContent = 'This field is required for the assessor.';
+                el.parentElement.appendChild(msg);
+            }
+        }
+    });
+
+    return emptyFields;
+}
+
+function clearValidationErrors() {
+    document.querySelectorAll('.text-input.validation-error').forEach(el => {
+        el.classList.remove('validation-error');
+    });
+    document.querySelectorAll('.validation-error-msg').forEach(el => {
+        el.remove();
+    });
+}
+
+// Clear individual field error on input
+document.querySelectorAll('.text-input').forEach(input => {
+    input.addEventListener('input', function () {
+        if (this.value.trim()) {
+            this.classList.remove('validation-error');
+            const msg = this.parentElement.querySelector('.validation-error-msg');
+            if (msg) msg.remove();
+        }
+    });
+});
+
+// =============================================
 // ANALYSIS — MAIN ENTRY POINT
 // =============================================
 async function analyzeAssessment() {
@@ -278,6 +338,29 @@ async function analyzeAssessment() {
 
     if (answeredQuestions === 0) {
         alert('Please answer at least some questions before analyzing.\n\nYou haven\'t selected any answers yet.');
+        return;
+    }
+
+    // Validate free-text fields
+    const emptyFields = validateTextInputs();
+    if (emptyFields.length > 0) {
+        const firstEmpty = emptyFields[0];
+        const controlContent = document.getElementById(`content-${firstEmpty.control}`);
+        if (controlContent && !controlContent.classList.contains('expanded')) {
+            toggleControl(firstEmpty.control);
+        }
+        const firstEl = document.getElementById(firstEmpty.id);
+        if (firstEl) {
+            firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstEl.focus();
+        }
+
+        const fieldNames = emptyFields.map(f => f.label).join('\n  - ');
+        alert(
+            `Please complete all free-text fields before submitting.\n\n` +
+            `The following fields are required:\n  - ${fieldNames}\n\n` +
+            `These details are essential for the Cyber Essentials assessor.`
+        );
         return;
     }
 

@@ -84,7 +84,7 @@
                     </div>
 
                     <div class="question" data-control="1" data-critical="false">
-                        <div class="question-text">What firewall solution(s) do you use?</div>
+                        <div class="question-text">What firewall solution(s) do you use?<span class="required-indicator">*</span></div>
                         <div class="question-help">Please specify the make, model, and version of your primary firewall(s). Include both hardware firewalls (e.g., Cisco ASA, Fortinet FortiGate, pfSense) and software firewalls (e.g., Windows Defender Firewall, Sophos). If using multiple, list all.</div>
                         <textarea class="text-input" id="q1_firewall_details" placeholder="Example: Fortinet FortiGate 60F (v7.0.5), Windows Defender Firewall on all endpoints" rows="3" style="resize: vertical; min-height: 80px;"></textarea>
                     </div>
@@ -204,7 +204,7 @@
                     </div>
 
                     <div class="question" data-control="3" data-critical="false">
-                        <div class="question-text">List any software you're currently using that might be outdated:</div>
+                        <div class="question-text">List any software you're currently using that might be outdated:<span class="required-indicator">*</span></div>
                         <div class="question-help">Examples: Windows 7, Office 2010, old versions of Adobe, etc. If none, write "None".</div>
                         <input type="text" class="text-input" id="q3_5" placeholder="Enter software names or 'None'">
                     </div>
@@ -336,7 +336,7 @@
                     </div>
 
                     <div class="question" data-control="5" data-critical="false">
-                        <div class="question-text">What anti-malware/antivirus software and version are you using?</div>
+                        <div class="question-text">What anti-malware/antivirus software and version are you using?<span class="required-indicator">*</span></div>
                         <div class="question-help">Please specify the product name and version number for all anti-malware solutions in use. Examples: Windows Defender (built-in with Windows 11), Norton 360 v22.23.1, Sophos Intercept X v10.3, CrowdStrike Falcon v6.47. If using different solutions on different devices, please list all.</div>
                         <textarea class="text-input" id="q5_malware_details" placeholder="Example: Windows Defender (Windows 11 built-in), Bitdefender Endpoint Security v7.2 on servers" rows="3" style="resize: vertical; min-height: 80px;"></textarea>
                     </div>
@@ -384,13 +384,13 @@
                     </div>
 
                     <div class="question" data-control="6" data-critical="false">
-                        <div class="question-text">How many devices are in scope for this assessment?</div>
+                        <div class="question-text">How many devices are in scope for this assessment?<span class="required-indicator">*</span></div>
                         <div class="question-help">Include computers, laptops, tablets, phones, servers - anything accessing business data.</div>
                         <input type="number" class="text-input" id="q6_4" placeholder="Enter number of devices" min="1">
                     </div>
 
                     <div class="question" data-control="6" data-critical="false">
-                        <div class="question-text">List the cloud services you use for business:</div>
+                        <div class="question-text">List the cloud services you use for business:<span class="required-indicator">*</span></div>
                         <div class="question-help">Examples: Microsoft 365, Google Workspace, Dropbox, Salesforce, Xero, etc.</div>
                         <input type="text" class="text-input" id="q6_5" placeholder="Enter cloud services (comma-separated)">
                     </div>
@@ -407,7 +407,7 @@
                     </div>
 
                     <div class="question" data-control="6" data-critical="false">
-                        <div class="question-text">Please describe your backup solution and frequency:</div>
+                        <div class="question-text">Please describe your backup solution and frequency:<span class="required-indicator">*</span></div>
                         <div class="question-help">Include: What is backed up, where backups are stored, how often, retention period, and how you test recovery.</div>
                         <textarea class="text-input" id="q6_backup_details" placeholder="Example: Daily automated backups of all file servers and databases to Azure Backup. 30-day retention. Monthly recovery tests. Offsite cloud storage." rows="4" style="resize: vertical; min-height: 100px;"></textarea>
                     </div>
@@ -424,7 +424,7 @@
                     </div>
 
                     <div class="question" data-control="6" data-critical="false">
-                        <div class="question-text">Please describe your incident response procedures:</div>
+                        <div class="question-text">Please describe your incident response procedures:<span class="required-indicator">*</span></div>
                         <div class="question-help">Include: Who to contact first, escalation procedures, how incidents are logged, communication plan, and recovery steps.</div>
                         <textarea class="text-input" id="q6_incident_details" placeholder="Example: 1) Isolate affected systems 2) Contact IT Manager (John Smith) 3) Log in incident tracking system 4) Notify management within 2 hours 5) Engage external security consultant if needed 6) Document and perform post-incident review" rows="4" style="resize: vertical; min-height: 100px;"></textarea>
                     </div>
