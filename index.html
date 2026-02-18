@@ -643,6 +643,7 @@
             browserSessionPersistence,
             browserLocalPersistence,
             updateProfile,
+            sendEmailVerification,
             multiFactor,
             getMultiFactorResolver,
             PhoneAuthProvider,
@@ -733,6 +734,10 @@
                 await updateProfile(userCredential.user, {
                     displayName: name
                 });
+
+                // Send email verification
+                await sendEmailVerification(userCredential.user);
+                console.log("Registration successful! Verification email sent.");
 
                 button.textContent = '✓ Account created!';
                 button.style.background = '#28a745';
