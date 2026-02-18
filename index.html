@@ -291,6 +291,115 @@
             line-height: 1.5;
         }
 
+        .mfa-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mfa-overlay.show {
+            display: flex;
+        }
+
+        .mfa-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .mfa-modal h2 {
+            color: #028090;
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .mfa-modal p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .mfa-modal .form-group {
+            margin-bottom: 20px;
+        }
+
+        .mfa-modal .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .mfa-modal .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mfa-modal .form-group input[type="tel"] {
+            letter-spacing: normal;
+            text-align: left;
+        }
+
+        .mfa-modal .form-group input:focus {
+            outline: none;
+            border-color: #028090;
+            box-shadow: 0 0 0 3px rgba(2, 128, 144, 0.1);
+        }
+
+        .mfa-button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mfa-button-group .auth-button {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .mfa-cancel-button {
+            flex: 1;
+            padding: 16px;
+            background: #f5f5f5;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mfa-cancel-button:hover {
+            background: #e0e0e0;
+        }
+
+        .mfa-phone-hint {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #2e7d32;
+        }
+
         @media (max-width: 480px) {
             .login-header {
                 padding: 30px 20px;
@@ -469,6 +578,57 @@
         </div>
     </div>
 
+    <!-- MFA Verification Modal (Sign-in challenge) -->
+    <div id="mfa-overlay" class="mfa-overlay">
+        <div class="mfa-modal">
+            <h2>Two-Factor Authentication</h2>
+            <p id="mfa-message">A verification code has been sent to your phone. Please enter it below.</p>
+            <div id="mfa-phone-hint" class="mfa-phone-hint" style="display:none;"></div>
+            <div class="form-group">
+                <label for="mfa-code">Verification Code</label>
+                <input type="text" id="mfa-code" placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" />
+            </div>
+            <div id="mfa-error" class="error-message" style="margin-bottom: 15px;"></div>
+            <div class="mfa-button-group">
+                <button class="auth-button" id="mfa-submit-button" onclick="submitMFACode()">Verify</button>
+                <button class="mfa-cancel-button" onclick="cancelMFA()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MFA Enrollment Modal (Post-registration) -->
+    <div id="mfa-enroll-overlay" class="mfa-overlay">
+        <div class="mfa-modal">
+            <h2 id="mfa-enroll-title">Enable Two-Factor Authentication</h2>
+            <p id="mfa-enroll-message">Add an extra layer of security to your account by enabling SMS verification.</p>
+            <div id="mfa-enroll-step1">
+                <div class="form-group">
+                    <label for="mfa-phone-number">Phone Number (with country code)</label>
+                    <input type="tel" id="mfa-phone-number" placeholder="+44 7700 900000" />
+                </div>
+                <div id="mfa-enroll-error" class="error-message" style="margin-bottom: 15px;"></div>
+                <div class="mfa-button-group">
+                    <button class="auth-button" id="mfa-enroll-send-button" onclick="sendEnrollmentCode()">Send Code</button>
+                    <button class="mfa-cancel-button" onclick="skipMFAEnrollment()">Skip for now</button>
+                </div>
+            </div>
+            <div id="mfa-enroll-step2" style="display:none;">
+                <div class="form-group">
+                    <label for="mfa-enroll-code">Verification Code</label>
+                    <input type="text" id="mfa-enroll-code" placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" />
+                </div>
+                <div id="mfa-enroll-verify-error" class="error-message" style="margin-bottom: 15px;"></div>
+                <div class="mfa-button-group">
+                    <button class="auth-button" id="mfa-enroll-verify-button" onclick="verifyEnrollmentCode()">Verify & Enable MFA</button>
+                    <button class="mfa-cancel-button" onclick="skipMFAEnrollment()">Skip for now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invisible reCAPTCHA container -->
+    <div id="recaptcha-container"></div>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -482,7 +642,12 @@
             setPersistence,
             browserSessionPersistence,
             browserLocalPersistence,
-            updateProfile
+            updateProfile,
+            multiFactor,
+            getMultiFactorResolver,
+            PhoneAuthProvider,
+            PhoneMultiFactorGenerator,
+            RecaptchaVerifier
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { firebaseConfig } from './firebase-config.js';
 
@@ -490,55 +655,56 @@
         const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // MFA state
+        let mfaResolver = null;
+        let mfaVerificationId = null;
+        let enrollmentVerificationId = null;
+        let recaptchaVerifier = null;
+
         // Make functions available globally
         window.handleLogin = handleLogin;
         window.handleRegister = handleRegister;
         window.signInWithGoogle = signInWithGoogle;
         window.showPasswordReset = showPasswordReset;
+        window.submitMFACode = submitMFACode;
+        window.cancelMFA = cancelMFA;
+        window.sendEnrollmentCode = sendEnrollmentCode;
+        window.verifyEnrollmentCode = verifyEnrollmentCode;
+        window.skipMFAEnrollment = skipMFAEnrollment;
 
         // Handle Login
         async function handleLogin(event) {
             event.preventDefault();
             hideMessages();
-            
+
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const remember = document.getElementById('remember-login').checked;
             const button = document.getElementById('login-button');
-            
+
             button.disabled = true;
             button.textContent = 'Signing in...';
-            
+
             try {
-                // Set persistence based on remember me - ALWAYS use local for now to fix redirect
-                const persistence = browserLocalPersistence; // Always local to prevent redirect issues
+                const persistence = browserLocalPersistence;
                 await setPersistence(auth, persistence);
-                console.log('Persistence set');
-                
-                // Sign in
+
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 console.log('Login successful:', userCredential.user.email);
-                
-                button.textContent = '✓ Success!';
-                button.style.background = '#28a745';
-                
-                // Store user info
-                localStorage.setItem('userEmail', userCredential.user.email);
-                localStorage.setItem('userName', userCredential.user.displayName || email);
-                localStorage.setItem('firebaseAuthComplete', 'true');
-                
-                // Wait for auth state to sync
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Redirect
-                console.log('Redirecting to index.html');
-                window.location.href = 'assessment.html';
-                
+                completeSignIn(userCredential.user);
+
             } catch (error) {
-                console.error('Login error:', error);
-                showError(getErrorMessage(error.code));
-                button.disabled = false;
-                button.textContent = 'Sign In';
+                if (error.code === 'auth/multi-factor-auth-required') {
+                    console.log('MFA required. Handling second factor verification.');
+                    button.disabled = false;
+                    button.textContent = 'Sign In';
+                    await handleMFAChallenge(error);
+                } else {
+                    console.error('Login error:', error);
+                    showError(getErrorMessage(error.code));
+                    button.disabled = false;
+                    button.textContent = 'Sign In';
+                }
             }
         }
 
@@ -546,43 +712,39 @@
         async function handleRegister(event) {
             event.preventDefault();
             hideMessages();
-            
+
             const name = document.getElementById('register-name').value;
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             const confirmPassword = document.getElementById('register-confirm-password').value;
             const button = document.getElementById('register-button');
-            
-            // Validate passwords match
+
             if (password !== confirmPassword) {
                 showError('Passwords do not match');
                 return;
             }
-            
+
             button.disabled = true;
             button.textContent = 'Creating account...';
-            
+
             try {
-                // Create user
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Update profile with name
+
                 await updateProfile(userCredential.user, {
                     displayName: name
                 });
-                
+
                 button.textContent = '✓ Account created!';
                 button.style.background = '#28a745';
-                
-                // Store user info
+
                 localStorage.setItem('userEmail', userCredential.user.email);
                 localStorage.setItem('userName', name);
-                
-                // Redirect
-                setTimeout(() => {
-                    window.location.href = 'assessment.html';
-                }, 500);
-                
+                localStorage.setItem('firebaseAuthComplete', 'true');
+
+                // Offer MFA enrollment before redirecting
+                showSuccess('Account created! You can now enable two-factor authentication for extra security.');
+                showMFAEnrollment();
+
             } catch (error) {
                 showError(getErrorMessage(error.code));
                 button.disabled = false;
@@ -593,34 +755,246 @@
         // Sign in with Google
         async function signInWithGoogle() {
             hideMessages();
-            
+
             try {
-                console.log('Starting Google sign-in...');
-                
-                // Set persistence BEFORE sign-in
                 await setPersistence(auth, browserLocalPersistence);
-                console.log('Persistence set to local');
-                
                 const result = await signInWithPopup(auth, googleProvider);
                 console.log('Google sign-in successful:', result.user.email);
-                
-                // Store user info in localStorage as backup
-                localStorage.setItem('userEmail', result.user.email);
-                localStorage.setItem('userName', result.user.displayName || result.user.email);
-                localStorage.setItem('firebaseAuthComplete', 'true');
-                
-                console.log('User data stored, waiting for auth state...');
-                
-                // Wait a bit longer for Firebase auth state to sync
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                console.log('Redirecting to index.html...');
-                window.location.href = 'assessment.html';
-                
+                completeSignIn(result.user);
+
             } catch (error) {
-                console.error('Google sign-in error:', error);
-                showError(getErrorMessage(error.code));
+                if (error.code === 'auth/multi-factor-auth-required') {
+                    console.log('MFA required for Google sign-in.');
+                    await handleMFAChallenge(error);
+                } else {
+                    console.error('Google sign-in error:', error);
+                    showError(getErrorMessage(error.code));
+                }
             }
+        }
+
+        // Complete sign-in and redirect
+        function completeSignIn(user) {
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('userName', user.displayName || user.email);
+            localStorage.setItem('firebaseAuthComplete', 'true');
+
+            // Update button state if visible
+            const loginBtn = document.getElementById('login-button');
+            if (loginBtn) {
+                loginBtn.textContent = '✓ Success!';
+                loginBtn.style.background = '#28a745';
+            }
+
+            setTimeout(() => {
+                window.location.href = 'assessment.html';
+            }, 500);
+        }
+
+        // --- MFA Sign-in Challenge ---
+        async function handleMFAChallenge(error) {
+            mfaResolver = getMultiFactorResolver(auth, error);
+            const selectedHint = mfaResolver.hints[0];
+
+            if (selectedHint.factorId === PhoneMultiFactorGenerator.FACTOR_ID) {
+                // Show masked phone number hint
+                const phoneHintEl = document.getElementById('mfa-phone-hint');
+                phoneHintEl.textContent = 'Code will be sent to: ' + selectedHint.phoneNumber;
+                phoneHintEl.style.display = 'block';
+
+                // Reset and show the MFA modal
+                document.getElementById('mfa-code').value = '';
+                document.getElementById('mfa-error').classList.remove('show');
+                document.getElementById('mfa-overlay').classList.add('show');
+                document.getElementById('mfa-code').focus();
+
+                // Initialize invisible reCAPTCHA
+                if (recaptchaVerifier) {
+                    recaptchaVerifier.clear();
+                    recaptchaVerifier = null;
+                }
+                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+
+                const phoneAuthProvider = new PhoneAuthProvider(auth);
+                const phoneInfoOptions = {
+                    multiFactorHint: selectedHint,
+                    session: mfaResolver.session
+                };
+
+                try {
+                    mfaVerificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+                    console.log('MFA SMS sent successfully.');
+                } catch (sendError) {
+                    console.error('Error sending MFA SMS:', sendError);
+                    document.getElementById('mfa-overlay').classList.remove('show');
+                    showError('Failed to send verification code. Please try signing in again.');
+                }
+            } else {
+                showError('Unsupported second factor type. Please contact support.');
+            }
+        }
+
+        async function submitMFACode() {
+            const code = document.getElementById('mfa-code').value.trim();
+            const errorEl = document.getElementById('mfa-error');
+            errorEl.classList.remove('show');
+
+            if (!code || code.length !== 6) {
+                errorEl.textContent = 'Please enter a valid 6-digit code.';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            const button = document.getElementById('mfa-submit-button');
+            button.disabled = true;
+            button.textContent = 'Verifying...';
+
+            try {
+                const credential = PhoneAuthProvider.credential(mfaVerificationId, code);
+                const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
+                const userCredential = await mfaResolver.resolveSignIn(multiFactorAssertion);
+
+                console.log('MFA sign-in successful!');
+                document.getElementById('mfa-overlay').classList.remove('show');
+                completeSignIn(userCredential.user);
+
+            } catch (error) {
+                console.error('MFA verification error:', error);
+                button.disabled = false;
+                button.textContent = 'Verify';
+
+                if (error.code === 'auth/invalid-verification-code') {
+                    errorEl.textContent = 'Invalid verification code. Please check and try again.';
+                } else {
+                    errorEl.textContent = 'Verification failed. Please try again.';
+                }
+                errorEl.classList.add('show');
+            }
+        }
+
+        function cancelMFA() {
+            document.getElementById('mfa-overlay').classList.remove('show');
+            mfaResolver = null;
+            mfaVerificationId = null;
+        }
+
+        // --- MFA Enrollment (post-registration) ---
+        function showMFAEnrollment() {
+            document.getElementById('mfa-enroll-overlay').classList.add('show');
+            document.getElementById('mfa-enroll-step1').style.display = 'block';
+            document.getElementById('mfa-enroll-step2').style.display = 'none';
+            document.getElementById('mfa-phone-number').value = '';
+            document.getElementById('mfa-enroll-error').classList.remove('show');
+            document.getElementById('mfa-enroll-verify-error').classList.remove('show');
+            document.getElementById('mfa-phone-number').focus();
+        }
+
+        async function sendEnrollmentCode() {
+            const phoneNumber = document.getElementById('mfa-phone-number').value.trim();
+            const errorEl = document.getElementById('mfa-enroll-error');
+            errorEl.classList.remove('show');
+
+            if (!phoneNumber) {
+                errorEl.textContent = 'Please enter a phone number with country code (e.g. +44...).';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            if (!phoneNumber.startsWith('+')) {
+                errorEl.textContent = 'Phone number must start with a country code (e.g. +44, +1).';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            const button = document.getElementById('mfa-enroll-send-button');
+            button.disabled = true;
+            button.textContent = 'Sending...';
+
+            try {
+                const user = auth.currentUser;
+                const multiFactorSession = await multiFactor(user).getSession();
+
+                const phoneInfoOptions = {
+                    phoneNumber: phoneNumber,
+                    session: multiFactorSession
+                };
+
+                if (recaptchaVerifier) {
+                    recaptchaVerifier.clear();
+                    recaptchaVerifier = null;
+                }
+                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+
+                const phoneAuthProvider = new PhoneAuthProvider(auth);
+                enrollmentVerificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+
+                // Switch to step 2 (code entry)
+                document.getElementById('mfa-enroll-step1').style.display = 'none';
+                document.getElementById('mfa-enroll-step2').style.display = 'block';
+                document.getElementById('mfa-enroll-code').value = '';
+                document.getElementById('mfa-enroll-code').focus();
+
+            } catch (error) {
+                console.error('Error sending enrollment code:', error);
+                if (error.code === 'auth/requires-recent-login') {
+                    errorEl.textContent = 'For security, please sign out and sign back in before enabling MFA.';
+                } else if (error.code === 'auth/invalid-phone-number') {
+                    errorEl.textContent = 'Invalid phone number. Please include country code (e.g. +44...).';
+                } else {
+                    errorEl.textContent = 'Failed to send code: ' + error.message;
+                }
+                errorEl.classList.add('show');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Send Code';
+            }
+        }
+
+        async function verifyEnrollmentCode() {
+            const code = document.getElementById('mfa-enroll-code').value.trim();
+            const errorEl = document.getElementById('mfa-enroll-verify-error');
+            errorEl.classList.remove('show');
+
+            if (!code || code.length !== 6) {
+                errorEl.textContent = 'Please enter a valid 6-digit code.';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            const button = document.getElementById('mfa-enroll-verify-button');
+            button.disabled = true;
+            button.textContent = 'Verifying...';
+
+            try {
+                const credential = PhoneAuthProvider.credential(enrollmentVerificationId, code);
+                const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
+                await multiFactor(auth.currentUser).enroll(multiFactorAssertion, 'Phone Number');
+
+                console.log('MFA enrollment successful!');
+                document.getElementById('mfa-enroll-overlay').classList.remove('show');
+                showSuccess('Two-factor authentication enabled successfully! Redirecting...');
+
+                setTimeout(() => {
+                    window.location.href = 'assessment.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('MFA enrollment verification error:', error);
+                button.disabled = false;
+                button.textContent = 'Verify & Enable MFA';
+
+                if (error.code === 'auth/invalid-verification-code') {
+                    errorEl.textContent = 'Invalid verification code. Please check and try again.';
+                } else {
+                    errorEl.textContent = 'Enrollment failed: ' + error.message;
+                }
+                errorEl.classList.add('show');
+            }
+        }
+
+        function skipMFAEnrollment() {
+            document.getElementById('mfa-enroll-overlay').classList.remove('show');
+            window.location.href = 'assessment.html';
         }
 
         // Password reset
@@ -667,9 +1041,11 @@
                 'auth/user-not-found': 'No account found with this email.',
                 'auth/wrong-password': 'Incorrect password.',
                 'auth/invalid-credential': 'Invalid email or password.',
-                'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+                'auth/too-many-requests': 'Too many attempts. Please try again later.',
                 'auth/network-request-failed': 'Network error. Please check your connection.',
-                'auth/popup-closed-by-user': 'Sign-in cancelled.'
+                'auth/popup-closed-by-user': 'Sign-in cancelled.',
+                'auth/multi-factor-auth-required': 'Multi-factor authentication required.',
+                'auth/invalid-verification-code': 'Invalid verification code.'
             };
             return messages[code] || 'An error occurred. Please try again.';
         }
