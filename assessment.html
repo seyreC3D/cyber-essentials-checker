@@ -10,18 +10,13 @@
     <div class="container">
         <div class="header">
             <div class="user-info" id="user-info"></div>
+            <button class="how-it-works-link" onclick="showWelcomeModal()">How This Works</button>
             <button class="logout-button" id="logout-button" onclick="logout()">Logout</button>
             <h1>Cyber Essentials Readiness Checker - Powered by Cyber 3D</h1>
             <p>AI-Powered Assessment Tool for Small Businesses</p>
         </div>
 
         <div class="main-content">
-            <div class="intro-section">
-                <h2>How This Works</h2>
-                <p>This intelligent assessment tool will evaluate your business against the UK Cyber Essentials requirements (v3.3). Answer the questions honestly, and we'll analyze your responses to determine if you're ready for certification and identify any gaps that need addressing.</p>
-                <p style="margin-top: 10px; font-size: 14px; color: #666;"><strong>Note:</strong> This tool includes AI-powered analysis for enhanced insights. If AI analysis is unavailable, you'll still receive a comprehensive local assessment based on your responses.</p>
-                <p style="margin-top: 10px; font-size: 14px; color: #666;"><strong>Your Privacy:</strong> Your responses are processed entirely within your browser and are never stored on our servers. Auto-saved progress is held in your browser's local storage only. AI analysis is sent through a secure, encrypted connection and is not retained after your session. No personal or assessment data is shared with third parties.</p>
-            </div>
 
             <!-- Control 1: Firewalls -->
             <div class="assessment-section">
@@ -467,6 +462,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Welcome Modal (first-visit only) -->
+    <div id="welcome-overlay" class="welcome-overlay">
+        <div class="welcome-modal">
+            <h2>How This Works</h2>
+            <p>This intelligent assessment tool will evaluate your business against the UK Cyber Essentials requirements (v3.3). Answer the questions honestly, and we'll analyze your responses to determine if you're ready for certification and identify any gaps that need addressing.</p>
+            <p class="welcome-note"><strong>Note:</strong> This tool includes AI-powered analysis for enhanced insights. If AI analysis is unavailable, you'll still receive a comprehensive local assessment based on your responses.</p>
+            <p class="welcome-note"><strong>Your Privacy:</strong> Your responses are processed entirely within your browser and are never stored on our servers. Auto-saved progress is held in your browser's local storage only. AI analysis is sent through a secure, encrypted connection and is not retained after your session. No personal or assessment data is shared with third parties.</p>
+            <button class="welcome-dismiss-button" onclick="dismissWelcomeModal()">Start Assessment</button>
+        </div>
+    </div>
+
+    <!-- Welcome modal logic -->
+    <script>
+        function showWelcomeModal() {
+            document.getElementById('welcome-overlay').classList.add('show');
+        }
+
+        function dismissWelcomeModal() {
+            document.getElementById('welcome-overlay').classList.remove('show');
+            localStorage.setItem('ce-checker-welcome-seen', 'true');
+        }
+
+        // Show on first visit only
+        if (!localStorage.getItem('ce-checker-welcome-seen')) {
+            showWelcomeModal();
+        }
+    </script>
 
     <!-- Application logic (extracted) -->
     <script src="assessment.js"></script>
