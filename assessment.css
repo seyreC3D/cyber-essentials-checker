@@ -36,6 +36,14 @@ body {
 .header p {
     font-size: 16px;
     opacity: 0.95;
+    margin: 0;
+}
+
+.subtitle-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
 .logout-button {
@@ -72,9 +80,6 @@ body {
 }
 
 .how-it-works-link {
-    position: absolute;
-    top: 15px;
-    right: 120px;
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -85,6 +90,7 @@ body {
     opacity: 0.95;
     transition: all 0.3s ease;
     padding: 8px 14px;
+    white-space: nowrap;
 }
 
 .how-it-works-link:hover {
