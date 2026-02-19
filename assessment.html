@@ -579,10 +579,20 @@
                 })
             })
             .then(function(response) {
-                if (!response.ok) throw new Error('API request failed: ' + response.status);
+                if (!response.ok) {
+                    return response.json().then(function(errData) {
+                        var detail = errData.details || errData.error || response.status;
+                        throw new Error(detail);
+                    }).catch(function(parseErr) {
+                        if (parseErr.message && parseErr.message !== String(response.status)) throw parseErr;
+                        throw new Error('API request failed: ' + response.status);
+                    });
+                }
                 return response.json();
             })
             .then(function(data) {
+                if (data.error) throw new Error(data.error);
+
                 var text = '';
                 if (data.content && Array.isArray(data.content)) {
                     var textContent = data.content.find(function(c) { return c.type === 'text'; });
@@ -601,7 +611,10 @@
                 responseDiv.dataset.loaded = 'true';
             })
             .catch(function(err) {
-                responseDiv.innerHTML = '<div class="consultant-error">Unable to reach the consultant right now. Please try again later.</div>';
+                console.error('Ask Consultant error:', err);
+                var msg = err.message || 'Unknown error';
+                responseDiv.innerHTML = '<div class="consultant-error">Consultant unavailable: ' +
+                    msg.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
                 responseDiv.dataset.loaded = '';
             })
             .finally(function() {
