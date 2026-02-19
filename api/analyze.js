@@ -17,9 +17,14 @@
 //    - Import the handler below and wire it to a POST route.
 
 module.exports = async function handler(req, res) {
+    // Allow GET for health-check / debugging
+    if (req.method === 'GET') {
+        return res.status(200).json({ ok: true, message: 'API proxy is running. Send a POST to use it.' });
+    }
+
     // Only allow POST
     if (req.method !== 'POST') {
-        res.setHeader('Allow', 'POST');
+        res.setHeader('Allow', 'GET, POST');
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
