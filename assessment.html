@@ -39,6 +39,8 @@
                             <label class="option"><input type="radio" name="q1_1" value="fail"><span>No, some devices don't have firewall protection</span></label>
                             <label class="option"><input type="radio" name="q1_1" value="unsure"><span>I'm not sure</span></label>
                         </div>
+                        <button class="ask-consultant-btn" data-question-id="q1_1" onclick="askConsultant(this)">Ask Consultant</button>
+                        <div class="consultant-response" id="consultant-q1_1"></div>
                     </div>
 
                     <div class="question" data-control="1" data-critical="true">
@@ -512,6 +514,101 @@
                 howLink.addEventListener('click', showWelcomeModal);
             }
         });
+    </script>
+
+    <!-- Ask Consultant logic -->
+    <script>
+        // Hardcoded system prompt for CE guidance queries
+        var CONSULTANT_SYSTEM_PROMPT = 'You are a UK Cyber Essentials (v3.3) certification consultant. ' +
+            'Your role is to help small businesses understand the specific Cyber Essentials requirements ' +
+            'related to each assessment question. ' +
+            'RULES: ' +
+            '- Explain the official CE requirement in plain, non-technical language. ' +
+            '- Describe WHY this requirement exists and what risk it mitigates. ' +
+            '- Give 1-2 practical examples of how a small business can meet the requirement. ' +
+            '- If relevant, mention common mistakes or misconceptions. ' +
+            '- Keep your response concise (under 150 words). ' +
+            '- Do NOT assess or score the user. Only explain and guide. ' +
+            '- Reference the Cyber Essentials v3.3 standard where appropriate.';
+
+        // Cache to avoid repeat API calls for the same question
+        var consultantCache = {};
+
+        function askConsultant(button) {
+            var questionId = button.getAttribute('data-question-id');
+            var responseDiv = document.getElementById('consultant-' + questionId);
+            var questionDiv = button.closest('.question');
+            var questionText = questionDiv.querySelector('.question-text').textContent;
+            var helpText = questionDiv.querySelector('.question-help').textContent;
+
+            // Toggle: if response is visible and already loaded, just collapse it
+            if (responseDiv.classList.contains('show') && responseDiv.dataset.loaded === 'true') {
+                responseDiv.classList.remove('show');
+                return;
+            }
+
+            // If cached, show immediately
+            if (consultantCache[questionId]) {
+                responseDiv.innerHTML = consultantCache[questionId];
+                responseDiv.dataset.loaded = 'true';
+                responseDiv.classList.add('show');
+                return;
+            }
+
+            // Show loading state
+            button.disabled = true;
+            button.textContent = 'Consulting...';
+            responseDiv.innerHTML = '<div class="consultant-loading">Consulting Cyber Essentials guidance...</div>';
+            responseDiv.classList.add('show');
+
+            var userPrompt = 'The user is answering the following Cyber Essentials assessment question:\n\n' +
+                'Question: ' + questionText + '\n' +
+                'Guidance hint: ' + helpText + '\n\n' +
+                'Please explain the Cyber Essentials requirement related to this question. ' +
+                'What does the standard require, why does it matter, and how can a small business comply?';
+
+            fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: userPrompt,
+                    systemPrompt: CONSULTANT_SYSTEM_PROMPT,
+                    max_tokens: 500,
+                    model: 'claude-sonnet-4-5-20250929',
+                    temperature: 0.2
+                })
+            })
+            .then(function(response) {
+                if (!response.ok) throw new Error('API request failed: ' + response.status);
+                return response.json();
+            })
+            .then(function(data) {
+                var text = '';
+                if (data.content && Array.isArray(data.content)) {
+                    var textContent = data.content.find(function(c) { return c.type === 'text'; });
+                    text = textContent ? textContent.text : '';
+                } else if (data.text) {
+                    text = data.text;
+                }
+
+                if (!text) throw new Error('No response text');
+
+                var html = '<div class="consultant-answer">' +
+                    '<strong>CE Consultant:</strong> ' + text.replace(/\n/g, '<br>') +
+                    '</div>';
+                consultantCache[questionId] = html;
+                responseDiv.innerHTML = html;
+                responseDiv.dataset.loaded = 'true';
+            })
+            .catch(function(err) {
+                responseDiv.innerHTML = '<div class="consultant-error">Unable to reach the consultant right now. Please try again later.</div>';
+                responseDiv.dataset.loaded = '';
+            })
+            .finally(function() {
+                button.disabled = false;
+                button.textContent = 'Ask Consultant';
+            });
+        }
     </script>
 
     <!-- Application logic (extracted) -->
