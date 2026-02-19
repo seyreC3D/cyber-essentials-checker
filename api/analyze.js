@@ -16,7 +16,7 @@
 // 4) Any Node.js host (Express, etc.)
 //    - Import the handler below and wire it to a POST route.
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Only allow POST
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
