@@ -17,6 +17,16 @@
 //    - Import the handler below and wire it to a POST route.
 
 module.exports = async function handler(req, res) {
+    // CORS headers — needed for preflight and cross-origin requests
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+    }
+
     // Allow GET for health-check / debugging
     if (req.method === 'GET') {
         return res.status(200).json({ ok: true, message: 'API proxy is running. Send a POST to use it.' });
@@ -24,7 +34,7 @@ module.exports = async function handler(req, res) {
 
     // Only allow POST
     if (req.method !== 'POST') {
-        res.setHeader('Allow', 'GET, POST');
+        res.setHeader('Allow', 'GET, POST, OPTIONS');
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
