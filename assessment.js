@@ -770,8 +770,7 @@ function displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resul
     const cards = [
         { value: analysis.readinessScore + '%', label: 'Overall Readiness' },
         { value: String(analysis.criticalIssuesCount), label: 'Critical Issues' },
-        { value: String(analysis.warnings?.length || 0), label: 'Warnings' },
-        { value: analysis.timeline, label: 'Est. Timeline' }
+        { value: String(analysis.warnings?.length || 0), label: 'Warnings' }
     ];
     cards.forEach(card => {
         const el = createElement('div', 'score-card');

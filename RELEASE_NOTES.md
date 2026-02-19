@@ -1,5 +1,29 @@
 # Release Notes
 
+## v1.3.0 - 2026-02-19
+
+### Ask Consultant
+- New "Ask Consultant" button on assessment questions providing real-time Cyber Essentials guidance powered by Claude
+- Dedicated system prompt for UK Cyber Essentials v3.3 certification advice
+- Response caching to avoid repeat API calls for the same question
+- Actual error messages surfaced to the user instead of generic failures
+
+### API & Deployment
+- Serverless API proxy deployed to Vercel with CORS and OPTIONS preflight handling
+- Frontend API calls updated to use absolute Vercel URL (site hosted on GitHub Pages, API on Vercel)
+- Edge-level CORS headers configured in `vercel.json`
+- GET health-check endpoint added for debugging (`/api/analyze`)
+
+### Authentication
+- Added SMS multi-factor authentication to the login page
+- Fixed missing email verification on user registration
+
+### UI Improvements
+- First-visit welcome modal on the assessment page (dismissible, shown once)
+- "How This Works" button moved inline next to subtitle text
+
+---
+
 ## v1.2.0 - 2026-02-17
 
 ### Input Validation
