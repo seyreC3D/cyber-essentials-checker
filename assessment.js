@@ -27,6 +27,7 @@ window.addEventListener('load', () => {
         toggleControl(i);
     }
     initAutoSave();
+    initQuestionBranching();
 });
 
 // --- Handle option selection ---
@@ -149,7 +150,8 @@ function loadAssessment() {
             firewallDetails: 'q1_firewall_details',
             malwareDetails: 'q5_malware_details',
             backupDetails: 'q6_backup_details',
-            incidentDetails: 'q6_incident_details'
+            incidentDetails: 'q6_incident_details',
+            mfaDetail: 'q4_3_detail'
         };
         Object.entries(textMap).forEach(([key, id]) => {
             if (responses.textInputs[key]) {
@@ -157,6 +159,9 @@ function loadAssessment() {
                 if (el) el.value = responses.textInputs[key];
             }
         });
+
+        // Update conditional question visibility based on restored answers
+        updateConditionalQuestions();
 
         const savedDate = new Date(saveData.timestamp).toLocaleString();
         alert(`Assessment loaded from ${savedDate}`);
@@ -214,6 +219,54 @@ function initAutoSave() {
 }
 
 // =============================================
+// QUESTION BRANCHING — Conditional follow-ups
+// =============================================
+function initQuestionBranching() {
+    // Hide all conditional questions initially
+    document.querySelectorAll('[data-show-if]').forEach(q => {
+        q.style.display = 'none';
+    });
+
+    // Listen for radio changes on all radios to trigger branching
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', updateConditionalQuestions);
+    });
+
+    // Run once in case assessment state was already restored
+    updateConditionalQuestions();
+}
+
+function updateConditionalQuestions() {
+    document.querySelectorAll('[data-show-if]').forEach(question => {
+        const condition = question.dataset.showIf;
+        const parts = condition.split(':');
+        const parentId = parts[0];
+        const allowedValues = parts[1].split('|');
+
+        const selected = document.querySelector('input[name="' + parentId + '"]:checked');
+        const shouldShow = selected && allowedValues.includes(selected.value);
+
+        if (shouldShow) {
+            question.style.display = '';
+            question.classList.add('branch-visible');
+        } else {
+            question.style.display = 'none';
+            question.classList.remove('branch-visible');
+            // Clear selections in hidden questions so they don't affect scoring
+            question.querySelectorAll('input[type="radio"]:checked').forEach(r => {
+                r.checked = false;
+            });
+            question.querySelectorAll('.option').forEach(o => {
+                o.classList.remove('selected', 'fail');
+            });
+            question.querySelectorAll('.text-input').forEach(t => {
+                t.value = '';
+            });
+        }
+    });
+}
+
+// =============================================
 // RESPONSE COLLECTION
 // =============================================
 function collectResponses() {
@@ -258,6 +311,9 @@ function collectResponses() {
     responses.textInputs.malwareDetails = document.getElementById('q5_malware_details')?.value || '';
     responses.textInputs.backupDetails = document.getElementById('q6_backup_details')?.value || '';
     responses.textInputs.incidentDetails = document.getElementById('q6_incident_details')?.value || '';
+
+    // Conditional branching detail inputs (only populated when visible)
+    responses.textInputs.mfaDetail = document.getElementById('q4_3_detail')?.value || '';
 
     return responses;
 }
@@ -328,7 +384,12 @@ document.querySelectorAll('.text-input').forEach(input => {
 async function analyzeAssessment() {
     const responses = collectResponses();
 
-    const totalQuestions = document.querySelectorAll('.question[data-control]').length;
+    // Count only visible questions (exclude hidden conditional follow-ups)
+    const allQuestionEls = document.querySelectorAll('.question[data-control]');
+    let totalQuestions = 0;
+    allQuestionEls.forEach(q => {
+        if (!q.dataset.showIf || q.classList.contains('branch-visible')) totalQuestions++;
+    });
     const answeredQuestions = Object.keys(responses.controls.firewalls).length +
         Object.keys(responses.controls.secureConfig).length +
         Object.keys(responses.controls.updates).length +
@@ -489,6 +550,7 @@ function buildAnalysisPrompt(responses) {
     if (ti.deviceCount) additionalContext += `\nDevices in scope: ${ti.deviceCount}`;
     if (ti.backupDetails) additionalContext += `\nBackup procedures: ${ti.backupDetails}`;
     if (ti.incidentDetails) additionalContext += `\nIncident response: ${ti.incidentDetails}`;
+    if (ti.mfaDetail) additionalContext += `\nCloud services lacking MFA: ${ti.mfaDetail}`;
 
     return {
         systemPrompt: buildSystemPrompt(),
@@ -798,6 +860,9 @@ function displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resul
     summaryBox.appendChild(summaryP);
     fragment.appendChild(summaryBox);
 
+    // --- Risk Overview (radar chart + heatmap) ---
+    fragment.appendChild(buildRiskOverview(analysis.controlScores));
+
     // --- Control Scores ---
     const scoresSection = document.createElement('div');
     scoresSection.style.cssText = 'margin-bottom: 30px;';
@@ -965,6 +1030,152 @@ function buildControlScoresDOM(scores) {
         container.appendChild(row);
     });
     return container;
+}
+
+// =============================================
+// RISK OVERVIEW — Radar Chart + Heatmap
+// =============================================
+function buildRiskOverview(controlScores) {
+    const section = document.createElement('div');
+    section.className = 'risk-overview-section';
+
+    const h3 = document.createElement('h3');
+    h3.style.cssText = 'margin-bottom: 20px; color: #028090;';
+    h3.textContent = 'Risk Overview';
+    section.appendChild(h3);
+
+    const container = document.createElement('div');
+    container.className = 'risk-overview';
+
+    container.appendChild(buildRadarChart(controlScores));
+    container.appendChild(buildHeatmapGrid(controlScores));
+
+    section.appendChild(container);
+    return section;
+}
+
+function buildRadarChart(controlScores) {
+    const controls = [
+        { key: 'firewalls', label: 'Firewalls' },
+        { key: 'secureConfig', label: 'Secure Config' },
+        { key: 'updates', label: 'Updates' },
+        { key: 'accessControl', label: 'Access Control' },
+        { key: 'malware', label: 'Malware' }
+    ];
+    const cx = 180, cy = 170, maxR = 110;
+    const n = controls.length;
+
+    function polarToXY(index, ratio) {
+        const angle = (-Math.PI / 2) + (index * 2 * Math.PI / n);
+        return {
+            x: cx + maxR * ratio * Math.cos(angle),
+            y: cy + maxR * ratio * Math.sin(angle)
+        };
+    }
+
+    let svg = '<svg viewBox="0 0 360 340" xmlns="http://www.w3.org/2000/svg">';
+
+    // Grid rings at 25%, 50%, 75%, 100%
+    [0.25, 0.5, 0.75, 1.0].forEach(level => {
+        let points = '';
+        for (let i = 0; i < n; i++) {
+            const p = polarToXY(i, level);
+            points += p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+        }
+        svg += '<polygon points="' + points.trim() + '" fill="none" stroke="#e8e8e8" stroke-width="1"/>';
+    });
+
+    // Axis lines
+    for (let i = 0; i < n; i++) {
+        const p = polarToXY(i, 1);
+        svg += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" stroke="#e0e0e0" stroke-width="1"/>';
+    }
+
+    // Data polygon
+    let dataPoints = '';
+    for (let i = 0; i < n; i++) {
+        const score = (controlScores[controls[i].key] || 0) / 100;
+        const p = polarToXY(i, Math.max(score, 0.03));
+        dataPoints += p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+    }
+    svg += '<polygon points="' + dataPoints.trim() + '" fill="rgba(2,128,144,0.2)" stroke="#028090" stroke-width="2.5"/>';
+
+    // Data dots
+    for (let i = 0; i < n; i++) {
+        const score = (controlScores[controls[i].key] || 0) / 100;
+        const p = polarToXY(i, Math.max(score, 0.03));
+        const color = score >= 0.8 ? '#28a745' : score >= 0.6 ? '#ffc107' : '#dc3545';
+        svg += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="5" fill="' + color + '" stroke="white" stroke-width="2"/>';
+    }
+
+    // Labels with scores
+    for (let i = 0; i < n; i++) {
+        const p = polarToXY(i, 1.3);
+        let anchor = 'middle';
+        if (p.x < cx - 15) anchor = 'end';
+        else if (p.x > cx + 15) anchor = 'start';
+        const scoreVal = Math.round(controlScores[controls[i].key] || 0);
+        svg += '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 6).toFixed(1) + '" text-anchor="' + anchor + '" font-size="12" font-weight="600" fill="#333" font-family="Segoe UI, sans-serif">' + escapeHtml(controls[i].label) + '</text>';
+        svg += '<text x="' + p.x.toFixed(1) + '" y="' + (p.y + 10).toFixed(1) + '" text-anchor="' + anchor + '" font-size="11" fill="#666" font-family="Segoe UI, sans-serif">' + scoreVal + '%</text>';
+    }
+
+    svg += '</svg>';
+
+    const container = document.createElement('div');
+    container.className = 'radar-chart-container';
+    container.innerHTML = svg;
+    return container;
+}
+
+function buildHeatmapGrid(controlScores) {
+    const controls = [
+        { key: 'firewalls', label: 'Firewalls' },
+        { key: 'secureConfig', label: 'Secure Config' },
+        { key: 'updates', label: 'Updates' },
+        { key: 'accessControl', label: 'Access Control' },
+        { key: 'malware', label: 'Malware' }
+    ];
+
+    const grid = document.createElement('div');
+    grid.className = 'risk-heatmap';
+
+    controls.forEach(c => {
+        const score = Math.round(controlScores[c.key] || 0);
+        const cell = document.createElement('div');
+
+        let statusClass, statusLabel;
+        if (score >= 80) {
+            statusClass = 'status-pass';
+            statusLabel = 'On Track';
+        } else if (score >= 60) {
+            statusClass = 'status-warn';
+            statusLabel = 'Needs Work';
+        } else {
+            statusClass = 'status-fail';
+            statusLabel = 'At Risk';
+        }
+
+        cell.className = 'heatmap-cell ' + statusClass;
+
+        const scoreDiv = document.createElement('div');
+        scoreDiv.className = 'heatmap-score';
+        scoreDiv.textContent = score + '%';
+        cell.appendChild(scoreDiv);
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'heatmap-label';
+        labelDiv.textContent = c.label;
+        cell.appendChild(labelDiv);
+
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'heatmap-status';
+        statusDiv.textContent = statusLabel;
+        cell.appendChild(statusDiv);
+
+        grid.appendChild(cell);
+    });
+
+    return grid;
 }
 
 function formatControlName(control) {
