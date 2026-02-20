@@ -1352,6 +1352,7 @@ function addCompanyNameToResults(companyName) {
             color: white; padding: 20px 30px;
             margin: -30px -30px 30px -30px;
             border-radius: 8px 8px 0 0;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
         `;
 
         const label = document.createElement('div');

@@ -818,6 +818,8 @@ body {
     .container {
         box-shadow: none;
         border-radius: 0;
+        overflow: visible;
+        max-width: none;
     }
 
     .results {
@@ -825,6 +827,12 @@ body {
         margin: 0;
         padding: 20px;
         border: none;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .progress-bar {
+        display: none !important;
     }
 
     /* Keep headings attached to the content that follows */
@@ -847,8 +855,56 @@ body {
         page-break-inside: avoid;
     }
 
+    /* Company name header — match print padding (20px, not 30px) */
+    #company-name-header {
+        margin-left: -20px !important;
+        margin-right: -20px !important;
+        margin-top: -20px !important;
+        border-radius: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Score cards — force 3-column row */
+    .score-summary {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Risk overview — stack vertically so radar + heatmap each get full width */
+    .risk-overview {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
     .risk-overview-section {
-        page-break-inside: avoid;
+        page-break-inside: auto;
+    }
+
+    .radar-chart-container {
+        width: 260px;
+    }
+
+    .risk-heatmap {
+        width: 100%;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+
+    .heatmap-cell {
+        padding: 10px 6px;
+    }
+
+    .heatmap-score {
+        font-size: 20px;
+    }
+
+    .heatmap-label {
+        font-size: 11px;
+    }
+
+    .heatmap-status {
+        font-size: 9px;
     }
 
     .heatmap-cell.status-pass {

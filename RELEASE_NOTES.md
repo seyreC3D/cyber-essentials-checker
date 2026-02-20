@@ -1,5 +1,32 @@
 # Release Notes
 
+## v1.4.0 - 2026-02-20
+
+### Risk Overview Dashboard
+- New radar/spider chart in the results section showing all 5 control scores at a glance as an SVG visualisation
+- Color-coded heatmap grid with per-control status indicators: On Track (green), Needs Work (yellow), At Risk (red)
+- Inserted between the assessment summary and detailed control score bars for an immediate visual overview
+- Fully responsive layout (side-by-side on desktop, stacked on mobile)
+- Print-safe with forced color rendering for PDF exports
+
+### Smart Question Branching
+- 5 conditional follow-up questions that appear only when a parent answer triggers them:
+  - Firewall config unknown → "Had a professional firewall audit?"
+  - Unnecessary software not fully removed → "Maintain a software inventory?"
+  - Unsupported software in use → "Plan to replace within 3 months?"
+  - MFA not on all cloud services → "Which services lack MFA?" (free-text)
+  - BYOD in use → "How are personal devices secured?"
+- Hidden questions are excluded from completion percentage calculations
+- Answers automatically cleared when a question is hidden (no stale data in scoring)
+- Branching state correctly restored when loading a saved assessment
+- Visually distinguished with dashed teal border and indentation
+
+### Ask Oracle Expansion
+- "Need help? Ask Oracle" button now available on all 29 radio-option questions (previously only on the first question)
+- Text/number input fields excluded as Oracle guidance is only relevant for multiple-choice questions
+
+---
+
 ## v1.3.0 - 2026-02-19
 
 ### Ask Consultant
