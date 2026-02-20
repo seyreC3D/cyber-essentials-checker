@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-02-20
+
+### Added
+- Risk Overview dashboard in results: SVG radar chart + color-coded heatmap grid (On Track / Needs Work / At Risk)
+- Smart question branching with 5 conditional follow-up questions that appear based on parent answers
+- "Need help? Ask Oracle" button on all 29 radio-option assessment questions
+- Conditional text input for identifying cloud services lacking MFA
+- Branching state restoration when loading saved assessments
+- Print-safe heatmap with forced color rendering for PDF exports
+
+### Changed
+- Completion percentage now excludes hidden conditional questions from the total count
+
+---
+
+## [1.3.0] - 2026-02-19
+
+### Added
+- Ask Oracle (formerly Ask Consultant) per-question AI guidance powered by Claude
+- Dedicated consultant system prompt for UK Cyber Essentials v3.3 certification advice
+- Oracle response caching to avoid repeat API calls
+- Serverless API proxy on Vercel with CORS and OPTIONS preflight handling
+- Edge-level CORS headers in `vercel.json`
+- GET health-check endpoint (`/api/analyze`)
+- SMS multi-factor authentication on login page
+- First-visit welcome modal on assessment page
+- "How This Works" button inline with subtitle
+
+### Fixed
+- Missing email verification on user registration
+- API error messages now surfaced to the user instead of generic failures
+
+---
+
 ## [1.2.0] - 2026-02-17
 
 ### Added
@@ -95,11 +129,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Future Releases
 
-### [1.3.0] - Planned
+### [1.5.0] - Planned
 - [ ] Multi-language support
 - [ ] Industry-specific question variants
 - [ ] Results comparison over time
 - [ ] Email results to IT team
+- [ ] Remediation action plan generator
+- [ ] Evidence collection vault
 
 ### [2.0.0] - Future
 - [ ] Team collaboration features
@@ -112,6 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **v1.4.0** (2026-02-20): Risk overview dashboard, smart question branching, Ask Oracle on all questions
+- **v1.3.0** (2026-02-19): Ask Oracle AI guidance, Vercel API proxy, SMS MFA, welcome modal
 - **v1.2.0** (2026-02-17): Input validation for required free-text fields
 - **v1.1.0** (2026-02-16): Architecture refactor, auto-save, PDF export, Firebase Auth, security hardening
 - **v1.0.0** (2026-02-09): Initial public release
