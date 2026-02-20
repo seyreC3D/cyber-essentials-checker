@@ -27,6 +27,7 @@ window.addEventListener('load', () => {
         toggleControl(i);
     }
     initAutoSave();
+    initQuestionBranching();
 });
 
 // --- Handle option selection ---
@@ -149,7 +150,8 @@ function loadAssessment() {
             firewallDetails: 'q1_firewall_details',
             malwareDetails: 'q5_malware_details',
             backupDetails: 'q6_backup_details',
-            incidentDetails: 'q6_incident_details'
+            incidentDetails: 'q6_incident_details',
+            mfaDetail: 'q4_3_detail'
         };
         Object.entries(textMap).forEach(([key, id]) => {
             if (responses.textInputs[key]) {
@@ -157,6 +159,9 @@ function loadAssessment() {
                 if (el) el.value = responses.textInputs[key];
             }
         });
+
+        // Update conditional question visibility based on restored answers
+        updateConditionalQuestions();
 
         const savedDate = new Date(saveData.timestamp).toLocaleString();
         alert(`Assessment loaded from ${savedDate}`);
@@ -214,6 +219,54 @@ function initAutoSave() {
 }
 
 // =============================================
+// QUESTION BRANCHING — Conditional follow-ups
+// =============================================
+function initQuestionBranching() {
+    // Hide all conditional questions initially
+    document.querySelectorAll('[data-show-if]').forEach(q => {
+        q.style.display = 'none';
+    });
+
+    // Listen for radio changes on all radios to trigger branching
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', updateConditionalQuestions);
+    });
+
+    // Run once in case assessment state was already restored
+    updateConditionalQuestions();
+}
+
+function updateConditionalQuestions() {
+    document.querySelectorAll('[data-show-if]').forEach(question => {
+        const condition = question.dataset.showIf;
+        const parts = condition.split(':');
+        const parentId = parts[0];
+        const allowedValues = parts[1].split('|');
+
+        const selected = document.querySelector('input[name="' + parentId + '"]:checked');
+        const shouldShow = selected && allowedValues.includes(selected.value);
+
+        if (shouldShow) {
+            question.style.display = '';
+            question.classList.add('branch-visible');
+        } else {
+            question.style.display = 'none';
+            question.classList.remove('branch-visible');
+            // Clear selections in hidden questions so they don't affect scoring
+            question.querySelectorAll('input[type="radio"]:checked').forEach(r => {
+                r.checked = false;
+            });
+            question.querySelectorAll('.option').forEach(o => {
+                o.classList.remove('selected', 'fail');
+            });
+            question.querySelectorAll('.text-input').forEach(t => {
+                t.value = '';
+            });
+        }
+    });
+}
+
+// =============================================
 // RESPONSE COLLECTION
 // =============================================
 function collectResponses() {
@@ -258,6 +311,9 @@ function collectResponses() {
     responses.textInputs.malwareDetails = document.getElementById('q5_malware_details')?.value || '';
     responses.textInputs.backupDetails = document.getElementById('q6_backup_details')?.value || '';
     responses.textInputs.incidentDetails = document.getElementById('q6_incident_details')?.value || '';
+
+    // Conditional branching detail inputs (only populated when visible)
+    responses.textInputs.mfaDetail = document.getElementById('q4_3_detail')?.value || '';
 
     return responses;
 }
@@ -328,7 +384,12 @@ document.querySelectorAll('.text-input').forEach(input => {
 async function analyzeAssessment() {
     const responses = collectResponses();
 
-    const totalQuestions = document.querySelectorAll('.question[data-control]').length;
+    // Count only visible questions (exclude hidden conditional follow-ups)
+    const allQuestionEls = document.querySelectorAll('.question[data-control]');
+    let totalQuestions = 0;
+    allQuestionEls.forEach(q => {
+        if (!q.dataset.showIf || q.classList.contains('branch-visible')) totalQuestions++;
+    });
     const answeredQuestions = Object.keys(responses.controls.firewalls).length +
         Object.keys(responses.controls.secureConfig).length +
         Object.keys(responses.controls.updates).length +
@@ -489,6 +550,7 @@ function buildAnalysisPrompt(responses) {
     if (ti.deviceCount) additionalContext += `\nDevices in scope: ${ti.deviceCount}`;
     if (ti.backupDetails) additionalContext += `\nBackup procedures: ${ti.backupDetails}`;
     if (ti.incidentDetails) additionalContext += `\nIncident response: ${ti.incidentDetails}`;
+    if (ti.mfaDetail) additionalContext += `\nCloud services lacking MFA: ${ti.mfaDetail}`;
 
     return {
         systemPrompt: buildSystemPrompt(),

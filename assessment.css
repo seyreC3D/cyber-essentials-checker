@@ -766,6 +766,12 @@ body {
     border: 1px solid #f5c6cb;
 }
 
+/* Conditional follow-up questions (smart branching) */
+.conditional-question {
+    margin-left: 24px;
+    border-left: 4px dashed #80c5ce;
+}
+
 @media (max-width: 768px) {
     .main-content {
         padding: 20px;

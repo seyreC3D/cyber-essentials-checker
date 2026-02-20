@@ -67,6 +67,16 @@
                         <div class="consultant-response" id="consultant-q1_3"></div>
                     </div>
 
+                    <div class="question conditional-question" data-control="1" data-critical="false" data-show-if="q1_3:fail|unsure" style="display:none;">
+                        <div class="question-text">Have you had a professional firewall configuration review or audit?</div>
+                        <div class="question-help">A firewall audit can identify misconfigurations and help you understand your current security posture.</div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q1_3_audit" value="pass"><span>Yes, within the last 12 months</span></label>
+                            <label class="option"><input type="radio" name="q1_3_audit" value="partial"><span>Yes, but more than 12 months ago</span></label>
+                            <label class="option"><input type="radio" name="q1_3_audit" value="fail"><span>Never had a firewall audit</span></label>
+                        </div>
+                    </div>
+
                     <div class="question" data-control="1" data-critical="false">
                         <div class="question-text">Do you document and approve all firewall rules that allow inbound connections?</div>
                         <div class="question-help">You must keep records of what's allowed through and why there's a business need.</div>
@@ -134,6 +144,16 @@
                         <div class="consultant-response" id="consultant-q2_2"></div>
                     </div>
 
+                    <div class="question conditional-question" data-control="2" data-critical="false" data-show-if="q2_2:fail|partial" style="display:none;">
+                        <div class="question-text">Do you maintain a software inventory or asset register?</div>
+                        <div class="question-help">A software inventory helps identify what needs removing and tracks what's installed across your organisation.</div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q2_2_inventory" value="pass"><span>Yes, we maintain an up-to-date software inventory</span></label>
+                            <label class="option"><input type="radio" name="q2_2_inventory" value="partial"><span>We have one but it's not regularly updated</span></label>
+                            <label class="option"><input type="radio" name="q2_2_inventory" value="fail"><span>No software inventory exists</span></label>
+                        </div>
+                    </div>
+
                     <div class="question" data-control="2" data-critical="true">
                         <div class="question-text">Is auto-run/auto-execute disabled on all devices?</div>
                         <div class="question-help">Auto-run allows files to execute without user permission - this must be disabled.</div>
@@ -192,6 +212,16 @@
                         </div>
                         <button class="ask-consultant-btn" data-question-id="q3_1" onclick="askConsultant(this)">Need help? Ask Oracle</button>
                         <div class="consultant-response" id="consultant-q3_1"></div>
+                    </div>
+
+                    <div class="question conditional-question" data-control="3" data-critical="false" data-show-if="q3_1:fail" style="display:none;">
+                        <div class="question-text">Do you have a plan to replace unsupported software within 3 months?</div>
+                        <div class="question-help">Having a migration plan demonstrates awareness and intent, which assessors look for.</div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q3_1_plan" value="pass"><span>Yes, we have a funded plan with a specific timeline</span></label>
+                            <label class="option"><input type="radio" name="q3_1_plan" value="partial"><span>We're aware but don't have a firm timeline yet</span></label>
+                            <label class="option"><input type="radio" name="q3_1_plan" value="fail"><span>No plan to replace the software</span></label>
+                        </div>
                     </div>
 
                     <div class="question" data-control="3" data-critical="true">
@@ -281,6 +311,12 @@
                         </div>
                         <button class="ask-consultant-btn" data-question-id="q4_3" onclick="askConsultant(this)">Need help? Ask Oracle</button>
                         <div class="consultant-response" id="consultant-q4_3"></div>
+                    </div>
+
+                    <div class="question conditional-question" data-control="4" data-critical="false" data-show-if="q4_3:fail|unsure" style="display:none;">
+                        <div class="question-text">Which cloud services currently lack MFA?</div>
+                        <div class="question-help">Identifying specific services helps prioritise your MFA rollout. List all services that don't yet have MFA enabled.</div>
+                        <textarea class="text-input" id="q4_3_detail" placeholder="e.g., Dropbox, Xero, project management tool..." rows="2" style="resize: vertical; min-height: 60px;"></textarea>
                     </div>
 
                     <div class="question" data-control="4" data-critical="true">
@@ -433,6 +469,16 @@
                         </div>
                         <button class="ask-consultant-btn" data-question-id="q6_3" onclick="askConsultant(this)">Need help? Ask Oracle</button>
                         <div class="consultant-response" id="consultant-q6_3"></div>
+                    </div>
+
+                    <div class="question conditional-question" data-control="6" data-critical="false" data-show-if="q6_3:pass|fail" style="display:none;">
+                        <div class="question-text">How are personal devices secured when accessing work data?</div>
+                        <div class="question-help">BYOD devices must meet security requirements when accessing organisational data or services.</div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q6_3_byod" value="pass"><span>Mobile Device Management (MDM) or containerised work apps</span></label>
+                            <label class="option"><input type="radio" name="q6_3_byod" value="partial"><span>VPN access only, with basic security requirements</span></label>
+                            <label class="option"><input type="radio" name="q6_3_byod" value="fail"><span>No specific security controls on personal devices</span></label>
+                        </div>
                     </div>
 
                     <div class="question" data-control="6" data-critical="false">
