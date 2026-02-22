@@ -23,8 +23,9 @@ function toggleControl(num) {
 
 // Expand all controls on load
 window.addEventListener('load', () => {
-    for (let i = 1; i <= 6; i++) {
-        toggleControl(i);
+    for (let i = 1; i <= 7; i++) {
+        const content = document.getElementById(`content-${i}`);
+        if (content) toggleControl(i);
     }
     initAutoSave();
     initQuestionBranching();
@@ -73,7 +74,8 @@ function autoSave() {
         const saveData = {
             responses: responses,
             timestamp: new Date().toISOString(),
-            version: '1.1'
+            version: '1.2',
+            vendors: vendors
         };
         localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
         showAutoSaveIndicator();
@@ -159,6 +161,13 @@ function loadAssessment() {
                 if (el) el.value = responses.textInputs[key];
             }
         });
+
+        // Restore vendors if present
+        if (saveData.vendors && Array.isArray(saveData.vendors)) {
+            vendors = saveData.vendors;
+            vendorIdCounter = vendors.reduce(function(max, v) { return Math.max(max, v.id); }, 0);
+            renderVendorCards();
+        }
 
         // Update conditional question visibility based on restored answers
         updateConditionalQuestions();
@@ -552,6 +561,16 @@ function buildAnalysisPrompt(responses) {
     if (ti.incidentDetails) additionalContext += `\nIncident response: ${ti.incidentDetails}`;
     if (ti.mfaDetail) additionalContext += `\nCloud services lacking MFA: ${ti.mfaDetail}`;
 
+    // Supply chain vendor summary for AI context
+    const scSummary = getSupplyChainSummary();
+    if (scSummary) {
+        additionalContext += `\n\n## Supply Chain Vendors (${scSummary.totalVendors} total)`;
+        additionalContext += `\nHigh risk: ${scSummary.highRiskCount}, Medium risk: ${scSummary.mediumRiskCount}, Low risk: ${scSummary.lowRiskCount}`;
+        scSummary.vendors.forEach(v => {
+            additionalContext += `\n- ${v.name} (${v.accessLabel}): Score ${v.riskScore}%, Risk: ${v.riskLevel}`;
+        });
+    }
+
     return {
         systemPrompt: buildSystemPrompt(),
         userPrompt: buildUserPrompt(readableResponses, additionalContext)
@@ -873,6 +892,12 @@ function displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resul
     scoresSection.appendChild(buildControlScoresDOM(analysis.controlScores));
     fragment.appendChild(scoresSection);
 
+    // --- Supply Chain Vendor Risk Table (if vendors present) ---
+    const supplyChainSummary = getSupplyChainSummary();
+    if (supplyChainSummary) {
+        fragment.appendChild(buildVendorRiskSection(supplyChainSummary));
+    }
+
     // --- Critical Issues ---
     if (analysis.criticalIssues && analysis.criticalIssues.length > 0) {
         const issuesSection = createElement('div', 'issues-section');
@@ -1178,6 +1203,104 @@ function buildHeatmapGrid(controlScores) {
     return grid;
 }
 
+function buildVendorRiskSection(summary) {
+    const section = document.createElement('div');
+    section.className = 'vendor-risk-section';
+    section.style.cssText = 'margin-bottom: 30px;';
+
+    const h3 = document.createElement('h3');
+    h3.style.cssText = 'margin-bottom: 15px; color: #028090;';
+    h3.textContent = 'Supply Chain Vendor Risk';
+    section.appendChild(h3);
+
+    // Summary stats
+    const statsDiv = document.createElement('div');
+    statsDiv.style.cssText = 'display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;';
+
+    const statItems = [
+        { label: 'Total Vendors', value: summary.totalVendors, color: '#028090' },
+        { label: 'High Risk', value: summary.highRiskCount, color: '#dc3545' },
+        { label: 'Medium Risk', value: summary.mediumRiskCount, color: '#ffc107' },
+        { label: 'Low Risk', value: summary.lowRiskCount, color: '#28a745' }
+    ];
+
+    statItems.forEach(function(item) {
+        var stat = document.createElement('div');
+        stat.style.cssText = 'background: #f8f9fa; padding: 12px 20px; border-radius: 6px; text-align: center; border: 2px solid #e0e0e0; flex: 1; min-width: 100px;';
+        var val = document.createElement('div');
+        val.style.cssText = 'font-size: 24px; font-weight: bold; color: ' + item.color + ';';
+        val.textContent = item.value;
+        var lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size: 12px; color: #666; text-transform: uppercase;';
+        lbl.textContent = item.label;
+        stat.appendChild(val);
+        stat.appendChild(lbl);
+        statsDiv.appendChild(stat);
+    });
+    section.appendChild(statsDiv);
+
+    // Risk table
+    var table = document.createElement('table');
+    table.className = 'vendor-risk-table';
+
+    var thead = document.createElement('thead');
+    var headerRow = document.createElement('tr');
+    ['Vendor', 'Access Level', 'Security Score', 'Risk Level'].forEach(function(h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    summary.vendors.forEach(function(v) {
+        var row = document.createElement('tr');
+
+        var nameCell = document.createElement('td');
+        nameCell.style.fontWeight = '600';
+        nameCell.textContent = v.name;
+        row.appendChild(nameCell);
+
+        var accessCell = document.createElement('td');
+        accessCell.textContent = v.accessLabel;
+        row.appendChild(accessCell);
+
+        var scoreCell = document.createElement('td');
+        scoreCell.textContent = v.riskScore + '%';
+        row.appendChild(scoreCell);
+
+        var riskCell = document.createElement('td');
+        riskCell.className = 'risk-cell ' + v.riskLevel;
+        riskCell.textContent = v.riskLevel;
+        row.appendChild(riskCell);
+
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    section.appendChild(table);
+
+    // High-risk vendor warnings
+    var highRiskVendors = summary.vendors.filter(function(v) { return v.riskLevel === 'high'; });
+    if (highRiskVendors.length > 0) {
+        var warningDiv = document.createElement('div');
+        warningDiv.style.cssText = 'background: #fff5f5; border-left: 4px solid #dc3545; padding: 15px; margin-top: 15px; border-radius: 4px;';
+        var warningTitle = document.createElement('div');
+        warningTitle.style.cssText = 'font-weight: 600; color: #dc3545; margin-bottom: 8px;';
+        warningTitle.textContent = 'High-Risk Vendors Identified';
+        warningDiv.appendChild(warningTitle);
+        highRiskVendors.forEach(function(v) {
+            var item = document.createElement('div');
+            item.style.cssText = 'font-size: 14px; color: #666; margin-bottom: 4px;';
+            item.textContent = v.name + ' (' + v.accessLabel + ') — Review security controls and contract terms immediately.';
+            warningDiv.appendChild(item);
+        });
+        section.appendChild(warningDiv);
+    }
+
+    return section;
+}
+
 function formatControlName(control) {
     const names = {
         firewalls: 'Firewalls',
@@ -1437,6 +1560,38 @@ function addAppendixToResults() {
         appendix.appendChild(item);
     });
 
+    // Add vendor data to appendix if present
+    const scSummary = getSupplyChainSummary();
+    if (scSummary) {
+        const vendorSection = document.createElement('div');
+        vendorSection.style.cssText = 'margin-top: 30px;';
+
+        const vendorHeading = document.createElement('h3');
+        vendorHeading.style.cssText = 'color: #028090; margin-bottom: 15px; font-size: 18px;';
+        vendorHeading.textContent = 'Supply Chain Vendor Assessment';
+        vendorSection.appendChild(vendorHeading);
+
+        scSummary.vendors.forEach(v => {
+            const vItem = document.createElement('div');
+            vItem.className = 'appendix-item';
+            vItem.style.cssText = 'margin-bottom: 18px; padding: 15px; background: #f8f9fa; border-left: 4px solid #1a6b78; border-radius: 4px;';
+
+            const vName = document.createElement('div');
+            vName.style.cssText = 'font-weight: 600; color: #028090; margin-bottom: 6px; font-size: 15px;';
+            vName.textContent = v.name;
+            vItem.appendChild(vName);
+
+            const vDetails = document.createElement('div');
+            vDetails.style.cssText = 'color: #333; line-height: 1.8; font-size: 14px;';
+            vDetails.textContent = `Access: ${v.accessLabel} | Security Score: ${v.riskScore}% | Risk: ${v.riskLevel.toUpperCase()}`;
+            vItem.appendChild(vDetails);
+
+            vendorSection.appendChild(vItem);
+        });
+
+        appendix.appendChild(vendorSection);
+    }
+
     const resultsContent = document.getElementById('results-content');
     resultsContent.appendChild(appendix);
 }
@@ -1444,4 +1599,369 @@ function addAppendixToResults() {
 function removeAppendixFromResults() {
     const appendix = document.getElementById('report-appendix');
     if (appendix) appendix.remove();
+}
+
+// =============================================
+// SUPPLY CHAIN VENDOR ASSESSMENT
+// =============================================
+let vendors = [];
+let vendorIdCounter = 0;
+
+const VENDOR_QUESTIONS = [
+    {
+        id: 'ce_certified',
+        text: 'Does this vendor hold Cyber Essentials (or Plus) certification?',
+        help: 'A CE-certified vendor has met the baseline security standard.',
+        options: [
+            { value: 'pass', text: 'Yes, Cyber Essentials Plus' },
+            { value: 'partial', text: 'Yes, Cyber Essentials (basic)' },
+            { value: 'fail', text: 'No certification' },
+            { value: 'unsure', text: 'Unknown' }
+        ],
+        weight: 3
+    },
+    {
+        id: 'data_access',
+        text: 'What level of access does this vendor have to your data?',
+        help: 'Higher data access = higher risk if the vendor is compromised.',
+        options: [
+            { value: 'pass', text: 'No access to sensitive data' },
+            { value: 'partial', text: 'Read-only access to some business data' },
+            { value: 'fail', text: 'Read/write access to sensitive or personal data' }
+        ],
+        weight: 3
+    },
+    {
+        id: 'connection_type',
+        text: 'How does this vendor connect to your systems?',
+        help: 'Direct connections pose higher risk than isolated access methods.',
+        options: [
+            { value: 'pass', text: 'No direct connection (email/web portal only)' },
+            { value: 'partial', text: 'VPN or remote access with MFA' },
+            { value: 'fail', text: 'Direct network access or persistent connection' }
+        ],
+        weight: 2
+    },
+    {
+        id: 'contract_security',
+        text: 'Does your contract with this vendor include security requirements?',
+        help: 'Contracts should specify data handling, breach notification, and security standards.',
+        options: [
+            { value: 'pass', text: 'Yes, with specific security clauses and breach notification' },
+            { value: 'partial', text: 'Basic contract but no specific security terms' },
+            { value: 'fail', text: 'No formal contract or SLA' }
+        ],
+        weight: 2
+    },
+    {
+        id: 'access_revocation',
+        text: 'Can you revoke this vendor\'s access immediately if needed?',
+        help: 'You should be able to cut vendor access in minutes, not days.',
+        options: [
+            { value: 'pass', text: 'Yes, we can revoke access within minutes' },
+            { value: 'partial', text: 'Within 24 hours' },
+            { value: 'fail', text: 'No clear process to revoke access' }
+        ],
+        weight: 2
+    },
+    {
+        id: 'vendor_mfa',
+        text: 'Does this vendor use MFA when accessing your systems?',
+        help: 'MFA is critical for any third-party accessing your infrastructure.',
+        options: [
+            { value: 'pass', text: 'Yes, MFA is required for all vendor access' },
+            { value: 'fail', text: 'No, single-factor authentication only' },
+            { value: 'unsure', text: 'Unknown' }
+        ],
+        weight: 3
+    },
+    {
+        id: 'access_review',
+        text: 'Do you regularly review this vendor\'s access permissions?',
+        help: 'Vendor access should be reviewed at least quarterly to ensure it remains appropriate.',
+        options: [
+            { value: 'pass', text: 'Yes, reviewed at least quarterly' },
+            { value: 'partial', text: 'Reviewed annually' },
+            { value: 'fail', text: 'Never formally reviewed' }
+        ],
+        weight: 1
+    },
+    {
+        id: 'incident_process',
+        text: 'Does this vendor have a defined incident notification process?',
+        help: 'Vendors must notify you promptly if they suffer a security breach affecting your data.',
+        options: [
+            { value: 'pass', text: 'Yes, documented process with defined timelines' },
+            { value: 'partial', text: 'Informal agreement to notify' },
+            { value: 'fail', text: 'No incident notification process' }
+        ],
+        weight: 2
+    }
+];
+
+const ACCESS_LEVEL_LABELS = {
+    network: 'Network Access',
+    data: 'Data Access',
+    system: 'System Admin',
+    physical: 'Physical Access',
+    cloud: 'Cloud Provider',
+    limited: 'Limited Access'
+};
+
+const ACCESS_LEVEL_RISK_MULTIPLIER = {
+    system: 1.5,
+    network: 1.3,
+    data: 1.2,
+    physical: 1.1,
+    cloud: 1.1,
+    limited: 0.7
+};
+
+function showAddVendorModal() {
+    var overlay = document.getElementById('add-vendor-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.add('show');
+        var nameInput = document.getElementById('vendor-name-input');
+        if (nameInput) {
+            nameInput.value = '';
+            setTimeout(function() { nameInput.focus(); }, 100);
+        }
+        var accessInput = document.getElementById('vendor-access-input');
+        if (accessInput) accessInput.value = '';
+    }
+}
+
+function closeAddVendorModal() {
+    var overlay = document.getElementById('add-vendor-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+        overlay.classList.remove('show');
+    }
+}
+
+function addVendor() {
+    var nameInput = document.getElementById('vendor-name-input');
+    var accessInput = document.getElementById('vendor-access-input');
+    var name = nameInput ? nameInput.value.trim() : '';
+    var access = accessInput ? accessInput.value : '';
+
+    if (!name) {
+        alert('Please enter a vendor name.');
+        if (nameInput) nameInput.focus();
+        return;
+    }
+    if (!access) {
+        alert('Please select an access level.');
+        if (accessInput) accessInput.focus();
+        return;
+    }
+
+    vendorIdCounter++;
+    var vendor = {
+        id: vendorIdCounter,
+        name: name,
+        accessLevel: access,
+        answers: {}
+    };
+    vendors.push(vendor);
+
+    closeAddVendorModal();
+    renderVendorCards();
+    debouncedAutoSave();
+}
+
+function removeVendor(vendorId) {
+    if (!confirm('Remove this vendor from the assessment?')) return;
+    vendors = vendors.filter(function(v) { return v.id !== vendorId; });
+    renderVendorCards();
+    debouncedAutoSave();
+}
+
+function toggleVendorCard(vendorId) {
+    var body = document.getElementById('vendor-body-' + vendorId);
+    var icon = document.getElementById('vendor-icon-' + vendorId);
+    if (body) body.classList.toggle('expanded');
+    if (icon) icon.classList.toggle('expanded');
+}
+
+function renderVendorCards() {
+    var container = document.getElementById('vendor-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    vendors.forEach(function(vendor) {
+        var card = document.createElement('div');
+        card.className = 'vendor-card';
+        card.id = 'vendor-card-' + vendor.id;
+
+        // Header
+        var header = document.createElement('div');
+        header.className = 'vendor-card-header';
+        header.addEventListener('click', function() { toggleVendorCard(vendor.id); });
+
+        var nameDiv = document.createElement('div');
+        nameDiv.className = 'vendor-name';
+        nameDiv.textContent = vendor.name;
+        header.appendChild(nameDiv);
+
+        var accessBadge = document.createElement('span');
+        accessBadge.className = 'vendor-access-badge';
+        accessBadge.textContent = ACCESS_LEVEL_LABELS[vendor.accessLevel] || vendor.accessLevel;
+        header.appendChild(accessBadge);
+
+        var riskScore = calculateVendorRisk(vendor);
+        var riskBadge = document.createElement('span');
+        riskBadge.className = 'vendor-risk-badge risk-' + riskScore.level;
+        riskBadge.textContent = riskScore.level + ' risk';
+        header.appendChild(riskBadge);
+
+        var toggleIcon = document.createElement('span');
+        toggleIcon.className = 'vendor-toggle-icon';
+        toggleIcon.id = 'vendor-icon-' + vendor.id;
+        toggleIcon.innerHTML = '&#9660;';
+        header.appendChild(toggleIcon);
+
+        card.appendChild(header);
+
+        // Body with questions
+        var body = document.createElement('div');
+        body.className = 'vendor-card-body';
+        body.id = 'vendor-body-' + vendor.id;
+
+        VENDOR_QUESTIONS.forEach(function(q) {
+            var qDiv = document.createElement('div');
+            qDiv.className = 'vendor-question';
+
+            var qText = document.createElement('div');
+            qText.className = 'question-text';
+            qText.textContent = q.text;
+            qDiv.appendChild(qText);
+
+            var qHelp = document.createElement('div');
+            qHelp.className = 'question-help';
+            qHelp.textContent = q.help;
+            qDiv.appendChild(qHelp);
+
+            var opts = document.createElement('div');
+            opts.className = 'options';
+
+            q.options.forEach(function(opt) {
+                var label = document.createElement('label');
+                label.className = 'option';
+                if (vendor.answers[q.id] === opt.value) {
+                    label.classList.add('selected');
+                    if (opt.value === 'fail') label.classList.add('fail');
+                }
+
+                var radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'vendor_' + vendor.id + '_' + q.id;
+                radio.value = opt.value;
+                if (vendor.answers[q.id] === opt.value) radio.checked = true;
+
+                radio.addEventListener('change', function() {
+                    vendor.answers[q.id] = opt.value;
+                    // Update visual state
+                    var siblings = opts.querySelectorAll('.option');
+                    siblings.forEach(function(s) { s.classList.remove('selected', 'fail'); });
+                    label.classList.add('selected');
+                    if (opt.value === 'fail') label.classList.add('fail');
+                    // Update risk badge
+                    var newRisk = calculateVendorRisk(vendor);
+                    riskBadge.className = 'vendor-risk-badge risk-' + newRisk.level;
+                    riskBadge.textContent = newRisk.level + ' risk';
+                    debouncedAutoSave();
+                });
+
+                var span = document.createElement('span');
+                span.textContent = opt.text;
+                label.appendChild(radio);
+                label.appendChild(span);
+                opts.appendChild(label);
+            });
+
+            qDiv.appendChild(opts);
+            body.appendChild(qDiv);
+        });
+
+        // Remove button
+        var removeBtn = document.createElement('button');
+        removeBtn.className = 'vendor-remove-btn';
+        removeBtn.textContent = 'Remove Vendor';
+        removeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            removeVendor(vendor.id);
+        });
+        body.appendChild(removeBtn);
+
+        card.appendChild(body);
+        container.appendChild(card);
+    });
+}
+
+function calculateVendorRisk(vendor) {
+    var totalWeight = 0;
+    var totalScore = 0;
+    var answeredCount = 0;
+
+    VENDOR_QUESTIONS.forEach(function(q) {
+        totalWeight += q.weight;
+        var answer = vendor.answers[q.id];
+        if (answer) {
+            answeredCount++;
+            if (answer === 'pass') totalScore += q.weight;
+            else if (answer === 'partial') totalScore += q.weight * 0.5;
+            // fail and unsure = 0
+        }
+    });
+
+    if (answeredCount === 0) return { score: 0, level: 'medium', label: 'Not assessed' };
+
+    var rawScore = (totalScore / totalWeight) * 100;
+
+    // Apply access level multiplier (higher access = risk is amplified)
+    var multiplier = ACCESS_LEVEL_RISK_MULTIPLIER[vendor.accessLevel] || 1.0;
+    // Invert: multiply the RISK (100 - score), not the score
+    var risk = (100 - rawScore) * multiplier;
+    var adjustedScore = Math.max(0, Math.min(100, 100 - risk));
+
+    var level = 'high';
+    if (adjustedScore >= 70) level = 'low';
+    else if (adjustedScore >= 40) level = 'medium';
+
+    return { score: Math.round(adjustedScore), level: level };
+}
+
+function collectVendorData() {
+    if (vendors.length === 0) return null;
+    return vendors.map(function(v) {
+        var risk = calculateVendorRisk(v);
+        return {
+            name: v.name,
+            accessLevel: v.accessLevel,
+            accessLabel: ACCESS_LEVEL_LABELS[v.accessLevel] || v.accessLevel,
+            answers: v.answers,
+            riskScore: risk.score,
+            riskLevel: risk.level
+        };
+    });
+}
+
+function getSupplyChainSummary() {
+    var data = collectVendorData();
+    if (!data) return null;
+    var highRisk = data.filter(function(v) { return v.riskLevel === 'high'; });
+    var mediumRisk = data.filter(function(v) { return v.riskLevel === 'medium'; });
+    var lowRisk = data.filter(function(v) { return v.riskLevel === 'low'; });
+    var avgScore = Math.round(data.reduce(function(sum, v) { return sum + v.riskScore; }, 0) / data.length);
+
+    return {
+        vendors: data,
+        totalVendors: data.length,
+        highRiskCount: highRisk.length,
+        mediumRiskCount: mediumRisk.length,
+        lowRiskCount: lowRisk.length,
+        averageScore: avgScore
+    };
 }
