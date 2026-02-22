@@ -21,6 +21,61 @@
 
         <div class="main-content">
 
+            <!-- Progress Tracker Sidebar -->
+            <div class="progress-tracker" id="progress-tracker">
+                <div class="progress-overview">
+                    <svg class="progress-ring" viewBox="0 0 80 80">
+                        <circle class="progress-ring-bg" cx="40" cy="40" r="34" />
+                        <circle class="progress-ring-fill" id="progress-ring-fill" cx="40" cy="40" r="34" />
+                    </svg>
+                    <div class="progress-ring-label" id="progress-ring-label">0%</div>
+                    <div class="progress-ring-sub" id="progress-ring-sub">0 of 0 answered</div>
+                </div>
+                <div class="progress-sections">
+                    <div class="progress-row" data-target="1">
+                        <span class="progress-row-name">Firewalls</span>
+                        <span class="progress-row-count" id="progress-count-1">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-1"></span>
+                    </div>
+                    <div class="progress-row" data-target="2">
+                        <span class="progress-row-name">Secure Config</span>
+                        <span class="progress-row-count" id="progress-count-2">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-2"></span>
+                    </div>
+                    <div class="progress-row" data-target="3">
+                        <span class="progress-row-name">Updates</span>
+                        <span class="progress-row-count" id="progress-count-3">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-3"></span>
+                    </div>
+                    <div class="progress-row" data-target="4">
+                        <span class="progress-row-name">Access Control</span>
+                        <span class="progress-row-count" id="progress-count-4">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-4"></span>
+                    </div>
+                    <div class="progress-row" data-target="5">
+                        <span class="progress-row-name">Malware</span>
+                        <span class="progress-row-count" id="progress-count-5">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-5"></span>
+                    </div>
+                    <div class="progress-row" data-target="6">
+                        <span class="progress-row-name">Scope</span>
+                        <span class="progress-row-count" id="progress-count-6">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-6"></span>
+                    </div>
+                    <div class="progress-row" data-target="7" id="progress-row-7" style="display:none;">
+                        <span class="progress-row-name">Supply Chain</span>
+                        <span class="progress-row-count" id="progress-count-7">0/0</span>
+                        <span class="progress-row-badge" id="progress-badge-7"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Progress Toggle -->
+            <div class="progress-mobile-bar" id="progress-mobile-bar" onclick="toggleMobileProgress()">
+                <span class="progress-mobile-text" id="progress-mobile-text">0% Complete</span>
+                <span class="progress-mobile-arrow" id="progress-mobile-arrow">&#9650;</span>
+            </div>
+
             <!-- Control 1: Firewalls -->
             <div class="assessment-section">
                 <div class="control-header" onclick="toggleControl(1)">
@@ -689,6 +744,7 @@
                 toggle.textContent = (choice === 'yes') ? 'Disable Supply Chain' : 'Enable Supply Chain';
                 toggle.classList.toggle('active', choice === 'yes');
             }
+            if (typeof updateProgressTracker === 'function') updateProgressTracker();
         }
 
         function toggleSupplyChain() {
