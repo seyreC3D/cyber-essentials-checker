@@ -293,6 +293,7 @@ function collectResponses() {
 
     document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
         const question = radio.closest('.question');
+        if (!question || !question.dataset.control) return; // skip vendor/other radios
         const control = question.dataset.control;
         const critical = question.dataset.critical === 'true';
 
