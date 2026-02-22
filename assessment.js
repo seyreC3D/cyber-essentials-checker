@@ -29,6 +29,7 @@ window.addEventListener('load', () => {
     }
     initAutoSave();
     initQuestionBranching();
+    updateProgressTracker();
 });
 
 // --- Handle option selection ---
@@ -49,12 +50,16 @@ document.querySelectorAll('.option').forEach(option => {
 
         // Trigger auto-save on every answer change
         debouncedAutoSave();
+        updateProgressTracker();
     });
 });
 
 // Also auto-save when text inputs change
 document.querySelectorAll('.text-input').forEach(input => {
-    input.addEventListener('input', debouncedAutoSave);
+    input.addEventListener('input', function() {
+        debouncedAutoSave();
+        updateProgressTracker();
+    });
 });
 
 // =============================================
@@ -171,6 +176,7 @@ function loadAssessment() {
 
         // Update conditional question visibility based on restored answers
         updateConditionalQuestions();
+        updateProgressTracker();
 
         const savedDate = new Date(saveData.timestamp).toLocaleString();
         alert(`Assessment loaded from ${savedDate}`);
@@ -273,6 +279,7 @@ function updateConditionalQuestions() {
             });
         }
     });
+    updateProgressTracker();
 }
 
 // =============================================
@@ -1948,6 +1955,124 @@ function collectVendorData() {
         };
     });
 }
+
+// =============================================
+// PROGRESS TRACKER
+// =============================================
+const PROGRESS_SECTION_CONFIG = [
+    { control: '1', name: 'Firewalls' },
+    { control: '2', name: 'Secure Config' },
+    { control: '3', name: 'Updates' },
+    { control: '4', name: 'Access Control' },
+    { control: '5', name: 'Malware' },
+    { control: '6', name: 'Scope' }
+];
+
+// SVG circle circumference for r=34
+const RING_CIRCUMFERENCE = 2 * Math.PI * 34; // ~213.628
+
+function updateProgressTracker() {
+    let totalAnswered = 0;
+    let totalVisible = 0;
+
+    PROGRESS_SECTION_CONFIG.forEach(function(section) {
+        const questions = document.querySelectorAll('.question[data-control="' + section.control + '"]');
+        let visible = 0;
+        let answered = 0;
+        let criticalUnanswered = false;
+
+        questions.forEach(function(q) {
+            // Skip hidden conditional questions
+            if (q.dataset.showIf && !q.classList.contains('branch-visible')) return;
+            visible++;
+
+            // Check if the question has a checked radio (for radio-based questions)
+            const hasRadio = q.querySelector('input[type="radio"]');
+            const hasChecked = q.querySelector('input[type="radio"]:checked');
+            if (hasRadio && hasChecked) {
+                answered++;
+            } else if (!hasRadio) {
+                // Text-only question — count as answered if filled
+                const textInput = q.querySelector('.text-input');
+                if (textInput && textInput.value.trim()) answered++;
+            }
+
+            // Track critical unanswered
+            if (q.dataset.critical === 'true' && hasRadio && !hasChecked) {
+                criticalUnanswered = true;
+            }
+        });
+
+        totalAnswered += answered;
+        totalVisible += visible;
+
+        // Update per-section UI
+        const countEl = document.getElementById('progress-count-' + section.control);
+        const badgeEl = document.getElementById('progress-badge-' + section.control);
+        if (countEl) countEl.textContent = answered + '/' + visible;
+        if (badgeEl) {
+            badgeEl.className = 'progress-row-badge';
+            if (criticalUnanswered && answered > 0) {
+                badgeEl.classList.add('badge-critical');
+            } else if (answered === 0) {
+                badgeEl.classList.add('badge-empty');
+            } else if (answered >= visible) {
+                badgeEl.classList.add('badge-complete');
+            } else {
+                badgeEl.classList.add('badge-partial');
+            }
+        }
+    });
+
+    // Update overall ring
+    const percent = totalVisible > 0 ? Math.round((totalAnswered / totalVisible) * 100) : 0;
+    const ringFill = document.getElementById('progress-ring-fill');
+    const ringLabel = document.getElementById('progress-ring-label');
+    const ringSub = document.getElementById('progress-ring-sub');
+    const mobileText = document.getElementById('progress-mobile-text');
+
+    if (ringFill) {
+        const offset = RING_CIRCUMFERENCE - (percent / 100) * RING_CIRCUMFERENCE;
+        ringFill.style.strokeDashoffset = offset;
+    }
+    if (ringLabel) ringLabel.textContent = percent + '%';
+    if (ringSub) ringSub.textContent = totalAnswered + ' of ' + totalVisible + ' answered';
+    if (mobileText) mobileText.textContent = percent + '% Complete';
+
+    // Show/hide supply chain row
+    const scRow = document.getElementById('progress-row-7');
+    const scSection = document.getElementById('supply-chain-section');
+    if (scRow && scSection) {
+        scRow.style.display = scSection.style.display === 'none' ? 'none' : '';
+    }
+}
+
+function toggleMobileProgress() {
+    var tracker = document.getElementById('progress-tracker');
+    var arrow = document.getElementById('progress-mobile-arrow');
+    if (tracker) tracker.classList.toggle('mobile-expanded');
+    if (arrow) arrow.classList.toggle('expanded');
+}
+
+// Click-to-navigate on progress rows
+document.querySelectorAll('.progress-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+        var target = this.getAttribute('data-target');
+        var content = document.getElementById('content-' + target);
+        if (content && !content.classList.contains('expanded')) {
+            toggleControl(parseInt(target));
+        }
+        var header = content ? content.previousElementSibling : null;
+        if (header) {
+            header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Close mobile dropdown if open
+        var tracker = document.getElementById('progress-tracker');
+        var arrow = document.getElementById('progress-mobile-arrow');
+        if (tracker) tracker.classList.remove('mobile-expanded');
+        if (arrow) arrow.classList.remove('expanded');
+    });
+});
 
 function getSupplyChainSummary() {
     var data = collectVendorData();
