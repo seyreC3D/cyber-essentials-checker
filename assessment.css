@@ -1323,6 +1323,23 @@ body {
         page-break-inside: avoid;
     }
 
+    /* Allow sections with many items to flow across pages naturally */
+    .issues-section,
+    .issue-category,
+    .warnings-section,
+    .recommendations,
+    .vendor-risk-section {
+        page-break-inside: auto;
+    }
+
+    /* Allow breaks between individual warning/issue items */
+    .issue-item,
+    .warning-item,
+    .recommendation-item {
+        page-break-before: auto;
+        page-break-after: auto;
+    }
+
     /* Company name header — match print padding (20px, not 30px) */
     #company-name-header {
         margin-left: -20px !important;

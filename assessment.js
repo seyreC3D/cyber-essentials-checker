@@ -941,6 +941,7 @@ function displayResults(analysis, statusIcon, statusTitle, statusSubtitle, resul
     // --- Warnings ---
     if (analysis.warnings && analysis.warnings.length > 0) {
         const warningsSection = document.createElement('div');
+        warningsSection.className = 'warnings-section';
         warningsSection.style.cssText = 'margin-bottom: 30px;';
         const warningsH3 = document.createElement('h3');
         warningsH3.style.cssText = 'color: #ffc107; margin-bottom: 15px;';
