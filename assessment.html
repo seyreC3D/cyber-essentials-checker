@@ -902,15 +902,15 @@
                     setTimeout(() => {
                         if (!auth.currentUser) {
                             localStorage.removeItem('firebaseAuthComplete');
-                            window.location.href = 'index.html';
+                            window.location.href = 'login.html?redirect=assessment';
                         }
                     }, 1000);
                 } else {
-                    window.location.href = 'index.html';
+                    window.location.href = 'login.html?redirect=assessment';
                 }
             }
         }, () => {
-            window.location.href = 'index.html';
+            window.location.href = 'login.html?redirect=assessment';
         });
 
         window.logout = async function () {

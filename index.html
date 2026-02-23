@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Cyber Essentials Checker</title>
+    <title>Cyber 3D - Security Assessment Tools</title>
     <style>
         * {
             margin: 0;
@@ -15,1070 +15,295 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #028090 0%, #00A896 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
 
-        .login-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 450px;
-            overflow: hidden;
+        .landing-container {
+            max-width: 1100px;
+            margin: 0 auto;
         }
 
-        .login-header {
-            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
+        .landing-header {
+            text-align: center;
             color: white;
-            padding: 40px 30px;
-            text-align: center;
+            padding: 50px 20px 40px;
         }
 
-        .login-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+        .landing-header .icon {
+            font-size: 56px;
+            margin-bottom: 16px;
         }
 
-        .login-header .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+        .landing-header h1 {
+            font-size: 36px;
+            margin-bottom: 12px;
+            font-weight: 700;
         }
 
-        .login-header p {
-            font-size: 16px;
-            opacity: 0.95;
+        .landing-header p {
+            font-size: 18px;
+            opacity: 0.92;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
-        .tab-container {
-            display: flex;
-            border-bottom: 2px solid #e0e0e0;
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 10px;
         }
 
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            background: #f5f5f5;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
+        .card {
             background: white;
-            color: #028090;
-            border-bottom: 3px solid #028090;
-        }
-
-        .login-content {
-            padding: 40px 30px;
-        }
-
-        .form-section {
-            display: none;
-        }
-
-        .form-section.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #028090;
-            box-shadow: 0 0 0 3px rgba(2, 128, 144, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: #999;
-        }
-
-        .password-toggle {
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
             position: relative;
         }
 
-        .password-toggle input {
-            padding-right: 45px;
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
         }
 
-        .password-toggle button {
+        .card.disabled {
+            opacity: 0.88;
+        }
+
+        .card.disabled:hover {
+            transform: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            cursor: default;
+        }
+
+        .card-badge {
             position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
+            top: 16px;
+            right: 16px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-free {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-paid {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-coming {
+            background: #e0e0e0;
             color: #666;
-            padding: 5px;
         }
 
-        .password-toggle button:hover {
-            color: #028090;
+        .card-top {
+            padding: 32px 28px 24px;
+            text-align: center;
         }
 
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
+        .card-icon {
+            font-size: 44px;
+            margin-bottom: 16px;
+        }
+
+        .card-top h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .card-top p {
             font-size: 14px;
+            color: #666;
+            line-height: 1.65;
         }
 
-        .remember-me {
+        .card-features {
+            padding: 0 28px 24px;
+            flex: 1;
+        }
+
+        .card-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-features li {
+            padding: 6px 0;
+            font-size: 14px;
+            color: #555;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
         }
 
-        .remember-me input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .remember-me label {
-            cursor: pointer;
-            color: #666;
-            font-weight: normal;
-        }
-
-        .forgot-password {
+        .card-features li::before {
+            content: "\2713";
             color: #028090;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .card.disabled .card-features li::before {
+            color: #aaa;
+        }
+
+        .card-action {
+            padding: 0 28px 28px;
+        }
+
+        .card-button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .card-button.primary {
+            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
+            color: white;
+        }
+
+        .card-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(2, 128, 144, 0.35);
+        }
+
+        .card-button.disabled {
+            background: #e8e8e8;
+            color: #999;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .landing-footer {
+            text-align: center;
+            padding: 36px 20px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .landing-footer a {
+            color: white;
             text-decoration: none;
             font-weight: 600;
         }
 
-        .forgot-password:hover {
+        .landing-footer a:hover {
             text-decoration: underline;
         }
 
-        .auth-button {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-
-        .auth-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(2, 128, 144, 0.3);
-        }
-
-        .auth-button:active {
-            transform: translateY(0);
-        }
-
-        .auth-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-message {
-            background: #fee;
-            border: 2px solid #fcc;
-            color: #c33;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 14px;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .success-message {
-            background: #d4edda;
-            border: 2px solid #c3e6cb;
-            color: #155724;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 14px;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 25px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 100%;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 15px;
-            position: relative;
-            color: #999;
-            font-size: 14px;
-        }
-
-        .google-button {
-            width: 100%;
-            padding: 14px;
-            background: white;
-            color: #333;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .google-button:hover {
-            border-color: #028090;
-            background: #f8f9fa;
-        }
-
-        .password-requirements {
-            font-size: 12px;
-            color: #666;
-            margin-top: 8px;
-            line-height: 1.5;
-        }
-
-        .mfa-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            display: none;
-        }
-
-        .mfa-overlay.show {
-            display: flex;
-        }
-
-        .mfa-modal {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .mfa-modal h2 {
-            color: #028090;
-            margin-bottom: 10px;
-            font-size: 22px;
-        }
-
-        .mfa-modal p {
-            color: #666;
-            margin-bottom: 20px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .mfa-modal .form-group {
-            margin-bottom: 20px;
-        }
-
-        .mfa-modal .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .mfa-modal .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 18px;
-            text-align: center;
-            letter-spacing: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .mfa-modal .form-group input[type="tel"] {
-            letter-spacing: normal;
-            text-align: left;
-        }
-
-        .mfa-modal .form-group input:focus {
-            outline: none;
-            border-color: #028090;
-            box-shadow: 0 0 0 3px rgba(2, 128, 144, 0.1);
-        }
-
-        .mfa-button-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .mfa-button-group .auth-button {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .mfa-cancel-button {
-            flex: 1;
-            padding: 16px;
-            background: #f5f5f5;
-            color: #666;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .mfa-cancel-button:hover {
-            background: #e0e0e0;
-        }
-
-        .mfa-phone-hint {
-            background: #e8f5e9;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #2e7d32;
-        }
-
-        @media (max-width: 480px) {
-            .login-header {
-                padding: 30px 20px;
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns: 1fr;
+                max-width: 440px;
+                margin-left: auto;
+                margin-right: auto;
             }
 
-            .login-header h1 {
-                font-size: 24px;
-            }
-
-            .login-content {
-                padding: 30px 20px;
+            .landing-header h1 {
+                font-size: 28px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="icon">🛡️</div>
-            <h1>Cyber Essentials Checker</h1>
-            <p>Powered by Cyber 3D</p>
-        </div>
+    <div class="landing-container">
+        <header class="landing-header">
+            <div class="icon">&#x1F6E1;&#xFE0F;</div>
+            <h1>Cyber 3D</h1>
+            <p>Security assessment tools to help your organisation meet UK certification standards.</p>
+        </header>
 
-        <div class="tab-container">
-            <button class="tab active" onclick="switchTab('login')">Login</button>
-            <button class="tab" onclick="switchTab('register')">Register</button>
-        </div>
-
-        <div class="login-content">
-            <div id="error-message" class="error-message"></div>
-            <div id="success-message" class="success-message"></div>
-
-            <!-- Login Form -->
-            <div id="login-form" class="form-section active">
-                <form id="login" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label for="login-email">Email Address</label>
-                        <input 
-                            type="email" 
-                            id="login-email" 
-                            name="email" 
-                            placeholder="Enter your email"
-                            required
-                            autocomplete="username"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <div class="password-toggle">
-                            <input 
-                                type="password" 
-                                id="login-password" 
-                                name="password" 
-                                placeholder="Enter your password"
-                                required
-                                autocomplete="current-password"
-                            />
-                            <button type="button" onclick="togglePassword('login-password', this)" aria-label="Toggle password visibility">
-                                👁️
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="remember-forgot">
-                        <div class="remember-me">
-                            <input type="checkbox" id="remember-login" name="remember">
-                            <label for="remember-login">Remember me</label>
-                        </div>
-                        <a href="#" class="forgot-password" onclick="showPasswordReset(event)">Forgot password?</a>
-                    </div>
-
-                    <button type="submit" class="auth-button" id="login-button">
-                        Sign In
-                    </button>
-                </form>
-
-                <div class="divider">
-                    <span>OR</span>
+        <div class="cards">
+            <!-- Box 1: Free CE Checker -->
+            <div class="card">
+                <span class="card-badge badge-free">Free</span>
+                <div class="card-top">
+                    <div class="card-icon">&#x2705;</div>
+                    <h2>Cyber Essentials Readiness Checker</h2>
+                    <p>Self-assess your organisation against all five Cyber Essentials v3.3 technical controls.</p>
                 </div>
-
-                <button class="google-button" onclick="signInWithGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Continue with Google
-                </button>
+                <div class="card-features">
+                    <ul>
+                        <li>AI-powered analysis with instant results</li>
+                        <li>Radar chart, heatmap, and PDF report</li>
+                        <li>Supply chain vendor risk module</li>
+                        <li>Auto-save progress &amp; resume later</li>
+                    </ul>
+                </div>
+                <div class="card-action">
+                    <a href="login.html?redirect=assessment" class="card-button primary">Start Free Assessment</a>
+                </div>
             </div>
 
-            <!-- Register Form -->
-            <div id="register-form" class="form-section">
-                <form id="register" onsubmit="handleRegister(event)">
-                    <div class="form-group">
-                        <label for="register-name">Full Name</label>
-                        <input 
-                            type="text" 
-                            id="register-name" 
-                            name="name" 
-                            placeholder="Enter your full name"
-                            required
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-email">Email Address</label>
-                        <input 
-                            type="email" 
-                            id="register-email" 
-                            name="email" 
-                            placeholder="Enter your email"
-                            required
-                            autocomplete="username"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-password">Password</label>
-                        <div class="password-toggle">
-                            <input 
-                                type="password" 
-                                id="register-password" 
-                                name="password" 
-                                placeholder="Create a password"
-                                required
-                                autocomplete="new-password"
-                                minlength="6"
-                            />
-                            <button type="button" onclick="togglePassword('register-password', this)" aria-label="Toggle password visibility">
-                                👁️
-                            </button>
-                        </div>
-                        <div class="password-requirements">
-                            Password must be at least 6 characters long
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-confirm-password">Confirm Password</label>
-                        <div class="password-toggle">
-                            <input 
-                                type="password" 
-                                id="register-confirm-password" 
-                                name="confirm-password" 
-                                placeholder="Confirm your password"
-                                required
-                                autocomplete="new-password"
-                            />
-                            <button type="button" onclick="togglePassword('register-confirm-password', this)" aria-label="Toggle password visibility">
-                                👁️
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="auth-button" id="register-button">
-                        Create Account
-                    </button>
-                </form>
-
-                <div class="divider">
-                    <span>OR</span>
+            <!-- Box 2: Enhanced CE (paid, coming soon) -->
+            <div class="card disabled">
+                <span class="card-badge badge-paid">Paid</span>
+                <div class="card-top">
+                    <div class="card-icon">&#x1F680;</div>
+                    <h2>Enhanced Cyber Essentials Assessment</h2>
+                    <p>In-depth assessment with expert guidance, remediation plans, and evidence-gathering support.</p>
                 </div>
+                <div class="card-features">
+                    <ul>
+                        <li>Full Cyber Essentials Plus coverage</li>
+                        <li>Tailored remediation roadmap</li>
+                        <li>Evidence pack for assessor submission</li>
+                        <li>Priority email support</li>
+                    </ul>
+                </div>
+                <div class="card-action">
+                    <span class="card-button disabled">Coming Soon</span>
+                </div>
+            </div>
 
-                <button class="google-button" onclick="signInWithGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Sign up with Google
-                </button>
+            <!-- Box 3: NCSC CAF (coming soon) -->
+            <div class="card disabled">
+                <span class="card-badge badge-coming">Coming Soon</span>
+                <div class="card-top">
+                    <div class="card-icon">&#x1F3DB;&#xFE0F;</div>
+                    <h2>NCSC CAF Assessment</h2>
+                    <p>Evaluate your organisation against the NCSC Cyber Assessment Framework for operators of essential services.</p>
+                </div>
+                <div class="card-features">
+                    <ul>
+                        <li>All 14 CAF principles covered</li>
+                        <li>IGP alignment and gap analysis</li>
+                        <li>Board-level reporting output</li>
+                        <li>NIS Regulations readiness check</li>
+                    </ul>
+                </div>
+                <div class="card-action">
+                    <span class="card-button disabled">Coming Soon</span>
+                </div>
             </div>
         </div>
+
+        <footer class="landing-footer">
+            <p>Powered by <a href="#">Cyber 3D</a> &mdash; Helping UK organisations achieve certification readiness.</p>
+        </footer>
     </div>
-
-    <!-- MFA Verification Modal (Sign-in challenge) -->
-    <div id="mfa-overlay" class="mfa-overlay">
-        <div class="mfa-modal">
-            <h2>Two-Factor Authentication</h2>
-            <p id="mfa-message">A verification code has been sent to your phone. Please enter it below.</p>
-            <div id="mfa-phone-hint" class="mfa-phone-hint" style="display:none;"></div>
-            <div class="form-group">
-                <label for="mfa-code">Verification Code</label>
-                <input type="text" id="mfa-code" placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" />
-            </div>
-            <div id="mfa-error" class="error-message" style="margin-bottom: 15px;"></div>
-            <div class="mfa-button-group">
-                <button class="auth-button" id="mfa-submit-button" onclick="submitMFACode()">Verify</button>
-                <button class="mfa-cancel-button" onclick="cancelMFA()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MFA Enrollment Modal (Post-registration) -->
-    <div id="mfa-enroll-overlay" class="mfa-overlay">
-        <div class="mfa-modal">
-            <h2 id="mfa-enroll-title">Enable Two-Factor Authentication</h2>
-            <p id="mfa-enroll-message">Add an extra layer of security to your account by enabling SMS verification.</p>
-            <div id="mfa-enroll-step1">
-                <div class="form-group">
-                    <label for="mfa-phone-number">Phone Number (with country code)</label>
-                    <input type="tel" id="mfa-phone-number" placeholder="+44 7700 900000" />
-                </div>
-                <div id="mfa-enroll-error" class="error-message" style="margin-bottom: 15px;"></div>
-                <div class="mfa-button-group">
-                    <button class="auth-button" id="mfa-enroll-send-button" onclick="sendEnrollmentCode()">Send Code</button>
-                    <button class="mfa-cancel-button" onclick="skipMFAEnrollment()">Skip for now</button>
-                </div>
-            </div>
-            <div id="mfa-enroll-step2" style="display:none;">
-                <div class="form-group">
-                    <label for="mfa-enroll-code">Verification Code</label>
-                    <input type="text" id="mfa-enroll-code" placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" />
-                </div>
-                <div id="mfa-enroll-verify-error" class="error-message" style="margin-bottom: 15px;"></div>
-                <div class="mfa-button-group">
-                    <button class="auth-button" id="mfa-enroll-verify-button" onclick="verifyEnrollmentCode()">Verify & Enable MFA</button>
-                    <button class="mfa-cancel-button" onclick="skipMFAEnrollment()">Skip for now</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Invisible reCAPTCHA container -->
-    <div id="recaptcha-container"></div>
-
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import {
-            getAuth,
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            signInWithPopup,
-            GoogleAuthProvider,
-            sendPasswordResetEmail,
-            setPersistence,
-            browserSessionPersistence,
-            browserLocalPersistence,
-            updateProfile,
-            sendEmailVerification,
-            multiFactor,
-            getMultiFactorResolver,
-            PhoneAuthProvider,
-            PhoneMultiFactorGenerator,
-            RecaptchaVerifier
-        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { firebaseConfig } from './firebase-config.js';
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const googleProvider = new GoogleAuthProvider();
-
-        // MFA state
-        let mfaResolver = null;
-        let mfaVerificationId = null;
-        let enrollmentVerificationId = null;
-        let recaptchaVerifier = null;
-
-        // Make functions available globally
-        window.handleLogin = handleLogin;
-        window.handleRegister = handleRegister;
-        window.signInWithGoogle = signInWithGoogle;
-        window.showPasswordReset = showPasswordReset;
-        window.submitMFACode = submitMFACode;
-        window.cancelMFA = cancelMFA;
-        window.sendEnrollmentCode = sendEnrollmentCode;
-        window.verifyEnrollmentCode = verifyEnrollmentCode;
-        window.skipMFAEnrollment = skipMFAEnrollment;
-
-        // Handle Login
-        async function handleLogin(event) {
-            event.preventDefault();
-            hideMessages();
-
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const remember = document.getElementById('remember-login').checked;
-            const button = document.getElementById('login-button');
-
-            button.disabled = true;
-            button.textContent = 'Signing in...';
-
-            try {
-                const persistence = browserLocalPersistence;
-                await setPersistence(auth, persistence);
-
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log('Login successful:', userCredential.user.email);
-                completeSignIn(userCredential.user);
-
-            } catch (error) {
-                if (error.code === 'auth/multi-factor-auth-required') {
-                    console.log('MFA required. Handling second factor verification.');
-                    button.disabled = false;
-                    button.textContent = 'Sign In';
-                    await handleMFAChallenge(error);
-                } else {
-                    console.error('Login error:', error);
-                    showError(getErrorMessage(error.code));
-                    button.disabled = false;
-                    button.textContent = 'Sign In';
-                }
-            }
-        }
-
-        // Handle Registration
-        async function handleRegister(event) {
-            event.preventDefault();
-            hideMessages();
-
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-            const button = document.getElementById('register-button');
-
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-
-            button.disabled = true;
-            button.textContent = 'Creating account...';
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-                await updateProfile(userCredential.user, {
-                    displayName: name
-                });
-
-                // Send email verification
-                await sendEmailVerification(userCredential.user);
-                console.log("Registration successful! Verification email sent.");
-
-                button.textContent = '✓ Account created!';
-                button.style.background = '#28a745';
-
-                localStorage.setItem('userEmail', userCredential.user.email);
-                localStorage.setItem('userName', name);
-                localStorage.setItem('firebaseAuthComplete', 'true');
-
-                // Offer MFA enrollment before redirecting
-                showSuccess('Account created! You can now enable two-factor authentication for extra security.');
-                showMFAEnrollment();
-
-            } catch (error) {
-                showError(getErrorMessage(error.code));
-                button.disabled = false;
-                button.textContent = 'Create Account';
-            }
-        }
-
-        // Sign in with Google
-        async function signInWithGoogle() {
-            hideMessages();
-
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                const result = await signInWithPopup(auth, googleProvider);
-                console.log('Google sign-in successful:', result.user.email);
-                completeSignIn(result.user);
-
-            } catch (error) {
-                if (error.code === 'auth/multi-factor-auth-required') {
-                    console.log('MFA required for Google sign-in.');
-                    await handleMFAChallenge(error);
-                } else {
-                    console.error('Google sign-in error:', error);
-                    showError(getErrorMessage(error.code));
-                }
-            }
-        }
-
-        // Complete sign-in and redirect
-        function completeSignIn(user) {
-            localStorage.setItem('userEmail', user.email);
-            localStorage.setItem('userName', user.displayName || user.email);
-            localStorage.setItem('firebaseAuthComplete', 'true');
-
-            // Update button state if visible
-            const loginBtn = document.getElementById('login-button');
-            if (loginBtn) {
-                loginBtn.textContent = '✓ Success!';
-                loginBtn.style.background = '#28a745';
-            }
-
-            setTimeout(() => {
-                window.location.href = 'assessment.html';
-            }, 500);
-        }
-
-        // --- MFA Sign-in Challenge ---
-        async function handleMFAChallenge(error) {
-            mfaResolver = getMultiFactorResolver(auth, error);
-            const selectedHint = mfaResolver.hints[0];
-
-            if (selectedHint.factorId === PhoneMultiFactorGenerator.FACTOR_ID) {
-                // Show masked phone number hint
-                const phoneHintEl = document.getElementById('mfa-phone-hint');
-                phoneHintEl.textContent = 'Code will be sent to: ' + selectedHint.phoneNumber;
-                phoneHintEl.style.display = 'block';
-
-                // Reset and show the MFA modal
-                document.getElementById('mfa-code').value = '';
-                document.getElementById('mfa-error').classList.remove('show');
-                document.getElementById('mfa-overlay').classList.add('show');
-                document.getElementById('mfa-code').focus();
-
-                // Initialize invisible reCAPTCHA
-                if (recaptchaVerifier) {
-                    recaptchaVerifier.clear();
-                    recaptchaVerifier = null;
-                }
-                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
-
-                const phoneAuthProvider = new PhoneAuthProvider(auth);
-                const phoneInfoOptions = {
-                    multiFactorHint: selectedHint,
-                    session: mfaResolver.session
-                };
-
-                try {
-                    mfaVerificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
-                    console.log('MFA SMS sent successfully.');
-                } catch (sendError) {
-                    console.error('Error sending MFA SMS:', sendError);
-                    document.getElementById('mfa-overlay').classList.remove('show');
-                    showError('Failed to send verification code. Please try signing in again.');
-                }
-            } else {
-                showError('Unsupported second factor type. Please contact support.');
-            }
-        }
-
-        async function submitMFACode() {
-            const code = document.getElementById('mfa-code').value.trim();
-            const errorEl = document.getElementById('mfa-error');
-            errorEl.classList.remove('show');
-
-            if (!code || code.length !== 6) {
-                errorEl.textContent = 'Please enter a valid 6-digit code.';
-                errorEl.classList.add('show');
-                return;
-            }
-
-            const button = document.getElementById('mfa-submit-button');
-            button.disabled = true;
-            button.textContent = 'Verifying...';
-
-            try {
-                const credential = PhoneAuthProvider.credential(mfaVerificationId, code);
-                const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
-                const userCredential = await mfaResolver.resolveSignIn(multiFactorAssertion);
-
-                console.log('MFA sign-in successful!');
-                document.getElementById('mfa-overlay').classList.remove('show');
-                completeSignIn(userCredential.user);
-
-            } catch (error) {
-                console.error('MFA verification error:', error);
-                button.disabled = false;
-                button.textContent = 'Verify';
-
-                if (error.code === 'auth/invalid-verification-code') {
-                    errorEl.textContent = 'Invalid verification code. Please check and try again.';
-                } else {
-                    errorEl.textContent = 'Verification failed. Please try again.';
-                }
-                errorEl.classList.add('show');
-            }
-        }
-
-        function cancelMFA() {
-            document.getElementById('mfa-overlay').classList.remove('show');
-            mfaResolver = null;
-            mfaVerificationId = null;
-        }
-
-        // --- MFA Enrollment (post-registration) ---
-        function showMFAEnrollment() {
-            document.getElementById('mfa-enroll-overlay').classList.add('show');
-            document.getElementById('mfa-enroll-step1').style.display = 'block';
-            document.getElementById('mfa-enroll-step2').style.display = 'none';
-            document.getElementById('mfa-phone-number').value = '';
-            document.getElementById('mfa-enroll-error').classList.remove('show');
-            document.getElementById('mfa-enroll-verify-error').classList.remove('show');
-            document.getElementById('mfa-phone-number').focus();
-        }
-
-        async function sendEnrollmentCode() {
-            const phoneNumber = document.getElementById('mfa-phone-number').value.trim();
-            const errorEl = document.getElementById('mfa-enroll-error');
-            errorEl.classList.remove('show');
-
-            if (!phoneNumber) {
-                errorEl.textContent = 'Please enter a phone number with country code (e.g. +44...).';
-                errorEl.classList.add('show');
-                return;
-            }
-
-            if (!phoneNumber.startsWith('+')) {
-                errorEl.textContent = 'Phone number must start with a country code (e.g. +44, +1).';
-                errorEl.classList.add('show');
-                return;
-            }
-
-            const button = document.getElementById('mfa-enroll-send-button');
-            button.disabled = true;
-            button.textContent = 'Sending...';
-
-            try {
-                const user = auth.currentUser;
-                const multiFactorSession = await multiFactor(user).getSession();
-
-                const phoneInfoOptions = {
-                    phoneNumber: phoneNumber,
-                    session: multiFactorSession
-                };
-
-                if (recaptchaVerifier) {
-                    recaptchaVerifier.clear();
-                    recaptchaVerifier = null;
-                }
-                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
-
-                const phoneAuthProvider = new PhoneAuthProvider(auth);
-                enrollmentVerificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
-
-                // Switch to step 2 (code entry)
-                document.getElementById('mfa-enroll-step1').style.display = 'none';
-                document.getElementById('mfa-enroll-step2').style.display = 'block';
-                document.getElementById('mfa-enroll-code').value = '';
-                document.getElementById('mfa-enroll-code').focus();
-
-            } catch (error) {
-                console.error('Error sending enrollment code:', error);
-                if (error.code === 'auth/requires-recent-login') {
-                    errorEl.textContent = 'For security, please sign out and sign back in before enabling MFA.';
-                } else if (error.code === 'auth/invalid-phone-number') {
-                    errorEl.textContent = 'Invalid phone number. Please include country code (e.g. +44...).';
-                } else {
-                    errorEl.textContent = 'Failed to send code: ' + error.message;
-                }
-                errorEl.classList.add('show');
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Send Code';
-            }
-        }
-
-        async function verifyEnrollmentCode() {
-            const code = document.getElementById('mfa-enroll-code').value.trim();
-            const errorEl = document.getElementById('mfa-enroll-verify-error');
-            errorEl.classList.remove('show');
-
-            if (!code || code.length !== 6) {
-                errorEl.textContent = 'Please enter a valid 6-digit code.';
-                errorEl.classList.add('show');
-                return;
-            }
-
-            const button = document.getElementById('mfa-enroll-verify-button');
-            button.disabled = true;
-            button.textContent = 'Verifying...';
-
-            try {
-                const credential = PhoneAuthProvider.credential(enrollmentVerificationId, code);
-                const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
-                await multiFactor(auth.currentUser).enroll(multiFactorAssertion, 'Phone Number');
-
-                console.log('MFA enrollment successful!');
-                document.getElementById('mfa-enroll-overlay').classList.remove('show');
-                showSuccess('Two-factor authentication enabled successfully! Redirecting...');
-
-                setTimeout(() => {
-                    window.location.href = 'assessment.html';
-                }, 1500);
-
-            } catch (error) {
-                console.error('MFA enrollment verification error:', error);
-                button.disabled = false;
-                button.textContent = 'Verify & Enable MFA';
-
-                if (error.code === 'auth/invalid-verification-code') {
-                    errorEl.textContent = 'Invalid verification code. Please check and try again.';
-                } else {
-                    errorEl.textContent = 'Enrollment failed: ' + error.message;
-                }
-                errorEl.classList.add('show');
-            }
-        }
-
-        function skipMFAEnrollment() {
-            document.getElementById('mfa-enroll-overlay').classList.remove('show');
-            window.location.href = 'assessment.html';
-        }
-
-        // Password reset
-        async function showPasswordReset(event) {
-            event.preventDefault();
-            hideMessages();
-            
-            const email = prompt('Enter your email address to reset your password:');
-            if (!email) return;
-            
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showSuccess('Password reset email sent! Check your inbox.');
-            } catch (error) {
-                showError(getErrorMessage(error.code));
-            }
-        }
-
-        // Helper functions
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.classList.add('show');
-        }
-
-        function hideMessages() {
-            document.getElementById('error-message').classList.remove('show');
-            document.getElementById('success-message').classList.remove('show');
-        }
-
-        function getErrorMessage(code) {
-            const messages = {
-                'auth/email-already-in-use': 'This email is already registered. Please login instead.',
-                'auth/invalid-email': 'Invalid email address.',
-                'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
-                'auth/weak-password': 'Password is too weak. Please use at least 6 characters.',
-                'auth/user-disabled': 'This account has been disabled.',
-                'auth/user-not-found': 'No account found with this email.',
-                'auth/wrong-password': 'Incorrect password.',
-                'auth/invalid-credential': 'Invalid email or password.',
-                'auth/too-many-requests': 'Too many attempts. Please try again later.',
-                'auth/network-request-failed': 'Network error. Please check your connection.',
-                'auth/popup-closed-by-user': 'Sign-in cancelled.',
-                'auth/multi-factor-auth-required': 'Multi-factor authentication required.',
-                'auth/invalid-verification-code': 'Invalid verification code.'
-            };
-            return messages[code] || 'An error occurred. Please try again.';
-        }
-    </script>
-
-    <script>
-        // Tab switching
-        function switchTab(tab) {
-            // Update tabs
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Update forms
-            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
-            document.getElementById(tab + '-form').classList.add('active');
-            
-            // Clear messages
-            document.getElementById('error-message').classList.remove('show');
-            document.getElementById('success-message').classList.remove('show');
-        }
-
-        // Password toggle
-        function togglePassword(inputId, button) {
-            const input = document.getElementById(inputId);
-            const type = input.type === 'password' ? 'text' : 'password';
-            input.type = type;
-            button.textContent = type === 'password' ? '👁️' : '🙈';
-        }
-    </script>
 </body>
 </html>

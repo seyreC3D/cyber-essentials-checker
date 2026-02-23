@@ -27,8 +27,10 @@ There is no test suite. Manual testing covers: auth flow, assessment completion,
 ## Architecture
 
 ```
-index.html          Login/registration (Firebase Auth, MFA)
-   ↓ redirect
+index.html          Landing page — 3 service cards (free CE, enhanced CE, CAF)
+   ↓ click card
+login.html          Login/registration (Firebase Auth, MFA)
+   ↓ redirect (reads ?redirect= param)
 assessment.html     Assessment UI — 7 collapsible sections
 assessment.js       All application logic (single ~2000-line file)
 assessment.css      All styles
@@ -38,23 +40,25 @@ api/analyze.js      Vercel serverless proxy → Claude API
 
 ### How the app works
 
-1. **Auth** — `index.html` handles login/registration/MFA via Firebase Auth SDK (loaded from CDN). On success, redirects to `assessment.html`.
+1. **Landing page** — `index.html` is a public landing page with 3 service cards. Clicking the free CE card navigates to `login.html?redirect=assessment`.
 
-2. **Assessment** — 6 core Cyber Essentials controls (firewalls, secure config, updates, access control, malware, scope) plus an optional 7th supply chain section. Each control has multiple-choice questions (radio buttons with `data-control` attribute mapping to controls 1-6) and required free-text fields.
+2. **Auth** — `login.html` handles login/registration/MFA via Firebase Auth SDK (loaded from CDN). Reads `?redirect=` param (whitelisted) to determine post-auth destination. On success, redirects to the target page.
 
-3. **Conditional branching** — Some questions are shown/hidden based on parent answers. Hidden question answers are auto-cleared to avoid stale scoring.
+3. **Assessment** — 6 core Cyber Essentials controls (firewalls, secure config, updates, access control, malware, scope) plus an optional 7th supply chain section. Each control has multiple-choice questions (radio buttons with `data-control` attribute mapping to controls 1-6) and required free-text fields.
 
-4. **Supply chain** — Optional vendor assessment module. Vendors are added dynamically; each gets 8 weighted security questions rendered in `.vendor-question` divs. Vendor radios do NOT have `data-control` attributes (important: `collectResponses()` must skip them).
+4. **Conditional branching** — Some questions are shown/hidden based on parent answers. Hidden question answers are auto-cleared to avoid stale scoring.
 
-5. **Auto-save** — All state (radio selections, text inputs, vendors) saves to `localStorage` every 1 second via debounce.
+5. **Supply chain** — Optional vendor assessment module. Vendors are added dynamically; each gets 8 weighted security questions rendered in `.vendor-question` divs. Vendor radios do NOT have `data-control` attributes (important: `collectResponses()` must skip them).
 
-6. **Analysis** — Two paths:
+6. **Auto-save** — All state (radio selections, text inputs, vendors) saves to `localStorage` every 1 second via debounce.
+
+7. **Analysis** — Two paths:
    - **Primary**: `analyzeWithProxy()` sends responses + system prompt to `/api/analyze` → Claude API → structured JSON result.
    - **Fallback**: `performLocalAnalysis()` scores locally in JS if the API is unavailable.
 
-7. **Results display** — `displayResults()` builds the results DOM (XSS-safe via `escapeHtml()` and `document.createElement`). Includes radar chart, heatmap, score bars, vendor risk table, critical issues, and next steps.
+8. **Results display** — `displayResults()` builds the results DOM (XSS-safe via `escapeHtml()` and `document.createElement`). Includes radar chart, heatmap, score bars, vendor risk table, critical issues, and next steps.
 
-8. **PDF export** — `printToPDF()` prompts for company name, adds header/appendix, then calls `window.print()`.
+9. **PDF export** — `printToPDF()` prompts for company name, adds header/appendix, then calls `window.print()`.
 
 ### Key data structures
 
@@ -76,7 +80,8 @@ api/analyze.js      Vercel serverless proxy → Claude API
 | `assessment.js` | Core logic: auto-save, branching, collection, validation, analysis, results, PDF, vendors |
 | `assessment.html` | Assessment form markup (7 control sections, modals) |
 | `assessment.css` | All styling including print rules and responsive breakpoints |
-| `index.html` | Login/register page with inline Firebase Auth JS |
+| `index.html` | Public landing page with 3 service cards |
+| `login.html` | Login/register page with inline Firebase Auth JS |
 | `firebase-config.js` | Firebase project config (public client-side keys) |
 | `api/analyze.js` | Vercel serverless function proxying to Claude API |
 | `vercel.json` | CORS headers for `/api/*` routes |
