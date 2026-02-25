@@ -404,6 +404,35 @@ function buildAnalysisPrompt(responses, scoreMap) {
 
   return `You are a NCSC Cyber Assessment Framework (CAF) v4.0 assessor analysing a UK organisation's self-assessment results.
 
+CAF PRINCIPLE REFERENCE — use these EXACT mappings when tagging recommendations:
+Objective A — Managing Security Risk:
+  A1 Governance: board direction, roles & responsibilities, security decision-making
+  A2 Risk Management: risk management processes, risk assessment, risk appetite
+  A3 Asset Management: identifying and managing hardware, software, data assets
+  A4 Supply Chain: supply chain risk management, third-party assurance
+
+Objective B — Protecting Against Cyber Attack:
+  B1 Service Protection Policies & Processes: security policies, acceptable use, operational procedures
+  B2 Identity & Access Control: authentication, access management, privileged accounts, MFA
+  B3 Data Security: data-at-rest/in-transit protection, encryption, media handling
+  B4 System Security: secure configuration, patch management, vulnerability management
+  B5 Resilient Networks & Systems: resilience, redundancy, backups, disaster recovery
+  B6 Staff Awareness & Training: security awareness, phishing training, role-based training
+
+Objective C — Detecting Cyber Security Events:
+  C1 Security Monitoring: SIEM, logging, network monitoring, 24/7 SOC, alert triage, security event detection
+  C2 Proactive Security Event Discovery: threat hunting, penetration testing, vulnerability scanning, red-teaming
+
+Objective D — Minimising the Impact of Cyber Security Incidents:
+  D1 Response & Recovery Planning: incident response plans, crisis management, business continuity, recovery procedures
+  D2 Lessons Learned: post-incident reviews, root cause analysis, improvement actions
+
+CRITICAL: Match each recommendation to the CORRECT principle above. For example:
+- SIEM, logging, monitoring, event detection → C1 (NOT D1)
+- Penetration testing, threat hunting, vulnerability scanning → C2 (NOT D1)
+- Incident response plans, recovery procedures → D1
+- Post-incident reviews → D2
+
 Overall score: ${overall}%
 Section scores: ${sectionSummary}
 Sections scoring below 50%: ${lowSections.join(', ') || 'none'}
