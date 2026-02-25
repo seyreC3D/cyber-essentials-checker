@@ -1,6 +1,6 @@
-# 🛡️ Cyber Essentials Readiness Checker
+# 🛡️ Cyber Assessment Hub
 
-An AI-powered, interactive assessment tool to evaluate your organization's readiness for UK Cyber Essentials certification (v3.3).
+AI-powered, interactive assessment tools to evaluate your organisation's readiness for UK Cyber Essentials (v3.3) certification and the NCSC Cyber Assessment Framework (CAF v4.0).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/demo-live-brightgreen)](https://yourusername.github.io/cyber-essentials-checker/)
@@ -27,12 +27,20 @@ No installation, no dependencies, no backend required!
 
 ## 📋 Features
 
-### ✅ Comprehensive Assessment
-- **30+ questions** covering all 5 Cyber Essentials technical controls
+### ✅ Cyber Essentials Readiness Checker (Free)
+- **30+ questions** covering all 5 Cyber Essentials v3.3 technical controls
 - Firewalls, Secure Configuration, Security Updates, User Access Control, Malware Protection
 - Additional questions on backups and incident response
 - Collects detailed infrastructure information (firewall models, antivirus versions)
 - **Required-field validation** prevents blank free-text answers essential for the assessor
+
+### 🏛️ NCSC CAF Self-Assessment (Free)
+- **83 questions** covering all 4 objectives, 14 principles, and 41 contributing outcomes of CAF v4.0
+- Four-tier rating per question: Achieved, Partially Achieved, Not Achieved, Not Applicable
+- Principle-level scoring with overall readiness percentage
+- "Ask Oracle" contextual guidance for every question using the Claude API
+- Collapsible objective/principle navigation with real-time progress tracking
+- AI-powered analysis with structured maturity report and gap identification
 
 ### 🤖 AI-Powered Analysis
 - **Claude API integration** via server-side proxy (API key never exposed to the client)
@@ -78,6 +86,7 @@ No installation, no dependencies, no backend required!
 ## 🎯 Who Is This For?
 
 - **Small businesses** preparing for Cyber Essentials certification
+- **Operators of essential services** assessing CAF compliance
 - **IT consultants** assessing client security posture
 - **Certification bodies** providing pre-assessment tools
 - **Internal IT teams** conducting security audits
@@ -116,10 +125,14 @@ No installation, no dependencies, no backend required!
 
 ```
 cyber-essentials-checker/
-├── index.html                    # Login page (Firebase Auth)
-├── assessment.html               # Main assessment form
-├── assessment.css                # Assessment styles
-├── assessment.js                 # Assessment logic, validation, PDF export
+├── index.html                    # Landing page with service cards
+├── login.html                    # Login/registration (Firebase Auth, MFA)
+├── assessment.html               # Cyber Essentials assessment form
+├── assessment.css                # CE assessment styles
+├── assessment.js                 # CE assessment logic, validation, PDF export
+├── caf-assessment.html           # NCSC CAF self-assessment form (83 questions)
+├── caf-assessment.css            # CAF assessment styles
+├── caf-assessment.js             # CAF assessment logic, scoring, analysis
 ├── firebase-config.js            # Firebase project configuration
 ├── api/                          # Server-side API proxy for Claude
 ├── README.md                     # This file
@@ -231,6 +244,7 @@ Contributions welcome! Please:
 - [ ] Industry-specific variants (healthcare, finance, etc.)
 - [x] Export to PDF functionality
 - [ ] Results comparison over time
+- [x] Integration with NCSC CAF framework
 - [ ] Integration with other frameworks (ISO 27001, NIST)
 - [ ] Translations to other languages
 - [ ] Mobile app wrapper
@@ -271,6 +285,7 @@ This tool is for **assessment purposes only** and does not constitute official C
 - [x] PDF report export with appendix
 - [x] Input validation for required fields
 - [x] XSS-safe rendering and security hardening
+- [x] NCSC CAF v4.0 self-assessment (83 questions, 14 principles)
 - [ ] Multi-language support
 - [ ] Historical tracking
 - [ ] Team collaboration features
@@ -280,7 +295,7 @@ This tool is for **assessment purposes only** and does not constitute official C
 
 - **Dependencies:** 0 runtime (pure vanilla JS) + Firebase Auth SDK
 - **Browser Support:** All modern browsers
-- **Assessment Time:** 15-20 minutes
+- **Assessment Time:** 15-20 minutes (CE), 30-45 minutes (CAF)
 
 ## 🌟 Star History
 
