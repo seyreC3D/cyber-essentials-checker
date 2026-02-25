@@ -80,7 +80,7 @@ function collapseSection(id) {
 }
 
 // ─────────────────────────────────────────
-//  Auto-save
+//  Auto-save & manual save
 // ─────────────────────────────────────────
 let saveTimer = null;
 function attachAutoSave() {
@@ -90,10 +90,10 @@ function attachAutoSave() {
 }
 function scheduleSave() {
   clearTimeout(saveTimer);
-  document.getElementById('save-status').textContent = 'Saving\u2026';
+  updateSaveUI('saving');
   saveTimer = setTimeout(() => {
     saveState();
-    document.getElementById('save-status').textContent = 'All changes saved';
+    updateSaveUI('saved');
   }, 800);
 }
 function saveState() {
@@ -102,6 +102,7 @@ function saveState() {
     state[el.name] = el.value;
   });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY + '_ts', new Date().toISOString());
   updateProgress();
 }
 function loadSaved() {
@@ -114,17 +115,79 @@ function loadSaved() {
       if (el) el.checked = true;
     });
   } catch (e) { /* ignore corrupt state */ }
+  // Show last saved timestamp
+  const ts = localStorage.getItem(STORAGE_KEY + '_ts');
+  if (ts) updateSaveUI('restored', ts);
 }
+
+function manualSave() {
+  const btn = document.getElementById('save-progress-btn');
+  btn.classList.add('saving');
+  btn.innerHTML = '<span class="save-icon">&#9203;</span> Saving\u2026';
+  saveState();
+  setTimeout(() => {
+    btn.classList.remove('saving');
+    btn.classList.add('saved');
+    btn.innerHTML = '<span class="save-icon">&#10003;</span> Saved!';
+    updateSaveUI('saved');
+    setTimeout(() => {
+      btn.classList.remove('saved');
+      btn.innerHTML = '<span class="save-icon" id="save-icon">&#128190;</span> Save Progress';
+    }, 2000);
+  }, 400);
+}
+
+function formatSaveTime(isoStr) {
+  try {
+    const d = new Date(isoStr || Date.now());
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) { return ''; }
+}
+
+function updateSaveUI(state, timestamp) {
+  const statusText = document.getElementById('save-status-text');
+  const statusIcon = document.getElementById('save-status-icon');
+  const tsEl       = document.getElementById('save-timestamp');
+  const notice     = document.getElementById('save-notice');
+  const noticeText = document.getElementById('save-notice-text');
+
+  const now = formatSaveTime(timestamp);
+
+  if (state === 'saving') {
+    if (statusText) statusText.textContent = 'Saving\u2026';
+    if (statusIcon) { statusIcon.textContent = '\u25cf'; statusIcon.classList.add('unsaved'); }
+    if (notice) notice.classList.remove('just-saved');
+  } else if (state === 'saved') {
+    const time = formatSaveTime();
+    if (statusText) statusText.textContent = 'All changes saved';
+    if (statusIcon) { statusIcon.textContent = '\u25cf'; statusIcon.classList.remove('unsaved'); }
+    if (tsEl) tsEl.textContent = 'at ' + time;
+    if (noticeText) noticeText.textContent = 'Progress saved to your browser at ' + time;
+    if (notice) { notice.classList.add('just-saved'); setTimeout(() => notice.classList.remove('just-saved'), 2500); }
+  } else if (state === 'restored') {
+    if (statusText) statusText.textContent = 'Previous session restored';
+    if (statusIcon) { statusIcon.textContent = '\u25cf'; statusIcon.classList.remove('unsaved'); }
+    if (tsEl && now) tsEl.textContent = 'last saved ' + now;
+    if (noticeText && now) noticeText.textContent = 'Previous progress restored \u2014 last saved at ' + now;
+  } else if (state === 'cleared') {
+    if (statusText) statusText.textContent = 'Cleared';
+    if (statusIcon) { statusIcon.textContent = '\u25cb'; statusIcon.classList.add('unsaved'); }
+    if (tsEl) tsEl.textContent = '';
+    if (noticeText) noticeText.textContent = 'Auto-saved to your browser';
+  }
+}
+
 function clearAll() {
   if (!confirm('Clear all answers? This cannot be undone.')) return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY + '_ts');
   document.querySelectorAll('input[type="radio"]:checked').forEach(el => { el.checked = false; });
   document.querySelectorAll('.consultant-response').forEach(el => {
     el.classList.remove('visible');
     el.textContent = '';
   });
   updateProgress();
-  document.getElementById('save-status').textContent = 'Cleared';
+  updateSaveUI('cleared');
 }
 
 // ─────────────────────────────────────────
@@ -415,10 +478,115 @@ function ratingColor(r) {
   return '#27ae60';
 }
 
+// ─────────────────────────────────────────
+//  Principle labels (used by radar chart)
+// ─────────────────────────────────────────
+const PRINCIPLE_LABELS = {
+  A1:'Governance', A2:'Risk Mgmt', A3:'Assets', A4:'Supply Chain',
+  B1:'Policies', B2:'Identity', B3:'Data', B4:'Systems',
+  B5:'Resilience', B6:'Training', C1:'Monitoring', C2:'Discovery',
+  D1:'Response', D2:'Lessons'
+};
+
+// ─────────────────────────────────────────
+//  14-axis radar / spider chart (pure SVG)
+// ─────────────────────────────────────────
+function buildCAFRadarChart(scoreMap) {
+  const ids = SECTION_IDS;
+  const n   = ids.length; // 14
+  const cx  = 200, cy = 200, maxR = 160;
+  const BENCHMARK = 0.70; // 70% "Achieved" threshold
+
+  function polar(index, ratio) {
+    const angle = (-Math.PI / 2) + (index * 2 * Math.PI / n);
+    return {
+      x: cx + maxR * ratio * Math.cos(angle),
+      y: cy + maxR * ratio * Math.sin(angle)
+    };
+  }
+
+  // Build grid rings (25%, 50%, 75%, 100%)
+  let gridSVG = '';
+  [0.25, 0.50, 0.75, 1.0].forEach(ring => {
+    const pts = ids.map((_, i) => {
+      const p = polar(i, ring);
+      return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+    }).join(' ');
+    gridSVG += `<polygon points="${pts}" fill="none" stroke="#dde3ea" stroke-width="0.8"/>`;
+  });
+
+  // Axis lines + labels
+  let axesSVG = '';
+  ids.forEach((id, i) => {
+    const p = polar(i, 1.0);
+    axesSVG += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#e8eaed" stroke-width="0.5"/>`;
+    // Label position (pushed slightly outside)
+    const lp = polar(i, 1.18);
+    const score = scoreMap[id];
+    const label = id;
+    const shortName = PRINCIPLE_LABELS[id] || id;
+    const scoreText = score !== null ? ` ${score}%` : '';
+    // Determine text-anchor based on position
+    let anchor = 'middle';
+    if (lp.x < cx - 10) anchor = 'end';
+    else if (lp.x > cx + 10) anchor = 'start';
+    axesSVG += `<text x="${lp.x.toFixed(1)}" y="${lp.y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-size="9" font-weight="600" fill="#1a3a5c">${escapeHtml(label)}</text>`;
+    axesSVG += `<text x="${lp.x.toFixed(1)}" y="${(lp.y + 11).toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-size="7.5" fill="#5a6a7a">${escapeHtml(shortName)}${escapeHtml(scoreText)}</text>`;
+  });
+
+  // Benchmark polygon (70% threshold)
+  const benchPts = ids.map((_, i) => {
+    const p = polar(i, BENCHMARK);
+    return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+  }).join(' ');
+  const benchSVG = `<polygon points="${benchPts}" fill="none" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="5,3" opacity="0.6"/>`;
+
+  // Data polygon
+  const dataPts = ids.map((id, i) => {
+    const ratio = scoreMap[id] !== null ? scoreMap[id] / 100 : 0;
+    const p = polar(i, ratio);
+    return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+  }).join(' ');
+  const dataSVG = `<polygon points="${dataPts}" fill="rgba(0,168,120,0.18)" stroke="#00a878" stroke-width="2.2"/>`;
+
+  // Data dots
+  let dotsSVG = '';
+  ids.forEach((id, i) => {
+    const score = scoreMap[id];
+    const ratio = score !== null ? score / 100 : 0;
+    const p = polar(i, ratio);
+    const color = score === null ? '#7f8c8d' : score >= 70 ? '#27ae60' : score >= 40 ? '#f39c12' : '#c0392b';
+    dotsSVG += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.2"/>`;
+  });
+
+  // Legend
+  const legendY = cy + maxR + 32;
+  const legendSVG = `
+    <line x1="${cx - 80}" y1="${legendY}" x2="${cx - 60}" y2="${legendY}" stroke="#00a878" stroke-width="2.2"/>
+    <text x="${cx - 56}" y="${legendY}" dominant-baseline="central" font-size="8" fill="#5a6a7a">Your score</text>
+    <line x1="${cx + 10}" y1="${legendY}" x2="${cx + 30}" y2="${legendY}" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="5,3" opacity="0.6"/>
+    <text x="${cx + 34}" y="${legendY}" dominant-baseline="central" font-size="8" fill="#5a6a7a">70% Achieved threshold</text>
+  `;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'caf-radar-wrapper';
+  wrapper.innerHTML = `<svg viewBox="0 0 400 ${legendY + 16}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:0 auto;">
+    ${gridSVG}${axesSVG}${benchSVG}${dataSVG}${dotsSVG}${legendSVG}
+  </svg>`;
+  return wrapper;
+}
+
+// ─────────────────────────────────────────
+//  Display results (with radar chart)
+// ─────────────────────────────────────────
 function displayResults(result, scoreMap) {
   const panel   = document.getElementById('results-panel');
   const content = document.getElementById('results-content');
   content.innerHTML = '';
+
+  // Store result for PDF export
+  panel._lastResult = result;
+  panel._lastScoreMap = scoreMap;
 
   // ── Overall summary card ──
   const overall = overallScore(scoreMap);
@@ -458,6 +626,9 @@ function displayResults(result, scoreMap) {
     summaryCard.appendChild(objRow);
   }
 
+  // ── Radar chart ──
+  summaryCard.appendChild(buildCAFRadarChart(scoreMap));
+
   // Section score grid
   const grid = document.createElement('div');
   grid.className = 'results-grid';
@@ -467,7 +638,7 @@ function displayResults(result, scoreMap) {
     card.className = 'principle-card';
     const title = document.createElement('div');
     title.className = 'principle-card-title';
-    title.textContent = id;
+    title.textContent = id + ' ' + (PRINCIPLE_LABELS[id] || '');
     const bar = document.createElement('div');
     bar.className = 'principle-bar';
     const fill = document.createElement('div');
@@ -516,6 +687,7 @@ function displayResults(result, scoreMap) {
   // ── Regulatory note ──
   if (result.regulatoryNote) {
     const note = document.createElement('div');
+    note.className = 'caf-regulatory-note';
     note.style.cssText = 'background:#fff;border-radius:10px;padding:16px 20px;font-size:.87rem;color:#5a6a7a;border-left:4px solid #2a5298;margin-top:8px;';
     const strong = document.createElement('strong');
     strong.textContent = 'Regulatory note: ';
@@ -533,10 +705,170 @@ function closeResults() {
 }
 
 // ─────────────────────────────────────────
-//  Export
+//  PDF export with executive summary
 // ─────────────────────────────────────────
 function exportPDF() {
-  window.print();
+  showCompanyNameModal();
+}
+
+function showCompanyNameModal() {
+  // Remove any existing modal
+  const existing = document.getElementById('caf-company-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'caf-company-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:#fff;border-radius:10px;padding:32px 36px;max-width:440px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.22);';
+
+  const h2 = document.createElement('h2');
+  h2.style.cssText = 'font-size:1.2rem;color:#1a3a5c;margin-bottom:12px;';
+  h2.textContent = 'Export PDF Report';
+
+  const p = document.createElement('p');
+  p.style.cssText = 'font-size:.88rem;color:#5a6a7a;margin-bottom:16px;';
+  p.textContent = 'Enter your organisation name to personalise the report.';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Organisation name';
+  input.id = 'caf-company-input';
+  input.style.cssText = 'width:100%;padding:10px 14px;border:1.5px solid #dde3ea;border-radius:8px;font-size:.95rem;margin-bottom:16px;outline:none;';
+  input.addEventListener('focus', () => { input.style.borderColor = '#00a878'; });
+  input.addEventListener('blur', () => { input.style.borderColor = '#dde3ea'; });
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.style.cssText = 'background:none;border:1px solid #dde3ea;color:#5a6a7a;padding:9px 18px;border-radius:8px;font-size:.87rem;cursor:pointer;';
+  cancelBtn.onclick = () => overlay.remove();
+
+  const exportBtn = document.createElement('button');
+  exportBtn.textContent = 'Generate PDF';
+  exportBtn.style.cssText = 'background:#00a878;color:#fff;border:none;padding:9px 22px;border-radius:8px;font-size:.87rem;font-weight:600;cursor:pointer;';
+  exportBtn.onclick = () => {
+    const name = input.value.trim();
+    if (!name) { input.style.borderColor = '#c0392b'; input.focus(); return; }
+    overlay.remove();
+    prepareAndPrint(name);
+  };
+
+  // Enter key submits
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') exportBtn.click(); });
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(exportBtn);
+  modal.appendChild(h2);
+  modal.appendChild(p);
+  modal.appendChild(input);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  setTimeout(() => input.focus(), 50);
+}
+
+function prepareAndPrint(companyName) {
+  const content = document.getElementById('results-content');
+  const panel   = document.getElementById('results-panel');
+  const result  = panel._lastResult;
+  const scoreMap = panel._lastScoreMap;
+
+  // Remove any previous exec summary / footer
+  const oldExec = document.getElementById('caf-exec-summary');
+  if (oldExec) oldExec.remove();
+  const oldFooter = document.getElementById('caf-print-footer');
+  if (oldFooter) oldFooter.remove();
+
+  // ── Build executive summary (inserted before results-content) ──
+  const exec = document.createElement('div');
+  exec.id = 'caf-exec-summary';
+  exec.className = 'caf-exec-summary';
+
+  // Header bar
+  const hdr = document.createElement('div');
+  hdr.className = 'caf-exec-header';
+  const h1 = document.createElement('h1');
+  h1.textContent = 'CAF Assessment Report';
+  const sub = document.createElement('p');
+  sub.className = 'caf-exec-subtitle';
+  sub.textContent = companyName;
+  const dateLine = document.createElement('p');
+  dateLine.className = 'caf-exec-date';
+  dateLine.textContent = 'Generated: ' + new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  hdr.appendChild(h1);
+  hdr.appendChild(sub);
+  hdr.appendChild(dateLine);
+  exec.appendChild(hdr);
+
+  // Overall score + rating
+  const overall = overallScore(scoreMap);
+  const scoreBlock = document.createElement('div');
+  scoreBlock.className = 'caf-exec-score-block';
+  const bigScore = document.createElement('div');
+  bigScore.className = 'caf-exec-big-score';
+  bigScore.textContent = overall + '%';
+  bigScore.style.color = ratingColor(result.overallRating);
+  const rLabel = document.createElement('div');
+  rLabel.className = 'caf-exec-rating';
+  rLabel.textContent = result.overallRating || 'Not Assessed';
+  rLabel.style.color = ratingColor(result.overallRating);
+  scoreBlock.appendChild(bigScore);
+  scoreBlock.appendChild(rLabel);
+  exec.appendChild(scoreBlock);
+
+  // Objective ratings row
+  if (result.objectiveRatings) {
+    const objRow = document.createElement('div');
+    objRow.className = 'caf-exec-objectives';
+    const objNames = { A:'Managing Risk', B:'Protecting', C:'Detecting', D:'Minimising Impact' };
+    Object.entries(result.objectiveRatings).forEach(([obj, rating]) => {
+      const chip = document.createElement('div');
+      chip.className = 'caf-exec-obj-chip';
+      chip.style.borderColor = ratingColor(rating);
+      chip.style.color = ratingColor(rating);
+      chip.style.background = ratingColor(rating) + '15';
+      chip.textContent = `${obj}: ${objNames[obj] || obj} \u2014 ${rating}`;
+      objRow.appendChild(chip);
+    });
+    exec.appendChild(objRow);
+  }
+
+  // Spider chart
+  exec.appendChild(buildCAFRadarChart(scoreMap));
+
+  // Top 3 critical gaps
+  if (result.criticalGaps && result.criticalGaps.length) {
+    const gapsDiv = document.createElement('div');
+    gapsDiv.className = 'caf-exec-gaps';
+    const gH3 = document.createElement('h3');
+    gH3.textContent = 'Key Findings';
+    gapsDiv.appendChild(gH3);
+    result.criticalGaps.slice(0, 3).forEach(gap => {
+      const li = document.createElement('div');
+      li.className = 'caf-exec-gap-item';
+      li.textContent = typeof gap === 'string' ? gap : gap.action || String(gap);
+      gapsDiv.appendChild(li);
+    });
+    exec.appendChild(gapsDiv);
+  }
+
+  // Insert exec summary at the top of results
+  content.insertBefore(exec, content.firstChild);
+
+  // ── Print footer ──
+  const footer = document.createElement('div');
+  footer.id = 'caf-print-footer';
+  footer.className = 'caf-print-footer';
+  footer.textContent = `CAF Assessment Report \u2014 ${companyName} \u2014 ${new Date().toLocaleDateString('en-GB')} \u2014 Generated by Cyber 3D CAF Assessment Tool`;
+  footer.style.display = 'none'; // Shown only in print CSS
+  panel.appendChild(footer);
+
+  // Slight delay to let DOM settle before print dialog
+  setTimeout(() => window.print(), 200);
 }
 function exportJSON() {
   const responses = collectResponses();

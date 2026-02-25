@@ -14,6 +14,12 @@
   <div class="subtitle-row">
     <p>NCSC Cyber Assessment Framework v4.0</p>
     <button class="how-it-works-link" onclick="showWelcomeModal()">How This Works</button>
+    <button class="save-progress-btn" id="save-progress-btn" onclick="manualSave()">
+      <span class="save-icon" id="save-icon">&#128190;</span> Save Progress
+    </button>
+  </div>
+  <div class="save-notice" id="save-notice">
+    <span id="save-notice-text">Auto-saved to your browser</span>
   </div>
 </div>
 <div id="welcome-overlay" class="welcome-overlay">
@@ -1328,7 +1334,11 @@
 </div><!-- end main-content -->
 
 <div class="save-bar" id="save-bar">
-  <span id="save-status" class="save-status">All changes saved</span>
+  <span id="save-status" class="save-status">
+    <span class="save-status-icon" id="save-status-icon">&#9679;</span>
+    <span id="save-status-text">All changes saved</span>
+    <span class="save-timestamp" id="save-timestamp"></span>
+  </span>
   <button class="clear-btn" onclick="clearAll()">Clear All</button>
   <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
     Analyse with Oracle &#8594;
@@ -1348,6 +1358,7 @@
 </div>
 
 <div class="mobile-bottom-bar">
+  <button class="mobile-save-btn" onclick="manualSave()">&#128190; Save</button>
   <button class="mobile-analyze-btn" onclick="runAnalysis()">Analyse &#8594;</button>
 </div>
 
