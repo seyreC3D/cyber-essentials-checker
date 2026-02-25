@@ -1102,3 +1102,253 @@
   </div>
 </div>
 </div>
+<!-- ===== SECTION C2 ===== -->
+<div class="assessment-section">
+<div class="control-header" onclick="toggleSection('C2')">
+  <div class="control-number">C2</div>
+  <div class="control-title"><h3>Proactive Security Event Discovery</h3><p>Detecting system abnormalities and threat hunting</p></div>
+  <div class="toggle-icon" id="toggle-C2">&#9660;</div>
+</div>
+<div class="control-content" id="content-C2">
+  <div class="outcome-group">
+    <div class="outcome-label">C2.a &mdash; System Abnormalities for Attack Detection</div>
+<div class="question" data-principle="C2" data-outcome="C2.a">
+<div class="question-text">Are system abnormalities (unexpected processes, unusual network connections, unauthorised file modifications) actively detected and investigated?</div>
+<div class="question-help">EDR and file integrity monitoring tools should detect unexpected system behaviour that may indicate compromise: unusual child processes, LOLBin execution, C2 beaconing, unauthorised registry changes, or scheduled task creation.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_C2a_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2a_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2a_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2a_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_C2a_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_C2a_1"></div>
+</div>
+<div class="question" data-principle="C2" data-outcome="C2.a">
+<div class="question-text">Are mechanisms in place to detect lateral movement and attacker persistence within the network?</div>
+<div class="question-help">Attackers who gain initial access typically move laterally. Internal network traffic analysis, honeypots, east-west monitoring, and detection of credential misuse or abnormal internal connections can reveal attackers traversing the environment.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_C2a_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2a_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2a_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2a_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_C2a_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_C2a_2"></div>
+</div>
+  </div>
+  <div class="outcome-group">
+    <div class="outcome-label">C2.b &mdash; Threat Hunting <em>(v4.0)</em></div>
+<div class="question" data-principle="C2" data-outcome="C2.b">
+<div class="question-text">Does the organisation proactively hunt for threats within its environment, rather than relying solely on automated alerts?</div>
+<div class="question-help">Threat hunting involves hypothesis-driven, manual investigation to find threats that evade automated detection. This requires skilled analysts with access to rich telemetry and an understanding of current attacker TTPs.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_C2b_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2b_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2b_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2b_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_C2b_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_C2b_1"></div>
+</div>
+<div class="question" data-principle="C2" data-outcome="C2.b">
+<div class="question-text">Are threat hunting activities informed by current threat intelligence, MITRE ATT&CK techniques, and findings from previous incidents?</div>
+<div class="question-help">Hunting hypotheses should be targeted based on known adversary TTPs relevant to the sector and organisation, lessons from past incidents, and intelligence about active campaigns targeting similar organisations.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_C2b_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2b_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2b_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_C2b_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_C2b_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_C2b_2"></div>
+</div>
+  </div>
+</div>
+</div>
+<!-- ===== SECTION D1 ===== -->
+<div class="assessment-section">
+<div class="control-header" onclick="toggleSection('D1')">
+  <div class="control-number">D1</div>
+  <div class="control-title"><h3>Response &amp; Recovery Planning</h3><p>Incident response plan, capability, and testing</p></div>
+  <div class="toggle-icon" id="toggle-D1">&#9660;</div>
+</div>
+<div class="control-content" id="content-D1">
+  <div class="outcome-group">
+    <div class="outcome-label">D1.a &mdash; Response Plan</div>
+<div class="question" data-principle="D1" data-outcome="D1.a">
+<div class="question-text">Is there a documented incident response plan covering detection, triage, containment, eradication, recovery, and post-incident review?</div>
+<div class="question-help">The plan should define roles and responsibilities, communication channels, decision authorities, and specific playbooks for common incident types (ransomware, data breach, DDoS, insider threat, supply chain compromise).</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D1a_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1a_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1a_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1a_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D1a_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D1a_1"></div>
+</div>
+<div class="question" data-principle="D1" data-outcome="D1.a">
+<div class="question-text">Does the plan include communication procedures for internal stakeholders, regulators, sector bodies, and (where required) affected individuals?</div>
+<div class="question-help">The plan should define who needs to be notified, when (regulatory timelines), and how &mdash; including NIS Competent Authority notification, ICO reporting within 72 hours for personal data breaches, and customer communications.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D1a_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1a_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1a_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1a_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D1a_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D1a_2"></div>
+</div>
+  </div>
+  <div class="outcome-group">
+    <div class="outcome-label">D1.b &mdash; Response &amp; Recovery Capability</div>
+<div class="question" data-principle="D1" data-outcome="D1.b">
+<div class="question-text">Does the organisation have the capability (in-house or via retained incident response provider) to respond to and recover from significant cyber incidents?</div>
+<div class="question-help">Incident response requires specialist skills &mdash; digital forensics, malware analysis, crisis management, and recovery engineering. If not available in-house, retainer agreements with IR providers should be in place and regularly validated.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D1b_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1b_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1b_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1b_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D1b_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D1b_1"></div>
+</div>
+<div class="question" data-principle="D1" data-outcome="D1.b">
+<div class="question-text">Are sufficient resources (people, technology, budget, and pre-agreed legal and communications support) available to support effective incident response?</div>
+<div class="question-help">Response capability must be proportionate to the organisation's risk profile. This includes trained staff available on call, IR tooling deployed and ready, pre-negotiated legal advice, and crisis communication support.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D1b_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1b_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1b_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1b_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D1b_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D1b_2"></div>
+</div>
+  </div>
+  <div class="outcome-group">
+    <div class="outcome-label">D1.c &mdash; Testing &amp; Exercising</div>
+<div class="question" data-principle="D1" data-outcome="D1.c">
+<div class="question-text">Is the incident response plan tested and exercised at least annually using tabletop, simulation, or live exercises?</div>
+<div class="question-help">Exercises test whether the plan works in practice, identify gaps, validate communication chains, and build responder muscle memory. Tabletop exercises test decision-making; live exercises test technical capability under realistic conditions.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D1c_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1c_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1c_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1c_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D1c_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D1c_1"></div>
+</div>
+<div class="question" data-principle="D1" data-outcome="D1.c">
+<div class="question-text">Do exercises include scenarios relevant to current threats, and do they involve senior leadership and external stakeholders where appropriate?</div>
+<div class="question-help">Scenarios should reflect realistic threats: ransomware, supply chain compromise, insider threat, prolonged outage. Senior leadership participation tests escalation and decision authority. Lessons should be formally captured and acted upon.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D1c_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1c_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1c_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D1c_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D1c_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D1c_2"></div>
+</div>
+  </div>
+</div>
+</div>
+<!-- ===== SECTION D2 ===== -->
+<div class="assessment-section">
+<div class="control-header" onclick="toggleSection('D2')">
+  <div class="control-number">D2</div>
+  <div class="control-title"><h3>Lessons Learned</h3><p>Root cause analysis and feeding improvements back into controls</p></div>
+  <div class="toggle-icon" id="toggle-D2">&#9660;</div>
+</div>
+<div class="control-content" id="content-D2">
+  <div class="outcome-group">
+    <div class="outcome-label">D2.a &mdash; Incident Root Cause Analysis</div>
+<div class="question" data-principle="D2" data-outcome="D2.a">
+<div class="question-text">Are root cause analyses conducted after significant incidents to understand systemic causes, not just proximate events?</div>
+<div class="question-help">Understanding why an incident occurred enables systemic improvements. RCA should distinguish proximate causes (e.g. unpatched system) from root causes (e.g. inadequate vulnerability management process) to drive lasting change.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D2a_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2a_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2a_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2a_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D2a_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D2a_1"></div>
+</div>
+<div class="question" data-principle="D2" data-outcome="D2.a">
+<div class="question-text">Are post-incident findings documented and shared with relevant internal stakeholders and, where appropriate, sector peers and regulators?</div>
+<div class="question-help">Post-incident reports should be shared with management and affected teams. Where appropriate, findings should be shared with sector CERTs, regulatory bodies, and trusted peers to improve collective resilience.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D2a_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2a_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2a_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2a_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D2a_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D2a_2"></div>
+</div>
+  </div>
+  <div class="outcome-group">
+    <div class="outcome-label">D2.b &mdash; Using Lessons Learned</div>
+<div class="question" data-principle="D2" data-outcome="D2.b">
+<div class="question-text">Are lessons learned from incidents and exercises systematically fed back into policies, training, security controls, and architectural improvements?</div>
+<div class="question-help">Incident findings should drive tangible, tracked improvements: updated procedures, enhanced detection rules, additional training, compensating controls, or architectural changes to prevent recurrence of the same or similar incidents.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D2b_1" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2b_1" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2b_1" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2b_1" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D2b_1" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D2b_1"></div>
+</div>
+<div class="question" data-principle="D2" data-outcome="D2.b">
+<div class="question-text">Is there a formal process to track and verify that remediation actions from incidents and exercises are completed within agreed timescales?</div>
+<div class="question-help">Improvement actions should be formally tracked (in a risk register or action log) with owners, due dates, and sign-off on completion. Overdue actions should be escalated and re-risk-assessed if they cannot be delivered on time.</div>
+<div class="options">
+<label class="option"><input type="radio" name="caf_D2b_2" value="achieved"><span>Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2b_2" value="partial"><span>Partially Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2b_2" value="not-achieved"><span>Not Achieved</span></label>
+<label class="option"><input type="radio" name="caf_D2b_2" value="na"><span>Not Applicable</span></label>
+</div>
+<button class="ask-consultant-btn" data-question-id="caf_D2b_2" onclick="askOracle(this)">Need help? Ask Oracle</button>
+<div class="consultant-response" id="consultant-caf_D2b_2"></div>
+</div>
+  </div>
+</div>
+</div>
+</div><!-- end assessment-sections -->
+</div><!-- end main-content -->
+
+<div class="save-bar" id="save-bar">
+  <span id="save-status" class="save-status">All changes saved</span>
+  <button class="clear-btn" onclick="clearAll()">Clear All</button>
+  <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
+    Analyse with Claude &#8594;
+  </button>
+</div>
+
+<div id="results-panel" class="results-panel" style="display:none">
+  <div class="results-header">
+    <h2>CAF Assessment Results</h2>
+    <div class="results-actions">
+      <button class="export-btn" onclick="exportPDF()">Export PDF</button>
+      <button class="export-btn" onclick="exportJSON()">Export JSON</button>
+      <button class="close-results-btn" onclick="closeResults()">&#10005; Close</button>
+    </div>
+  </div>
+  <div id="results-content"></div>
+</div>
+
+<div class="mobile-bottom-bar">
+  <button class="mobile-analyze-btn" onclick="runAnalysis()">Analyse &#8594;</button>
+</div>
+
+<script src="caf-assessment.js"></script>
+</div><!-- end container -->
+</body>
+</html>
