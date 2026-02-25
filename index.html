@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Assessment Hub - Security Assessment Tools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,78 +15,184 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0b1a2b;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated background ── */
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(2,128,144,.35) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0,168,150,.2) 0%, transparent 60%),
+                linear-gradient(170deg, #0b1a2b 0%, #122a40 50%, #0e2236 100%);
+        }
+
+        .bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(0,168,150,.07) 0%, transparent 50%),
+                radial-gradient(circle at 75% 70%, rgba(2,128,144,.06) 0%, transparent 40%);
+            animation: drift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-30px, 20px) scale(1.05); }
+        }
+
+        /* Grid overlay */
+        .bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ── Layout ── */
+        .landing-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1160px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .landing-container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
+        /* ── Header ── */
         .landing-header {
             text-align: center;
             color: white;
-            padding: 50px 20px 40px;
+            padding: 60px 20px 20px;
+            animation: fadeUp .8s ease-out;
         }
 
-        .landing-header .icon {
-            font-size: 56px;
-            margin-bottom: 16px;
+        .logo-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #028090 0%, #00A896 100%);
+            box-shadow: 0 8px 32px rgba(0,168,150,.3);
+            margin-bottom: 24px;
+        }
+
+        .logo-mark svg {
+            width: 38px;
+            height: 38px;
+            fill: white;
         }
 
         .landing-header h1 {
-            font-size: 36px;
-            margin-bottom: 12px;
-            font-weight: 700;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0d8d0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .landing-header p {
             font-size: 18px;
-            opacity: 0.92;
-            max-width: 600px;
+            color: rgba(255,255,255,.65);
+            max-width: 540px;
             margin: 0 auto;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-weight: 400;
         }
 
+        /* ── Trust bar ── */
+        .trust-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 32px 20px 12px;
+            animation: fadeUp .8s ease-out .15s both;
+        }
+
+        .trust-item {
+            text-align: center;
+            color: rgba(255,255,255,.5);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .trust-item strong {
+            display: block;
+            font-size: 22px;
+            font-weight: 700;
+            color: #00d4aa;
+            margin-bottom: 2px;
+        }
+
+        /* ── Cards ── */
         .cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
-            margin-top: 10px;
+            margin-top: 24px;
         }
 
         .card {
-            background: white;
-            border-radius: 14px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
             position: relative;
+            animation: fadeUp .7s ease-out both;
         }
 
+        .card:nth-child(1) { animation-delay: .2s; }
+        .card:nth-child(2) { animation-delay: .35s; }
+        .card:nth-child(3) { animation-delay: .5s; }
+
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+            border-color: rgba(0,168,150,.25);
         }
 
         .card.disabled {
-            opacity: 0.88;
+            opacity: .55;
         }
 
         .card.disabled:hover {
             transform: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: none;
+            border-color: rgba(255,255,255,.08);
             cursor: default;
+        }
+
+        /* Accent strip at top of card */
+        .card-accent {
+            height: 3px;
+            background: linear-gradient(90deg, #028090, #00d4aa);
+        }
+
+        .card.disabled .card-accent {
+            background: rgba(255,255,255,.1);
         }
 
         .card-badge {
             position: absolute;
-            top: 16px;
+            top: 18px;
             right: 16px;
             padding: 4px 12px;
             border-radius: 20px;
@@ -94,40 +203,62 @@
         }
 
         .badge-free {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(0,212,170,.15);
+            color: #00d4aa;
+            border: 1px solid rgba(0,212,170,.25);
         }
 
         .badge-paid {
-            background: #fff3cd;
-            color: #856404;
+            background: rgba(255,193,7,.12);
+            color: #ffc107;
+            border: 1px solid rgba(255,193,7,.2);
         }
 
         .badge-coming {
-            background: #e0e0e0;
-            color: #666;
+            background: rgba(255,255,255,.08);
+            color: rgba(255,255,255,.45);
+            border: 1px solid rgba(255,255,255,.1);
         }
 
         .card-top {
-            padding: 32px 28px 24px;
+            padding: 32px 28px 20px;
             text-align: center;
         }
 
-        .card-icon {
-            font-size: 44px;
-            margin-bottom: 16px;
+        .card-icon-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+        }
+
+        .card-icon-wrap.ce    { background: rgba(0,168,150,.12); }
+        .card-icon-wrap.plus  { background: rgba(255,193,7,.1); }
+        .card-icon-wrap.caf   { background: rgba(99,140,255,.12); }
+
+        .card-icon-wrap svg {
+            width: 28px;
+            height: 28px;
         }
 
         .card-top h2 {
-            font-size: 22px;
-            color: #333;
+            font-size: 20px;
+            color: #fff;
             margin-bottom: 10px;
             font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .card.disabled .card-top h2 {
+            color: rgba(255,255,255,.5);
         }
 
         .card-top p {
             font-size: 14px;
-            color: #666;
+            color: rgba(255,255,255,.5);
             line-height: 1.65;
         }
 
@@ -144,22 +275,31 @@
         .card-features li {
             padding: 6px 0;
             font-size: 14px;
-            color: #555;
+            color: rgba(255,255,255,.55);
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 10px;
         }
 
         .card-features li::before {
-            content: "\2713";
-            color: #028090;
-            font-weight: 700;
+            content: '';
+            display: inline-block;
+            width: 18px;
+            height: 18px;
             flex-shrink: 0;
-            margin-top: 1px;
+            margin-top: 2px;
+            border-radius: 50%;
+            background: rgba(0,212,170,.12);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300d4aa' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         .card.disabled .card-features li::before {
-            color: #aaa;
+            background: rgba(255,255,255,.06);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         .card-action {
@@ -171,49 +311,66 @@
             width: 100%;
             padding: 14px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all .25s ease;
             text-align: center;
             text-decoration: none;
+            font-family: inherit;
         }
 
         .card-button.primary {
             background: linear-gradient(135deg, #028090 0%, #00A896 100%);
             color: white;
+            box-shadow: 0 4px 16px rgba(0,168,150,.25);
         }
 
         .card-button.primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(2, 128, 144, 0.35);
+            box-shadow: 0 8px 28px rgba(0,168,150,.4);
         }
 
         .card-button.disabled {
-            background: #e8e8e8;
-            color: #999;
+            background: rgba(255,255,255,.06);
+            color: rgba(255,255,255,.3);
             cursor: default;
             pointer-events: none;
         }
 
+        /* ── Footer ── */
         .landing-footer {
             text-align: center;
-            padding: 36px 20px 20px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
+            padding: 48px 20px 28px;
+            color: rgba(255,255,255,.35);
+            font-size: 13px;
         }
 
         .landing-footer a {
-            color: white;
+            color: rgba(255,255,255,.55);
             text-decoration: none;
             font-weight: 600;
+            transition: color .2s;
         }
 
         .landing-footer a:hover {
-            text-decoration: underline;
+            color: #00d4aa;
         }
 
+        /* ── Animation ── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Responsive ── */
         @media (max-width: 900px) {
             .cards {
                 grid-template-columns: 1fr;
@@ -223,25 +380,69 @@
             }
 
             .landing-header h1 {
-                font-size: 28px;
+                font-size: 30px;
+            }
+
+            .landing-header {
+                padding: 40px 16px 16px;
+            }
+
+            .trust-bar {
+                gap: 24px;
+            }
+
+            .trust-item strong {
+                font-size: 18px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="bg"></div>
+
     <div class="landing-container">
         <header class="landing-header">
-            <div class="icon">&#x1F6E1;&#xFE0F;</div>
+            <div class="logo-mark">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7l-9-5z" fill="white"/>
+                    <path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" fill="#028090"/>
+                </svg>
+            </div>
             <h1>Cyber Assessment Hub</h1>
             <p>Security assessment tools to help your organisation meet UK certification standards.</p>
         </header>
 
+        <div class="trust-bar">
+            <div class="trust-item">
+                <strong>100+</strong>
+                Questions
+            </div>
+            <div class="trust-item">
+                <strong>2</strong>
+                Frameworks
+            </div>
+            <div class="trust-item">
+                <strong>AI</strong>
+                Analysis
+            </div>
+            <div class="trust-item">
+                <strong>Free</strong>
+                No Cost
+            </div>
+        </div>
+
         <div class="cards">
             <!-- Box 1: Free CE Checker -->
             <div class="card">
+                <div class="card-accent"></div>
                 <span class="card-badge badge-free">Free</span>
                 <div class="card-top">
-                    <div class="card-icon">&#x2705;</div>
+                    <div class="card-icon-wrap ce">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12l2 2 4-4" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7l-9-5z" stroke="#00d4aa" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
                     <h2>Cyber Essentials Readiness Checker</h2>
                     <p>Self-assess your organisation against all five Cyber Essentials v3.3 technical controls.</p>
                 </div>
@@ -260,9 +461,14 @@
 
             <!-- Box 2: Enhanced CE (paid, coming soon) -->
             <div class="card disabled">
+                <div class="card-accent"></div>
                 <span class="card-badge badge-paid">Paid</span>
                 <div class="card-top">
-                    <div class="card-icon">&#x1F680;</div>
+                    <div class="card-icon-wrap plus">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#ffc107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                    </div>
                     <h2>Enhanced Cyber Essentials Assessment</h2>
                     <p>In-depth assessment with expert guidance, remediation plans, and evidence-gathering support.</p>
                 </div>
@@ -281,9 +487,15 @@
 
             <!-- Box 3: NCSC CAF -->
             <div class="card">
+                <div class="card-accent"></div>
                 <span class="card-badge badge-free">Free</span>
                 <div class="card-top">
-                    <div class="card-icon">&#x1F3DB;&#xFE0F;</div>
+                    <div class="card-icon-wrap caf">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 21h18M3 7v14M21 7v14M6 7V4a1 1 0 011-1h10a1 1 0 011 1v3M9 21v-4a1 1 0 011-1h4a1 1 0 011 1v4" stroke="#638cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <path d="M9 11h.01M15 11h.01M9 14h.01M15 14h.01" stroke="#638cff" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h2>NCSC CAF Assessment</h2>
                     <p>Evaluate your organisation against the NCSC Cyber Assessment Framework for operators of essential services.</p>
                 </div>
