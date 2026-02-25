@@ -101,6 +101,9 @@ function saveState() {
   document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
     state[el.name] = el.value;
   });
+  // Include sector selection
+  const sectorEl = document.getElementById('sector-select');
+  if (sectorEl) state._sector = sectorEl.value;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   localStorage.setItem(STORAGE_KEY + '_ts', new Date().toISOString());
   updateProgress();
@@ -111,6 +114,11 @@ function loadSaved() {
   try {
     const state = JSON.parse(raw);
     Object.entries(state).forEach(([name, value]) => {
+      if (name === '_sector') {
+        const sectorEl = document.getElementById('sector-select');
+        if (sectorEl) sectorEl.value = value;
+        return;
+      }
       const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
       if (el) el.checked = true;
     });
@@ -118,6 +126,17 @@ function loadSaved() {
   // Show last saved timestamp
   const ts = localStorage.getItem(STORAGE_KEY + '_ts');
   if (ts) updateSaveUI('restored', ts);
+}
+
+function getSelectedSector() {
+  const el = document.getElementById('sector-select');
+  return el ? el.value : '';
+}
+
+function getSectorLabel() {
+  const el = document.getElementById('sector-select');
+  if (!el || !el.value) return '';
+  return el.options[el.selectedIndex].textContent;
 }
 
 function manualSave() {
@@ -393,6 +412,7 @@ function overallScore(scoreMap) {
 // ─────────────────────────────────────────
 function buildAnalysisPrompt(responses, scoreMap) {
   const overall = overallScore(scoreMap);
+  const sectorLabel = getSectorLabel();
   const sectionSummary = SECTION_IDS.map(id => {
     const s = scoreMap[id];
     return `${id}: ${s !== null ? s + '%' : 'not attempted'}`;
@@ -402,9 +422,13 @@ function buildAnalysisPrompt(responses, scoreMap) {
     .filter(id => scoreMap[id] !== null && scoreMap[id] < 50)
     .map(id => id);
 
+  const sectorLine = sectorLabel
+    ? `Organisation sector: ${sectorLabel}\n`
+    : '';
+
   return `You are a NCSC Cyber Assessment Framework (CAF) v4.0 assessor analysing a UK organisation's self-assessment results.
 
-CAF PRINCIPLE REFERENCE — use these EXACT mappings when tagging recommendations:
+${sectorLine}CAF PRINCIPLE REFERENCE — use these EXACT mappings when tagging recommendations:
 Objective A — Managing Security Risk:
   A1 Governance: board direction, roles & responsibilities, security decision-making
   A2 Risk Management: risk management processes, risk assessment, risk appetite
@@ -458,6 +482,27 @@ Provide a JSON response in this exact structure:
 }
 
 // ─────────────────────────────────────────
+//  Sector-specific regulatory note
+// ─────────────────────────────────────────
+function buildRegulatoryNote(sector) {
+  const notes = {
+    'energy':           'As an energy sector operator you are likely subject to the NIS Regulations 2018. Regulators (Ofgem/BEIS) expect CAF compliance for network and information systems supporting electricity, gas, or oil distribution.',
+    'transport':        'Transport operators (aviation, rail, maritime, road) fall under the NIS Regulations 2018. The relevant Competent Authority (CAA, ORR, MCA, DfT) may request CAF evidence and can issue improvement notices.',
+    'health':           'NHS bodies and health and social care providers are regulated under the NIS Regulations 2018, with DHSC and NHS England as Competent Authorities. DSPT compliance is also required and maps closely to CAF outcomes.',
+    'water':            'Drinking water suppliers are Operators of Essential Services under the NIS Regulations 2018. The Drinking Water Inspectorate (DWI) acts as Competent Authority and may conduct CAF audits.',
+    'digital-infra':    'DNS providers, IXPs, and TLD registries are Operators of Essential Services under NIS Regulations 2018. Ofcom acts as Competent Authority and can issue binding instructions following a CAF assessment.',
+    'digital-services': 'Online marketplaces, online search engines, and cloud computing services are Relevant Digital Service Providers under NIS Regulations 2018. DCMS oversees compliance; baseline security requirements apply.',
+    'finance':          'Financial institutions are subject to FCA/PRA operational resilience requirements and DORA (effective January 2025 for UK-nexus EU operations). CAF outcomes align closely with DORA ICT risk management pillars.',
+    'government':       'Central government departments and arm's-length bodies follow the Government Cyber Security Strategy and must meet the Cyber Assessment Framework outcomes set by NCSC and DSIT. GovAssure uses the CAF as its primary assurance mechanism.',
+    'defence':          'Defence suppliers handling MOD data must comply with the Cyber Security Model (CSM) and Def Stan 05-138. CAF Objective B controls are particularly relevant to supply chain security requirements.',
+    'education':        'Higher education institutions handling sensitive research data should be aware of DSIT funding conditions and JISC sector guidance. CAF adoption is increasingly expected for research councils and technology transfer.',
+    'telecoms':         'Telecoms providers are subject to the Network and Information Systems (NIS) Regulations 2018 and the Telecommunications Security Act 2021. Ofcom oversees CAF-aligned security duties under the TSA framework.',
+  };
+  const note = notes[sector];
+  return note || 'Review NIS Regulations 2018 and NCSC CAF guidance to identify the compliance obligations relevant to your sector and Competent Authority.';
+}
+
+// ─────────────────────────────────────────
 //  Fallback local result
 // ─────────────────────────────────────────
 function buildFallbackResult(scoreMap) {
@@ -483,7 +528,7 @@ function buildFallbackResult(scoreMap) {
       action: `Improve ${id} controls`, principle: id, effort: 'Medium', impact: 'High'
     })),
     objectiveRatings: objScores,
-    regulatoryNote: 'Review NIS Regulations compliance obligations relevant to your sector.'
+    regulatoryNote: buildRegulatoryNote(getSelectedSector())
   };
 }
 

@@ -71,6 +71,27 @@
   </div>
 </div>
 <div class="assessment-sections">
+<!-- ── SECTOR SELECTOR ── -->
+<div class="sector-bar" id="sector-bar">
+  <label class="sector-label" for="sector-select">Your sector</label>
+  <select id="sector-select" class="sector-select" onchange="scheduleSave()">
+    <option value="">-- Select your sector --</option>
+    <option value="energy">Energy (electricity, oil, gas)</option>
+    <option value="transport">Transport (air, rail, water, road)</option>
+    <option value="health">Health &amp; Social Care (NHS, healthcare providers)</option>
+    <option value="water">Water (drinking water supply &amp; distribution)</option>
+    <option value="digital-infra">Digital Infrastructure (DNS, IXPs, TLD registries)</option>
+    <option value="digital-services">Digital Services (cloud, online marketplaces, search)</option>
+    <option value="finance">Finance (banking, financial market infrastructure)</option>
+    <option value="government">Government &amp; Public Sector</option>
+    <option value="defence">Defence &amp; Aerospace</option>
+    <option value="education">Education &amp; Research</option>
+    <option value="telecoms">Telecommunications</option>
+    <option value="other">Other / Not sure</option>
+  </select>
+  <span class="sector-hint">Used to tailor regulatory guidance in your report</span>
+</div>
+
 <!-- ===== SECTION A1 ===== -->
 <div class="assessment-section">
 <div class="control-header" onclick="toggleSection('A1')">

@@ -223,6 +223,45 @@ body {
 .progress-row-name { flex: 1; color: var(--text); }
 .progress-row-count { font-size: .75rem; color: var(--text-muted); }
 
+/* ── SECTOR SELECTOR ── */
+.sector-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+.sector-label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
+}
+.sector-select {
+  flex: 1;
+  min-width: 200px;
+  max-width: 380px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: .85rem;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s;
+  outline: none;
+}
+.sector-select:focus { border-color: var(--accent); }
+.sector-hint {
+  font-size: .72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ── ASSESSMENT SECTIONS ── */
 .assessment-sections { padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
 
