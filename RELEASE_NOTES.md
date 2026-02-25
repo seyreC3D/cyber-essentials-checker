@@ -1,5 +1,107 @@
 # Release Notes
 
+## v2.0.0 - 2026-02-25
+
+### CAF Self-Assessment Tool
+
+New standalone assessment implementing the **NCSC Cyber Assessment Framework v4.0**, covering all 4 objectives, 14 principles, and 41 contributing outcomes across **83 questions**.
+
+#### Framework coverage
+
+| Objective | Principles | Questions |
+|-----------|-----------|-----------|
+| A — Managing Security Risk | A1 Governance, A2 Risk Management, A3 Asset Management, A4 Supply Chain | 17 |
+| B — Protecting Against Cyber Attack | B1 Policies & Processes, B2 Identity & Access Control, B3 Data Security, B4 System Security, B5 Resilient Networks & Systems, B6 Staff Awareness & Training | 36 |
+| C — Detecting Cyber Security Events | C1 Security Monitoring, C2 Proactive Discovery | 16 |
+| D — Minimising Impact of Incidents | D1 Response & Recovery Planning, D2 Lessons Learned | 14 |
+
+Questions are grouped under labelled outcomes (e.g. A1.a Board Direction, C1.e Threat Intelligence) with contextual help text. Each question uses a 4-point rating: **Achieved** (100), **Partially Achieved** (50), **Not Achieved** (0), and **Not Applicable** (excluded).
+
+#### Scoring methodology
+
+- Per-principle score = average of question scores (N/A answers excluded)
+- Objective rating = average of its principle scores
+- Overall CAF readiness % = average of all 14 principle scores
+- Rating thresholds: ≥70% Achieved, 40–69% Partially Achieved, <40% Not Achieved
+
+#### Sector selector
+
+Dropdown at the top of the assessment with 12 UK sectors (energy, transport, health, water, digital infrastructure, digital services, finance, government, defence, education, telecoms, other). Selection is persisted to `localStorage` and:
+
+- Injected into the Claude API analysis prompt so the AI-generated regulatory note is tailored to the organisation's specific regime (NIS Regulations, DORA, TSA, GovAssure, etc.)
+- Used by the local fallback to return a sector-specific compliance note mapping to the correct Competent Authority (Ofgem, Ofcom, DWI, FCA/PRA, DHSC, etc.)
+
+#### Real-time progress tracker
+
+- SVG progress ring showing overall completion percentage with smooth stroke animation
+- 14 principle rows with colour-coded badges: gray (untouched) → blue (started) → orange (≥50%) → green (complete)
+- Clickable rows scroll to the corresponding section
+- Sticky sidebar on desktop; stacked above content on mobile
+
+#### Ask Oracle
+
+Per-question "Ask Oracle" button that sends the question text, principle context, and help text to the Claude API proxy, returning 3–5 bullet points of NCSC-aligned CAF guidance. Button toggles to show/hide the response; loading and error states handled inline.
+
+#### AI-powered analysis
+
+- **Primary path**: `buildAnalysisPrompt()` sends principle scores, section-level detail, sector context, and a strict JSON schema to `/api/analyze` → Claude returns structured result with `overallRating`, `summary`, `criticalGaps`, `strengths`, `priorityActions` (each tagged to the correct principle), `objectiveRatings`, and `regulatoryNote`
+- **Fallback path**: `buildFallbackResult()` computes the same structure locally when the API is unavailable, including sector-aware regulatory notes via `buildRegulatoryNote()`
+- Minimum 10 answered questions required before analysis runs
+- Prompt includes explicit principle-tagging rules (e.g. SIEM/logging → C1, threat hunting → C2, incident response → D1) to prevent mis-categorisation
+
+#### Results display
+
+- Overall score card with colour-coded rating (green/orange/red)
+- Objective ratings row (A/B/C/D chips with colour-matched borders)
+- **14-axis radar chart** — pure-JS SVG polar chart with grid rings at 25/50/75/100%, a dashed red 70% benchmark polygon, filled teal data polygon, colour-coded data dots, and pushed-out axis labels
+- **Section score grid** — 14 cards in a responsive 4-column layout with animated progress bars
+- Critical gaps, priority actions, and strengths lists with badge styling
+- Sector-specific regulatory note
+
+#### PDF export
+
+- Modal prompts for organisation name
+- Executive summary section (print-only): gradient header bar, large score readout, objective chips, and top 3 critical gaps
+- A4 print stylesheet with colour preservation, page-break rules, and generated-date footer
+- Executive summary page-breaks before the full results
+
+#### JSON export
+
+- Downloads `caf-assessment-YYYY-MM-DD.json` containing timestamped scores and all responses for archival or comparison
+
+#### Auto-save
+
+- Debounced `localStorage` sync every 800ms on any answer change
+- Sector selection, radio states, and save timestamp all persisted
+- Session restored on page load with "Restored" notice
+- Manual "Save Progress" button with animated feedback (saving → saved)
+- "Clear All" with confirmation dialog
+
+#### Design & layout
+
+- Indigo/navy theme (`--primary: #1a3a5c`, `--accent: #00a878` teal) distinct from the green CE assessment theme
+- CSS Grid: 260px sticky sidebar + fluid content area on desktop; single-column stack on mobile with fixed bottom action bar
+- Pill-shaped radio buttons that fill with their rating colour when selected (green/orange/red/gray)
+- Outcome group headers with light-blue backgrounds
+- Collapsible sections with toggle icons
+- System font stack, consistent type scale (headers 1.6rem → body 0.9rem → small 0.72rem)
+- Print-optimised with `@media print` rules: A4 margins, hidden chrome, colour-adjust exact, page-break protection on cards
+
+#### New files
+
+| File | Purpose |
+|------|---------|
+| `caf-assessment.html` | Assessment form: 83 questions across 14 sections, welcome modal, progress sidebar, results overlay, sector selector |
+| `caf-assessment.js` | All application logic: auto-save, scoring, progress tracker, Ask Oracle, analysis prompt, fallback, results rendering, radar chart, PDF/JSON export, sector helpers |
+| `caf-assessment.css` | Indigo-themed stylesheet with responsive grid, print rules, and radar chart styling |
+
+### Landing Page Update
+
+- `index.html` converted to a landing page with 3 service cards: free Cyber Essentials checker, enhanced CE assessment, and CAF self-assessment
+- Page title renamed from "Cyber 3D" to "Cyber Assessment Hub"
+
+---
+
 ## v1.5.0 - 2026-02-22
 
 ### Supply Chain Vendor Assessment
