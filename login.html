@@ -1044,7 +1044,14 @@
 
             } catch (error) {
                 console.error('TOTP enrollment error:', error);
-                if (error.code === 'auth/requires-recent-login') {
+                if (error.code === 'auth/operation-not-allowed') {
+                    // TOTP MFA not enabled in Firebase project — skip enrollment
+                    console.warn('TOTP MFA not enabled in Firebase project, skipping enrollment.');
+                    document.getElementById('mfa-enroll-overlay').classList.remove('show');
+                    totpSecret = null;
+                    window.location.href = getRedirectTarget();
+                    return;
+                } else if (error.code === 'auth/requires-recent-login') {
                     errorEl.textContent = 'For security, please sign out and sign back in before enabling MFA.';
                 } else {
                     errorEl.textContent = 'Failed to generate authenticator secret: ' + error.message;
