@@ -525,15 +525,7 @@
             color: rgba(255,255,255,.8);
         }
 
-        .mfa-phone-hint {
-            background: rgba(0,212,170,.1);
-            border: 1px solid rgba(0,212,170,.2);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #00d4aa;
-        }
+        /* removed: .mfa-phone-hint (no longer used with TOTP) */
 
         /* ── Responsive ── */
         @media (max-width: 480px) {
@@ -722,14 +714,13 @@
         </div>
     </div>
 
-    <!-- MFA Verification Modal (Sign-in challenge) -->
+    <!-- MFA Verification Modal (TOTP sign-in challenge) -->
     <div id="mfa-overlay" class="mfa-overlay">
         <div class="mfa-modal">
             <h2>Two-Factor Authentication</h2>
-            <p id="mfa-message">A verification code has been sent to your phone. Please enter it below.</p>
-            <div id="mfa-phone-hint" class="mfa-phone-hint" style="display:none;"></div>
+            <p>Enter the 6-digit code from your authenticator app.</p>
             <div class="form-group">
-                <label for="mfa-code">Verification Code</label>
+                <label for="mfa-code">Authenticator Code</label>
                 <input type="text" id="mfa-code" placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" />
             </div>
             <div id="mfa-error" class="error-message" style="margin-bottom: 15px;"></div>
@@ -740,38 +731,43 @@
         </div>
     </div>
 
-    <!-- MFA Enrollment Modal (Post-registration) -->
+    <!-- MFA Enrollment Modal (TOTP) -->
     <div id="mfa-enroll-overlay" class="mfa-overlay">
         <div class="mfa-modal">
-            <h2 id="mfa-enroll-title">Enable Two-Factor Authentication</h2>
-            <p id="mfa-enroll-message">Add an extra layer of security to your account by enabling SMS verification.</p>
+            <h2>Enable Two-Factor Authentication</h2>
+            <p>Protect your account with an authenticator app (Google Authenticator, Microsoft Authenticator, etc.).</p>
             <div id="mfa-enroll-step1">
-                <div class="form-group">
-                    <label for="mfa-phone-number">Phone Number (with country code)</label>
-                    <input type="tel" id="mfa-phone-number" placeholder="+44 7700 900000" />
-                </div>
+                <p style="color:rgba(255,255,255,.45); font-size:13px; margin-bottom:16px;">Generating your authenticator secret...</p>
                 <div id="mfa-enroll-error" class="error-message" style="margin-bottom: 15px;"></div>
                 <div class="mfa-button-group">
-                    <button class="auth-button" id="mfa-enroll-send-button" onclick="sendEnrollmentCode()">Send Code</button>
+                    <button class="auth-button" id="mfa-enroll-generate-button" onclick="startTotpEnrollment()" disabled>Generating...</button>
                     <button class="mfa-cancel-button" onclick="skipMFAEnrollment()">Skip for now</button>
                 </div>
             </div>
             <div id="mfa-enroll-step2" style="display:none;">
+                <div style="text-align:center; margin-bottom:16px;">
+                    <p style="color:rgba(255,255,255,.55); font-size:13px; margin-bottom:12px;">Scan this QR code with your authenticator app:</p>
+                    <canvas id="totp-qr-canvas" style="border-radius:8px; background:#fff; padding:8px;"></canvas>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <p style="color:rgba(255,255,255,.45); font-size:12px; margin-bottom:4px;">Or enter this key manually:</p>
+                    <code id="totp-secret-key" style="display:block; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:10px; text-align:center; font-size:14px; letter-spacing:2px; color:#00d4aa; word-break:break-all; user-select:all;"></code>
+                </div>
                 <div class="form-group">
-                    <label for="mfa-enroll-code">Verification Code</label>
+                    <label for="mfa-enroll-code">Enter the 6-digit code from your app</label>
                     <input type="text" id="mfa-enroll-code" placeholder="------" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" />
                 </div>
                 <div id="mfa-enroll-verify-error" class="error-message" style="margin-bottom: 15px;"></div>
                 <div class="mfa-button-group">
-                    <button class="auth-button" id="mfa-enroll-verify-button" onclick="verifyEnrollmentCode()">Verify & Enable MFA</button>
+                    <button class="auth-button" id="mfa-enroll-verify-button" onclick="verifyEnrollmentCode()">Verify & Enable</button>
                     <button class="mfa-cancel-button" onclick="skipMFAEnrollment()">Skip for now</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Invisible reCAPTCHA container -->
-    <div id="recaptcha-container"></div>
+    <!-- QR code library for TOTP enrollment -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -790,9 +786,8 @@
             sendEmailVerification,
             multiFactor,
             getMultiFactorResolver,
-            PhoneAuthProvider,
-            PhoneMultiFactorGenerator,
-            RecaptchaVerifier
+            TotpMultiFactorGenerator,
+            TotpSecret
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { firebaseConfig } from './firebase-config.js';
 
@@ -809,9 +804,7 @@
 
         // MFA state
         let mfaResolver = null;
-        let mfaVerificationId = null;
-        let enrollmentVerificationId = null;
-        let recaptchaVerifier = null;
+        let totpSecret = null;  // holds TotpSecret during enrollment
 
         // Make functions available globally
         window.handleLogin = handleLogin;
@@ -820,7 +813,7 @@
         window.showPasswordReset = showPasswordReset;
         window.submitMFACode = submitMFACode;
         window.cancelMFA = cancelMFA;
-        window.sendEnrollmentCode = sendEnrollmentCode;
+        window.startTotpEnrollment = startTotpEnrollment;
         window.verifyEnrollmentCode = verifyEnrollmentCode;
         window.skipMFAEnrollment = skipMFAEnrollment;
 
@@ -947,44 +940,17 @@
             }, 500);
         }
 
-        // --- MFA Sign-in Challenge ---
+        // --- MFA Sign-in Challenge (TOTP) ---
         async function handleMFAChallenge(error) {
             mfaResolver = getMultiFactorResolver(auth, error);
             const selectedHint = mfaResolver.hints[0];
 
-            if (selectedHint.factorId === PhoneMultiFactorGenerator.FACTOR_ID) {
-                // Show masked phone number hint
-                const phoneHintEl = document.getElementById('mfa-phone-hint');
-                phoneHintEl.textContent = 'Code will be sent to: ' + selectedHint.phoneNumber;
-                phoneHintEl.style.display = 'block';
-
-                // Reset and show the MFA modal
+            if (selectedHint.factorId === TotpMultiFactorGenerator.FACTOR_ID) {
+                // Show the TOTP verification modal immediately (no SMS delay)
                 document.getElementById('mfa-code').value = '';
                 document.getElementById('mfa-error').classList.remove('show');
                 document.getElementById('mfa-overlay').classList.add('show');
                 document.getElementById('mfa-code').focus();
-
-                // Initialize invisible reCAPTCHA
-                if (recaptchaVerifier) {
-                    recaptchaVerifier.clear();
-                    recaptchaVerifier = null;
-                }
-                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
-
-                const phoneAuthProvider = new PhoneAuthProvider(auth);
-                const phoneInfoOptions = {
-                    multiFactorHint: selectedHint,
-                    session: mfaResolver.session
-                };
-
-                try {
-                    mfaVerificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
-                    console.log('MFA SMS sent successfully.');
-                } catch (sendError) {
-                    console.error('Error sending MFA SMS:', sendError);
-                    document.getElementById('mfa-overlay').classList.remove('show');
-                    showError('Failed to send verification code. Please try signing in again.');
-                }
             } else {
                 showError('Unsupported second factor type. Please contact support.');
             }
@@ -1006,21 +972,21 @@
             button.textContent = 'Verifying...';
 
             try {
-                const credential = PhoneAuthProvider.credential(mfaVerificationId, code);
-                const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
+                const selectedHint = mfaResolver.hints[0];
+                const multiFactorAssertion = TotpMultiFactorGenerator.assertionForSignIn(selectedHint.uid, code);
                 const userCredential = await mfaResolver.resolveSignIn(multiFactorAssertion);
 
-                console.log('MFA sign-in successful!');
+                console.log('TOTP MFA sign-in successful!');
                 document.getElementById('mfa-overlay').classList.remove('show');
                 completeSignIn(userCredential.user);
 
             } catch (error) {
-                console.error('MFA verification error:', error);
+                console.error('TOTP verification error:', error);
                 button.disabled = false;
                 button.textContent = 'Verify';
 
                 if (error.code === 'auth/invalid-verification-code') {
-                    errorEl.textContent = 'Invalid verification code. Please check and try again.';
+                    errorEl.textContent = 'Invalid code. Check your authenticator app and try again.';
                 } else {
                     errorEl.textContent = 'Verification failed. Please try again.';
                 }
@@ -1031,78 +997,55 @@
         function cancelMFA() {
             document.getElementById('mfa-overlay').classList.remove('show');
             mfaResolver = null;
-            mfaVerificationId = null;
         }
 
-        // --- MFA Enrollment (post-registration) ---
+        // --- MFA Enrollment (TOTP) ---
         function showMFAEnrollment() {
             document.getElementById('mfa-enroll-overlay').classList.add('show');
             document.getElementById('mfa-enroll-step1').style.display = 'block';
             document.getElementById('mfa-enroll-step2').style.display = 'none';
-            document.getElementById('mfa-phone-number').value = '';
             document.getElementById('mfa-enroll-error').classList.remove('show');
             document.getElementById('mfa-enroll-verify-error').classList.remove('show');
-            document.getElementById('mfa-phone-number').focus();
+            // Auto-start TOTP secret generation
+            startTotpEnrollment();
         }
 
-        async function sendEnrollmentCode() {
-            const phoneNumber = document.getElementById('mfa-phone-number').value.trim();
+        async function startTotpEnrollment() {
             const errorEl = document.getElementById('mfa-enroll-error');
             errorEl.classList.remove('show');
-
-            if (!phoneNumber) {
-                errorEl.textContent = 'Please enter a phone number with country code (e.g. +44...).';
-                errorEl.classList.add('show');
-                return;
-            }
-
-            if (!phoneNumber.startsWith('+')) {
-                errorEl.textContent = 'Phone number must start with a country code (e.g. +44, +1).';
-                errorEl.classList.add('show');
-                return;
-            }
-
-            const button = document.getElementById('mfa-enroll-send-button');
-            button.disabled = true;
-            button.textContent = 'Sending...';
+            const button = document.getElementById('mfa-enroll-generate-button');
+            if (button) { button.disabled = true; button.textContent = 'Generating...'; }
 
             try {
                 const user = auth.currentUser;
                 const multiFactorSession = await multiFactor(user).getSession();
+                totpSecret = await TotpMultiFactorGenerator.generateSecret(multiFactorSession);
 
-                const phoneInfoOptions = {
-                    phoneNumber: phoneNumber,
-                    session: multiFactorSession
-                };
+                // Build otpauth:// URI and render QR code
+                const accountName = user.email || user.displayName || 'user';
+                const otpauthUri = totpSecret.generateQrCodeUrl(accountName, 'Cyber Assessment Hub');
 
-                if (recaptchaVerifier) {
-                    recaptchaVerifier.clear();
-                    recaptchaVerifier = null;
-                }
-                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+                const qrCanvas = document.getElementById('totp-qr-canvas');
+                QRious && new QRious({ element: qrCanvas, value: otpauthUri, size: 200, level: 'M' });
 
-                const phoneAuthProvider = new PhoneAuthProvider(auth);
-                enrollmentVerificationId = await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
+                // Show secret key for manual entry
+                document.getElementById('totp-secret-key').textContent = totpSecret.secretKey;
 
-                // Switch to step 2 (code entry)
+                // Switch to step 2 (QR + code entry)
                 document.getElementById('mfa-enroll-step1').style.display = 'none';
                 document.getElementById('mfa-enroll-step2').style.display = 'block';
                 document.getElementById('mfa-enroll-code').value = '';
                 document.getElementById('mfa-enroll-code').focus();
 
             } catch (error) {
-                console.error('Error sending enrollment code:', error);
+                console.error('TOTP enrollment error:', error);
                 if (error.code === 'auth/requires-recent-login') {
                     errorEl.textContent = 'For security, please sign out and sign back in before enabling MFA.';
-                } else if (error.code === 'auth/invalid-phone-number') {
-                    errorEl.textContent = 'Invalid phone number. Please include country code (e.g. +44...).';
                 } else {
-                    errorEl.textContent = 'Failed to send code: ' + error.message;
+                    errorEl.textContent = 'Failed to generate authenticator secret: ' + error.message;
                 }
                 errorEl.classList.add('show');
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Send Code';
+                if (button) { button.disabled = false; button.textContent = 'Try Again'; }
             }
         }
 
@@ -1122,11 +1065,10 @@
             button.textContent = 'Verifying...';
 
             try {
-                const credential = PhoneAuthProvider.credential(enrollmentVerificationId, code);
-                const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
-                await multiFactor(auth.currentUser).enroll(multiFactorAssertion, 'Phone Number');
+                const multiFactorAssertion = TotpMultiFactorGenerator.assertionForEnrollment(totpSecret, code);
+                await multiFactor(auth.currentUser).enroll(multiFactorAssertion, 'Authenticator App');
 
-                console.log('MFA enrollment successful!');
+                console.log('TOTP MFA enrollment successful!');
                 document.getElementById('mfa-enroll-overlay').classList.remove('show');
                 showSuccess('Two-factor authentication enabled successfully! Redirecting...');
 
@@ -1135,12 +1077,12 @@
                 }, 1500);
 
             } catch (error) {
-                console.error('MFA enrollment verification error:', error);
+                console.error('TOTP enrollment verification error:', error);
                 button.disabled = false;
-                button.textContent = 'Verify & Enable MFA';
+                button.textContent = 'Verify & Enable';
 
                 if (error.code === 'auth/invalid-verification-code') {
-                    errorEl.textContent = 'Invalid verification code. Please check and try again.';
+                    errorEl.textContent = 'Invalid code. Check your authenticator app and try again.';
                 } else {
                     errorEl.textContent = 'Enrollment failed: ' + error.message;
                 }
@@ -1150,6 +1092,7 @@
 
         function skipMFAEnrollment() {
             document.getElementById('mfa-enroll-overlay').classList.remove('show');
+            totpSecret = null;
             window.location.href = getRedirectTarget();
         }
 
