@@ -780,14 +780,12 @@
             GoogleAuthProvider,
             sendPasswordResetEmail,
             setPersistence,
-            browserSessionPersistence,
             browserLocalPersistence,
             updateProfile,
             sendEmailVerification,
             multiFactor,
             getMultiFactorResolver,
-            TotpMultiFactorGenerator,
-            TotpSecret
+            TotpMultiFactorGenerator
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { firebaseConfig } from './firebase-config.js';
 
@@ -890,9 +888,11 @@
                 localStorage.setItem('userName', name);
                 localStorage.setItem('firebaseAuthComplete', 'true');
 
-                // Offer MFA enrollment before redirecting
-                showSuccess('Account created! You can now enable two-factor authentication for extra security.');
-                showMFAEnrollment();
+                // TOTP MFA requires verified email. Show instructions, then redirect.
+                showSuccess('Account created! Please check your inbox to verify your email. Once verified, sign in again to enable two-factor authentication.');
+                setTimeout(() => {
+                    window.location.href = getRedirectTarget();
+                }, 3000);
 
             } catch (error) {
                 showError(getErrorMessage(error.code));
@@ -933,6 +933,13 @@
             if (loginBtn) {
                 loginBtn.textContent = '\u2713 Success!';
                 loginBtn.style.background = '#28a745';
+            }
+
+            // If email is verified but TOTP not yet enrolled, offer enrollment
+            const enrolledFactors = multiFactor(user).enrolledFactors;
+            if (user.emailVerified && enrolledFactors.length === 0) {
+                showMFAEnrollment();
+                return;
             }
 
             setTimeout(() => {
@@ -1018,6 +1025,15 @@
 
             try {
                 const user = auth.currentUser;
+
+                // TOTP MFA requires a verified email address
+                if (!user.emailVerified) {
+                    errorEl.textContent = 'Please verify your email address first. Check your inbox for the verification link, then sign in again.';
+                    errorEl.classList.add('show');
+                    if (button) { button.disabled = false; button.textContent = 'Try Again'; }
+                    return;
+                }
+
                 const multiFactorSession = await multiFactor(user).getSession();
                 totpSecret = await TotpMultiFactorGenerator.generateSecret(multiFactorSession);
 
@@ -1026,7 +1042,11 @@
                 const otpauthUri = totpSecret.generateQrCodeUrl(accountName, 'Cyber Assessment Hub');
 
                 const qrCanvas = document.getElementById('totp-qr-canvas');
-                QRious && new QRious({ element: qrCanvas, value: otpauthUri, size: 200, level: 'M' });
+                try {
+                    new QRious({ element: qrCanvas, value: otpauthUri, size: 200, level: 'M' });
+                } catch (qrErr) {
+                    console.warn('QR code rendering failed:', qrErr);
+                }
 
                 // Show secret key for manual entry
                 document.getElementById('totp-secret-key').textContent = totpSecret.secretKey;
@@ -1041,6 +1061,8 @@
                 console.error('TOTP enrollment error:', error);
                 if (error.code === 'auth/requires-recent-login') {
                     errorEl.textContent = 'For security, please sign out and sign back in before enabling MFA.';
+                } else if (error.code === 'auth/unverified-email') {
+                    errorEl.textContent = 'Please verify your email address before enabling MFA.';
                 } else {
                     errorEl.textContent = 'Failed to generate authenticator secret: ' + error.message;
                 }
