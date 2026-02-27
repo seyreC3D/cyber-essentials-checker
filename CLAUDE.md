@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cyber Essentials Readiness Checker — a client-side web app that evaluates an organisation's readiness for UK Cyber Essentials v3.3 certification. Pure HTML/CSS/vanilla JS with no build step; a single Vercel serverless function proxies requests to the Claude API.
+Cyber Essentials Readiness Checker — a client-side web app that evaluates an organisation's readiness for UK Cyber Essentials v3.3 certification and CAF (Cyber Assessment Framework) compliance. Pure HTML/CSS/vanilla JS with no build step; a single Vercel serverless function proxies requests to the Claude API. The frontend is hosted on GitHub Pages (`seyrec3d.github.io/cyber-assessment-hub`), and the API proxy is hosted on Vercel (`cyber-assessment-hub.vercel.app`).
 
 ## Development
 
@@ -27,20 +27,24 @@ There is no test suite. Manual testing covers: auth flow, assessment completion,
 ## Architecture
 
 ```
-index.html          Landing page — 3 service cards (free CE, enhanced CE, CAF)
+index.html              Landing page — 3 service cards (free CE, enhanced CE, CAF)
    ↓ click card
-login.html          Login/registration (Firebase Auth, MFA)
+login.html              Login/registration (Firebase Auth, MFA)
    ↓ redirect (reads ?redirect= param)
-assessment.html     Assessment UI — 7 collapsible sections
-assessment.js       All application logic (single ~2000-line file)
-assessment.css      All styles
-firebase-config.js  Public Firebase SDK config
-api/analyze.js      Vercel serverless proxy → Claude API
+assessment.html         CE Assessment UI — 7 collapsible sections
+assessment.js           CE assessment logic (single ~2000-line file)
+assessment.css          CE assessment styles
+caf-assessment.html     CAF Assessment UI
+caf-assessment.js       CAF assessment logic
+caf-assessment.css      CAF assessment styles
+firebase-config.js      Public Firebase SDK config
+api/analyze.js          Vercel serverless proxy → Claude API
+api/hello.js            Health-check endpoint (returns { ok: true })
 ```
 
 ### How the app works
 
-1. **Landing page** — `index.html` is a public landing page with 3 service cards. Clicking the free CE card navigates to `login.html?redirect=assessment`.
+1. **Landing page** — `index.html` is a public landing page with 3 service cards. Clicking the free CE card navigates to `login.html?redirect=assessment`. Clicking the CAF card navigates to the CAF assessment (`caf-assessment.html`).
 
 2. **Auth** — `login.html` handles login/registration/MFA via Firebase Auth SDK (loaded from CDN). Reads `?redirect=` param (whitelisted) to determine post-auth destination. On success, redirects to the target page.
 
@@ -53,12 +57,14 @@ api/analyze.js      Vercel serverless proxy → Claude API
 6. **Auto-save** — All state (radio selections, text inputs, vendors) saves to `localStorage` every 1 second via debounce.
 
 7. **Analysis** — Two paths:
-   - **Primary**: `analyzeWithProxy()` sends responses + system prompt to `/api/analyze` → Claude API → structured JSON result.
+   - **Primary**: `analyzeWithProxy()` sends responses + system prompt to `https://cyber-assessment-hub.vercel.app/api/analyze` → Claude API → structured JSON result. (Absolute URL required because the frontend is on GitHub Pages.)
    - **Fallback**: `performLocalAnalysis()` scores locally in JS if the API is unavailable.
 
 8. **Results display** — `displayResults()` builds the results DOM (XSS-safe via `escapeHtml()` and `document.createElement`). Includes radar chart, heatmap, score bars, vendor risk table, critical issues, and next steps.
 
 9. **PDF export** — `printToPDF()` prompts for company name, adds header/appendix, then calls `window.print()`.
+
+10. **CAF assessment** — `caf-assessment.html/js/css` provides a separate assessment flow for the NCSC Cyber Assessment Framework. Uses the same Vercel API proxy for analysis.
 
 ### Key data structures
 
@@ -77,13 +83,22 @@ api/analyze.js      Vercel serverless proxy → Claude API
 
 | File | Purpose |
 |------|---------|
-| `assessment.js` | Core logic: auto-save, branching, collection, validation, analysis, results, PDF, vendors |
-| `assessment.html` | Assessment form markup (7 control sections, modals) |
-| `assessment.css` | All styling including print rules and responsive breakpoints |
 | `index.html` | Public landing page with 3 service cards |
 | `login.html` | Login/register page with inline Firebase Auth JS |
+| `assessment.html` | CE assessment form markup (7 control sections, modals) |
+| `assessment.js` | CE assessment logic: auto-save, branching, collection, validation, analysis, results, PDF, vendors |
+| `assessment.css` | CE assessment styling including print rules and responsive breakpoints |
+| `caf-assessment.html` | CAF assessment form markup |
+| `caf-assessment.js` | CAF assessment logic |
+| `caf-assessment.css` | CAF assessment styling |
 | `firebase-config.js` | Firebase project config (public client-side keys) |
 | `api/analyze.js` | Vercel serverless function proxying to Claude API |
+| `api/hello.js` | Health-check endpoint (returns `{ ok: true }`) |
 | `vercel.json` | CORS headers for `/api/*` routes |
+| `package.json` | Node engine constraint for Vercel (>=18) |
 | `RELEASE_NOTES.md` | Per-version release notes |
 | `CHANGELOG.md` | Chronological changelog |
+| `CONTRIBUTING.md` | Contribution guidelines |
+| `DEPLOYMENT_GUIDE.md` | Vercel deployment instructions |
+| `EDITING_QUESTIONS_GUIDE.md` | Guide for editing assessment questions |
+| `QUICK_START.md` | Quick-start guide |
