@@ -54,7 +54,7 @@ api/hello.js            Health-check endpoint (returns { ok: true })
 
 5. **Supply chain** — Optional vendor assessment module. Vendors are added dynamically; each gets 8 weighted security questions rendered in `.vendor-question` divs. Vendor radios do NOT have `data-control` attributes (important: `collectResponses()` must skip them).
 
-6. **Auto-save** — All state (radio selections, text inputs, vendors) saves to `localStorage` every 1 second via debounce.
+6. **Auto-save** — All state (radio selections, text inputs, vendors) saves to `localStorage` every 1 second via debounce. Keys: `cyber-essentials-assessment` (CE), `caf_assessment_v1` (CAF).
 
 7. **Analysis** — Two paths:
    - **Primary**: `analyzeWithProxy()` sends responses + system prompt to `https://cyber-assessment-hub.vercel.app/api/analyze` → Claude API → structured JSON result. (Absolute URL required because the frontend is on GitHub Pages.)
@@ -76,8 +76,28 @@ api/hello.js            Health-check endpoint (returns { ok: true })
 
 - All user-supplied text rendered in the DOM must go through `escapeHtml()` or use `.textContent`. Never use `.innerHTML` with user data.
 - Radio buttons for the 6 core controls live inside `.question[data-control]` divs. Vendor radios live inside `.vendor-question` divs and must be excluded from `collectResponses()`.
-- Required text fields are listed in `REQUIRED_TEXT_FIELDS` array (~line 333) and validated in `validateTextInputs()` before analysis runs.
-- The API proxy (`api/analyze.js`) validates: prompt length (max 50k chars), model whitelist, max_tokens (100-4000), temperature (0-1).
+- Required text fields are listed in `REQUIRED_TEXT_FIELDS` array (line 341) and validated in `validateTextInputs()` before analysis runs.
+- The API proxy (`api/analyze.js`) validates: prompt length (max 50k chars), model whitelist (`claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001`), max_tokens (100-4000), temperature (0-1).
+- `caf-assessment.js` uses `'use strict'`; `assessment.js` does not.
+
+### Adding or editing questions
+
+Questions in `assessment.html` follow this template (see `EDITING_QUESTIONS_GUIDE.md` for full details):
+
+```html
+<div class="question" data-control="X" data-critical="true/false">
+    <div class="question-text">Clear, specific question?</div>
+    <div class="question-help">Helpful context for the user</div>
+    <div class="options">
+        <label class="option">
+            <input type="radio" name="qX_Y" value="pass">
+            <span>Answer option</span>
+        </label>
+    </div>
+</div>
+```
+
+`data-control` maps to controls 1-6, `data-critical="true"` flags mandatory questions, and `name` must be unique across the form.
 
 ## File layout
 
