@@ -103,17 +103,31 @@ No installation, no dependencies, no backend required!
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────┐
-│   User Browser  │────▶│  Firebase Auth   │
-│   (HTML/CSS/JS) │     └──────────────────┘
-└────────┬────────┘
-         │
-         ├─── Local Analysis (Always Available)
-         │
-         └─── /api/analyze Proxy ──▶ Claude API
-                                      ↓
-                                Enhanced Insights
+┌──────────────┐       ┌──────────────────────────────┐
+│  index.html  │       │     Firebase Auth (v10.7.1)   │
+│ Landing page │       │  Email/password, Google OAuth │
+└──────┬───────┘       │  TOTP MFA (authenticator app) │
+       │               └──────────────┬───────────────┘
+       ▼                              │
+┌──────────────┐    login / register  │
+│  login.html  │◄────────────────────►│
+└──────┬───────┘                      │
+       │ redirect (?redirect=)        │
+       ▼                              │
+┌──────────────────────┐    onAuthStateChanged
+│  assessment.html     │◄─────────────┘
+│  caf-assessment.html │
+└──────────┬───────────┘
+           │
+           ├─── Local Analysis (always available)
+           │
+           └─── /api/analyze ──▶ Vercel Proxy ──▶ Claude API
+                                                    ↓
+                                              AI-powered report
 ```
+
+**Firebase services used:** Authentication only (email/password, Google Sign-In, TOTP MFA).
+No Firestore, Realtime Database, Storage, Cloud Functions, or Analytics.
 
 **Tech Stack:**
 

@@ -88,6 +88,42 @@ api/hello.js            Health-check endpoint (returns { ok: true })
 
 Note: `logout()` in `assessment.html` calls `localStorage.clear()`, which wipes all keys including saved assessment progress.
 
+### CDN dependencies
+
+| Library | Version | CDN URL | Used in |
+|---------|---------|---------|---------|
+| Firebase App SDK | 10.7.1 | `https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js` | login.html, assessment.html, caf-assessment.html |
+| Firebase Auth SDK | 10.7.1 | `https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js` | login.html, assessment.html, caf-assessment.html |
+| QRious | 4.0.2 | `https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js` | login.html (TOTP QR codes) |
+| Google Fonts (Inter) | — | `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800` | index.html, assessment.html, caf-assessment.html |
+
+All scripts use ES module (`type="module"`) imports. Firebase SDK version is pinned to 10.7.1 across all three HTML files.
+
+### Firebase Auth
+
+**Services used:** Authentication only. No Firestore, Realtime Database, Storage, Cloud Functions, or Analytics are initialised.
+
+**Auth methods implemented in `login.html`:**
+
+| Method | Firebase API |
+|--------|-------------|
+| Email/password sign-in | `signInWithEmailAndPassword(auth, email, password)` |
+| Email/password registration | `createUserWithEmailAndPassword(auth, email, password)` |
+| Google Sign-In | `signInWithPopup(auth, new GoogleAuthProvider())` |
+| Password reset | `sendPasswordResetEmail(auth, email)` |
+| TOTP MFA enrolment | `TotpMultiFactorGenerator.generateSecret()` → `multiFactor(user).enroll()` |
+| TOTP MFA sign-in challenge | `TotpMultiFactorGenerator.assertionForSignIn()` → `mfaResolver.resolveSignIn()` |
+| Session persistence | `setPersistence(auth, browserLocalPersistence)` |
+| Profile update | `updateProfile(user, { displayName })` |
+
+**Auth state on protected pages (`assessment.html`, `caf-assessment.html`):**
+
+Both pages import `onAuthStateChanged` and `signOut`. If no user is detected, the page redirects to `login.html?redirect=<page>`. The `logout()` function calls `signOut(auth)` then `localStorage.clear()`.
+
+**Error codes handled** (`getErrorMessage()` in `login.html`):
+
+`auth/email-already-in-use`, `auth/invalid-email`, `auth/weak-password`, `auth/user-disabled`, `auth/user-not-found`, `auth/wrong-password`, `auth/invalid-credential`, `auth/too-many-requests`, `auth/network-request-failed`, `auth/popup-closed-by-user`, `auth/multi-factor-auth-required`, `auth/invalid-verification-code`, `auth/requires-recent-login`.
+
 ### Important conventions
 
 - All user-supplied text rendered in the DOM must go through `escapeHtml()` or use `.textContent`. Never use `.innerHTML` with user data.
