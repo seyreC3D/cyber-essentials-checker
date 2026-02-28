@@ -493,10 +493,9 @@ async function analyzeAssessment() {
 // API PROXY — sends requests through server
 // =============================================
 
-// Configure the proxy URL here. In production, point this to your
-// deployed Firebase Cloud Function, Vercel Edge Function, or similar.
-// For local development you can run the included proxy server.
-const API_PROXY_URL = 'https://cyber-assessment-hub.vercel.app/api/analyze';
+// API proxy URL — uses same-origin rewrite via Firebase Hosting.
+// For local development, run `firebase emulators:start`.
+const API_PROXY_URL = '/api/analyze';
 
 async function analyzeWithProxy(responses) {
     const { systemPrompt, userPrompt } = buildAnalysisPrompt(responses);

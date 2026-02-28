@@ -8,7 +8,7 @@ const SECTION_IDS = ['A1','A2','A3','A4','B1','B2','B3','B4','B5','B6','C1','C2'
 const SECTION_COUNTS = { A1:6, A2:4, A3:3, A4:4, B1:4, B2:8, B3:10, B4:8, B5:6, B6:4, C1:12, C2:4, D1:6, D2:4 };
 const TOTAL_QUESTIONS = Object.values(SECTION_COUNTS).reduce((a,b) => a+b, 0);
 const CIRCUMFERENCE = 2 * Math.PI * 34; // ring radius = 34
-const API_PROXY_URL = 'https://cyber-assessment-hub.vercel.app/api/analyze';
+const API_PROXY_URL = '/api/analyze';
 
 // ─────────────────────────────────────────
 //  Init

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cyber Essentials Readiness Checker — a client-side web app that evaluates an organisation's readiness for UK Cyber Essentials v3.3 certification and CAF (Cyber Assessment Framework) compliance. Pure HTML/CSS/vanilla JS with no build step; a single Vercel serverless function proxies requests to the Claude API. The frontend is hosted on GitHub Pages (`seyrec3d.github.io/cyber-assessment-hub`), and the API proxy is hosted on Vercel (`cyber-assessment-hub.vercel.app`).
+Cyber Essentials Readiness Checker — a client-side web app that evaluates an organisation's readiness for UK Cyber Essentials v3.3 certification and CAF (Cyber Assessment Framework) compliance. Pure HTML/CSS/vanilla JS with no build step; a Firebase Cloud Function proxies requests to the Claude API. Both the frontend and API are hosted on Firebase (`cyber-essentials-checker.web.app`).
 
 ## Development
 
@@ -15,11 +15,12 @@ python -m http.server 8000
 # visit http://localhost:8000
 ```
 
-For the API proxy (`api/analyze.js`), deploy to Vercel with `ANTHROPIC_API_KEY` set as an environment variable:
+For the API proxy (Cloud Functions), deploy to Firebase with `ANTHROPIC_API_KEY` set as a secret:
 
 ```bash
-vercel            # deploy
-vercel dev        # local dev with serverless functions
+firebase functions:secrets:set ANTHROPIC_API_KEY
+firebase deploy                # deploy hosting + functions
+firebase emulators:start       # local dev with hosting + functions
 ```
 
 There is no test suite. Manual testing covers: auth flow, assessment completion, auto-save, local-analysis fallback, PDF export, and supply chain vendor flow.
@@ -57,14 +58,14 @@ api/hello.js            Health-check endpoint (returns { ok: true })
 6. **Auto-save** — All state (radio selections, text inputs, vendors) saves to `localStorage` every 1 second via debounce. Keys: `cyber-essentials-assessment` (CE), `caf_assessment_v1` (CAF).
 
 7. **Analysis** — Two paths:
-   - **Primary**: `analyzeWithProxy()` sends responses + system prompt to `https://cyber-assessment-hub.vercel.app/api/analyze` → Claude API → structured JSON result. (Absolute URL required because the frontend is on GitHub Pages.)
+   - **Primary**: `analyzeWithProxy()` sends responses + system prompt to `/api/analyze` (same-origin rewrite to Firebase Cloud Function) → Claude API → structured JSON result.
    - **Fallback**: `performLocalAnalysis()` scores locally in JS if the API is unavailable.
 
 8. **Results display** — `displayResults()` builds the results DOM (XSS-safe via `escapeHtml()` and `document.createElement`). Includes radar chart, heatmap, score bars, vendor risk table, critical issues, and next steps.
 
 9. **PDF export** — `printToPDF()` prompts for company name, adds header/appendix, then calls `window.print()`.
 
-10. **CAF assessment** — `caf-assessment.html/js/css` provides a separate assessment flow for the NCSC Cyber Assessment Framework (14 principles, 83 questions). Uses the same Vercel API proxy for analysis. Also has a JSON export feature (`exportJSON()`).
+10. **CAF assessment** — `caf-assessment.html/js/css` provides a separate assessment flow for the NCSC Cyber Assessment Framework (14 principles, 83 questions). Uses the same Firebase Cloud Function API proxy for analysis. Also has a JSON export feature (`exportJSON()`).
 
 ### Key data structures
 
@@ -129,7 +130,7 @@ Both pages import `onAuthStateChanged` and `signOut`. If no user is detected, th
 - All user-supplied text rendered in the DOM must go through `escapeHtml()` or use `.textContent`. Never use `.innerHTML` with user data.
 - Radio buttons for the 6 core controls live inside `.question[data-control]` divs. Vendor radios live inside `.vendor-question` divs and must be excluded from `collectResponses()`.
 - Required text fields are listed in `REQUIRED_TEXT_FIELDS` array (line 341) and validated in `validateTextInputs()` before analysis runs.
-- The API proxy (`api/analyze.js`) validates: prompt length (max 50k chars), model whitelist (`claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001`), max_tokens (100-4000), temperature (0-1).
+- The API proxy (`functions/analyze.js`) validates: prompt length (max 50k chars), model whitelist (`claude-sonnet-4-5-20250929`, `claude-haiku-4-5-20251001`), max_tokens (100-4000), temperature (0-1).
 - `caf-assessment.js` uses `'use strict'`; `assessment.js` does not.
 
 ### Adding or editing questions
@@ -157,20 +158,21 @@ Questions in `assessment.html` follow this template (see `EDITING_QUESTIONS_GUID
 |------|---------|
 | `index.html` | Public landing page with 3 service cards |
 | `login.html` | Login/register page with inline Firebase Auth JS |
-| `assessment.html` | CE assessment form markup (7 control sections, modals) — also contains inline `<script>` with `askConsultant()` Oracle feature (uses relative `/api/analyze` URL, only works via `vercel dev`) |
+| `assessment.html` | CE assessment form markup (7 control sections, modals) — also contains inline `<script>` with `askConsultant()` Oracle feature (uses relative `/api/analyze` URL, works via Firebase Hosting rewrite) |
 | `assessment.js` | CE assessment logic: auto-save, branching, collection, validation, analysis, results, PDF, vendors |
 | `assessment.css` | CE assessment styling including print rules and responsive breakpoints |
 | `caf-assessment.html` | CAF assessment form markup |
 | `caf-assessment.js` | CAF assessment logic |
 | `caf-assessment.css` | CAF assessment styling |
 | `firebase-config.js` | Firebase project config (public client-side keys) |
-| `api/analyze.js` | Vercel serverless function proxying to Claude API |
-| `api/hello.js` | Health-check endpoint (returns `{ ok: true }`) |
-| `vercel.json` | CORS headers for `/api/*` routes |
-| `package.json` | Node engine constraint for Vercel (>=18) |
+| `functions/index.js` | Firebase Cloud Functions entry point (exports `analyze` and `hello`) |
+| `functions/analyze.js` | API proxy handler — proxies requests to Claude API |
+| `firebase.json` | Firebase Hosting config + Cloud Functions rewrites |
+| `.firebaserc` | Firebase project alias (`cyber-essentials-checker`) |
+| `package.json` | Node engine constraint (>=18) |
 | `RELEASE_NOTES.md` | Per-version release notes |
 | `CHANGELOG.md` | Chronological changelog |
 | `CONTRIBUTING.md` | Contribution guidelines |
-| `DEPLOYMENT_GUIDE.md` | Vercel deployment instructions |
+| `DEPLOYMENT_GUIDE.md` | Deployment instructions |
 | `EDITING_QUESTIONS_GUIDE.md` | Guide for editing assessment questions |
 | `QUICK_START.md` | Quick-start guide |

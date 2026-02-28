@@ -36,7 +36,7 @@
    - Folder: **/ (root)**
 4. Click **Save**
 5. Wait 1-2 minutes
-6. Visit: `https://yourusername.github.io/cyber-essentials-checker/`
+6. Visit: `https://cyber-essentials-checker.web.app/`
 
 🎉 **Done! Your tool is now live!**
 
@@ -98,7 +98,7 @@ gh repo edit --enable-pages --pages-branch main
 ### Step 4: Verify
 ```bash
 # Your site will be at:
-https://YOUR-USERNAME.github.io/cyber-essentials-checker/
+https://cyber-essentials-checker.web.app/
 ```
 
 ---
@@ -174,7 +174,7 @@ Edit `LICENSE` and replace:
 ### 3. Share Your Tool
 ```
 🎉 My Cyber Essentials Checker is live!
-👉 https://yourusername.github.io/cyber-essentials-checker/
+👉 https://cyber-essentials-checker.web.app/
 
 Help small businesses achieve Cyber Essentials certification!
 ```

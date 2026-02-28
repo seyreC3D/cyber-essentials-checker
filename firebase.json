@@ -1,0 +1,31 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebase/**",
+      "**/node_modules/**",
+      "functions/**",
+      "api/**",
+      "CLAUDE.md",
+      "CONTRIBUTING.md",
+      "DEPLOYMENT_GUIDE.md",
+      "EDITING_QUESTIONS_GUIDE.md",
+      "GITHUB_UPLOAD_GUIDE.md",
+      "QUICK_START.md",
+      "CHANGELOG.md",
+      "RELEASE_NOTES.md",
+      "LICENSE",
+      ".gitignore",
+      "package.json"
+    ],
+    "rewrites": [
+      { "source": "/api/analyze", "function": "analyze" },
+      { "source": "/api/hello", "function": "hello" }
+    ]
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18"
+  }
+}

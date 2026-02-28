@@ -33,7 +33,7 @@ If you want to save progress, see `add_save_feature.js`:
    - Upload the HTML file
    - Rename to `index.html`
    - Enable Pages in Settings
-   - Share URL: `https://yourusername.github.io/repo-name/`
+   - Share URL: `https://cyber-essentials-checker.web.app/`
 
 2. **Share the link**:
    ```

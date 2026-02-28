@@ -32,15 +32,14 @@
    - Complete the assessment
    - Get instant results
 
-**Steps for GitHub Pages (Free & Easy):**
+**Steps for Firebase Hosting (Recommended):**
 ```bash
-1. Create a GitHub account (if you don't have one)
-2. Create a new repository called "cyber-essentials-checker"
-3. Upload the cyber_essentials_checker.html file
-4. Rename it to index.html
-5. Go to Settings → Pages
-6. Enable GitHub Pages
-7. Share the URL: https://yourusername.github.io/cyber-essentials-checker/
+1. Install Firebase CLI: npm install -g firebase-tools
+2. Log in: firebase login
+3. Clone the repo and cd into it
+4. Set the API secret: firebase functions:secrets:set ANTHROPIC_API_KEY
+5. Deploy: firebase deploy
+6. Share the URL: https://cyber-essentials-checker.web.app/
 ```
 
 ### Option 2: Professional Website Integration
